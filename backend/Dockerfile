@@ -4,9 +4,10 @@ FROM python:3.11-slim
 # Define o diretório de trabalho
 WORKDIR /app
 
-# 1. Instala dependências de sistema necessárias para OCR/Docling (GL e GLib)
+# 1. Instala dependências de sistema
+# MUDANÇA AQUI: Trocamos 'libgl1-mesa-glx' por 'libgl1'
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
@@ -14,13 +15,14 @@ RUN apt-get update && apt-get install -y \
 # 2. Copia os requisitos
 COPY requirements.txt .
 
-# 3. Instala as dependências Python
-# O flag --no-cache-dir ajuda a não estourar o disco
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# 3. Instala PyTorch versão CPU (Leve/Rápido)
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
-# 4. Copia o restante do código
+# 4. Instala o resto das dependências
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 5. Copia o código
 COPY . .
 
-# 5. Comando para iniciar o servidor
+# 6. Comando para iniciar
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { UserButton } from "@clerk/nextjs";
 
 interface Transaction {
   date: string;
@@ -116,6 +117,10 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4 font-sans">
+      {/* --- HEADER COM PERFIL --- */}
+      <div className="absolute top-5 right-5">
+        <UserButton afterSignOutUrl="/" />
+      </div>
       <div className="mb-10 text-center">
         <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-slate-900">
           BankSplitter <span className="text-blue-600">AI</span>

@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+python-multipart
+docling
+openai
+pandas
+pydantic
+python-dotenv

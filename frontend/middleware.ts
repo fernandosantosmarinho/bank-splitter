@@ -1,17 +1,18 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-// Define quais rotas são protegidas
-const isProtectedRoute = createRouteMatcher([
-    '/' // Protege a Home
-]);
-
-// MUDANÇA AQUI: Adicionamos 'async' e mudamos a forma de chamar o 'auth'
 export default clerkMiddleware(async (auth, req) => {
-    if (isProtectedRoute(req)) {
-        await auth.protect();
-    }
+    // Protege toda a aplicação. 
+    // O Clerk automaticamente redireciona para a página de login deles (accounts.dev)
+    // se o usuário não estiver logado.
+    await auth.protect();
 });
 
 export const config = {
-    matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+    // Esse matcher é o padrão oficial do Clerk para evitar loops em arquivos internos
+    matcher: [
+        // Pula arquivos internos do Next.js e arquivos estáticos (imagens, css, etc)
+        '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+        // Sempre roda nas rotas de API
+        '/(api|trpc)(.*)',
+    ],
 };

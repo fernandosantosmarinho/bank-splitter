@@ -52,5 +52,6 @@ async def extract_data(file: UploadFile = File(...)):
 
 # --- SERVER STARTUP ---
 if __name__ == "__main__":
-    # Runs the server locally on port 8000
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    # Pega a porta do ambiente ou usa 8000 se for local
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)

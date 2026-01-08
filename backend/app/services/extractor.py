@@ -4,6 +4,7 @@ import tempfile
 from docling.document_converter import DocumentConverter
 from openai import OpenAI
 from fastapi import UploadFile
+from app.services.qbo_generator import generate_qbo_content
 
 # Initialize OpenAI Client (Make sure env is loaded in main.py)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -87,7 +88,21 @@ def analyze_with_gpt(markdown_text: str) -> dict:
             response_format={"type": "json_object"},
             temperature=0
         )
-        return json.loads(response.choices[0].message.content)
+        
+        # Parse the JSON response
+        response_data = json.loads(response.choices[0].message.content)
+        
+        # --- NEW: Generate .QBO content for each account ---
+        if "accounts" in response_data:
+            print("💾 Generating QBO files for detected accounts...")
+            for account in response_data["accounts"]:
+                # Generate the QBO text content
+                qbo_text = generate_qbo_content(account)
+                # Inject it into the JSON response so Frontend can download it
+                account["qbo_content"] = qbo_text
+        
+        return response_data
+
     except Exception as e:
-        print(f"❌ OpenAI Error: {e}")
+        print(f"❌ OpenAI/Processing Error: {e}")
         return {"error": "Failed to analyze data with AI"}

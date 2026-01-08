@@ -56,3 +56,10 @@ __pycache__/
 .next/
 out/
 build/
+
+# Python
+__pycache__/
+backend/app/__pycache__
+*.pyc
+*.pyo
+*.pyd

@@ -22,6 +22,7 @@ interface AccountData {
   account_number_partial: string;
   currency: string;
   transactions: Transaction[];
+  qbo_content?: string;
 }
 
 interface ExtractionResult {
@@ -113,6 +114,26 @@ export default function Home() {
     document.body.removeChild(link);
 
     toast.success(`Downloaded CSV for ${account.account_name}`);
+  };
+
+  const downloadQBO = (account: AccountData) => {
+    if (!account.qbo_content) {
+      toast.warning("QBO format not available for this account.");
+      return;
+    }
+
+    const blob = new Blob([account.qbo_content], { type: "application/octet-stream" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${account.account_name}_${account.account_number_partial}.qbo`);
+    link.style.visibility = "hidden";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success(`Downloaded QBO for ${account.account_name}`);
   };
 
   return (
@@ -228,6 +249,16 @@ export default function Home() {
                     >
                       <Download className="h-4 w-4" />
                       Download CSV
+                    </Button>
+                    <Button
+                      variant="default" // Destaque para o QBO
+                      size="sm"
+                      className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => downloadQBO(account)}
+                      disabled={!account.qbo_content}
+                    >
+                      <FileText className="h-4 w-4" />
+                      QBO
                     </Button>
                   </div>
                 </CardContent>

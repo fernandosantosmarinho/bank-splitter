@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import axios from "axios";
-import { useDropzone } from "react-dropzone"; // Importação nova
-import { Upload, CheckCircle, Download, Loader2, FileText } from "lucide-react";
+import { useDropzone } from "react-dropzone";
+import { Upload, CheckCircle, Download, Loader2, FileText, FileJson } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress"; // Import novo
 import { toast } from "sonner";
 import { UserButton } from "@clerk/nextjs";
 
@@ -34,13 +35,13 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ExtractionResult | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0); // Estado da barra
 
-  // --- LÓGICA DO DRAG & DROP ---
+  // Drag & Drop Logic
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    // Aceita apenas o primeiro arquivo
     if (acceptedFiles && acceptedFiles.length > 0) {
       setFile(acceptedFiles[0]);
-      setResult(null); // Reseta resultados anteriores
+      setResult(null);
       toast.info("PDF selected ready for conversion.");
     }
   }, []);
@@ -48,13 +49,13 @@ export default function Home() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'application/pdf': ['.pdf'] // Só aceita PDF
+      'application/pdf': ['.pdf']
     },
     maxFiles: 1,
     multiple: false
   });
 
-  // Handle Upload & Process
+  // Handle Upload
   const handleUpload = async () => {
     if (!file) {
       toast.error("Please select a PDF file first.");
@@ -62,92 +63,117 @@ export default function Home() {
     }
 
     setIsLoading(true);
+    setUploadProgress(0);
+    setResult(null); // Limpa resultados anteriores
+
+    // --- TRUQUE DE UX: Progresso Simulado ---
+    // Aumenta a barra devagar até 90% para mostrar que está vivo
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        if (prev >= 90) return 90; // Trava em 90% e espera o backend
+        return prev + 5; // Aumenta 5% a cada meio segundo
+      });
+    }, 800);
+
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      // Ajuste a URL se necessário
-      const response = await axios.post("http://localhost:8000/api/v1/extract", formData, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+      const response = await axios.post(`${apiUrl}/api/v1/extract`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
+      // Sucesso!
+      clearInterval(progressInterval);
+      setUploadProgress(100); // Completa a barra
       setResult(response.data);
       toast.success("File processed successfully!");
+
     } catch (error) {
       console.error(error);
-      toast.error("Error processing file. Check if Backend is running.");
+      clearInterval(progressInterval);
+      setUploadProgress(0); // Zera se der erro
+      toast.error("Error processing file. Please try again.");
     } finally {
-      setIsLoading(false);
+      // Pequeno delay para a animação do 100% aparecer antes de sumir o loading
+      setTimeout(() => {
+        setIsLoading(false);
+        setUploadProgress(0);
+      }, 500);
     }
   };
 
-  // --- FUNÇÃO DE DOWNLOAD CSV ---
+  // CSV Download
   const downloadCSV = (account: AccountData) => {
     if (!account.transactions || account.transactions.length === 0) {
       toast.warning("This account has no transactions to download.");
       return;
     }
-
     const headers = ["Date", "Description", "Amount", "Type"];
-
     const rows = account.transactions.map(t => [
       t.date,
       `"${t.description.replace(/"/g, '""')}"`,
       t.amount,
       t.type
     ]);
-
-    const csvContent = [
-      headers.join(","),
-      ...rows.map(row => row.join(","))
-    ].join("\n");
-
+    const csvContent = [headers.join(","), ...rows.map(row => row.join(","))].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
     link.setAttribute("download", `${account.account_name}_${account.account_number_partial}.csv`);
     link.style.visibility = "hidden";
-
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
     toast.success(`Downloaded CSV for ${account.account_name}`);
   };
 
+  // QBO Download
   const downloadQBO = (account: AccountData) => {
     if (!account.qbo_content) {
       toast.warning("QBO format not available for this account.");
       return;
     }
-
     const blob = new Blob([account.qbo_content], { type: "application/octet-stream" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
     link.setAttribute("download", `${account.account_name}_${account.account_number_partial}.qbo`);
     link.style.visibility = "hidden";
-
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
     toast.success(`Downloaded QBO for ${account.account_name}`);
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4 font-sans">
-      {/* --- HEADER COM PERFIL --- */}
+    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-4 font-sans relative">
+
+      {/* --- TOP LOADING BAR --- */}
+      {/* Só aparece quando está carregando */}
+      {isLoading && (
+        <div className="fixed top-0 left-0 w-full z-50">
+          <Progress value={uploadProgress} className="h-1.5 w-full rounded-none bg-slate-200" />
+          <p className="text-center text-xs font-medium text-slate-500 mt-1 bg-white/80 py-1">
+            Analyzing bank statement with AI... please wait.
+          </p>
+        </div>
+      )}
+
+      {/* Header com Login */}
       <div className="absolute top-5 right-5">
         <UserButton afterSignOutUrl="/" />
       </div>
-      <div className="mb-10 text-center">
+
+      <div className="mb-10 text-center mt-10">
         <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-slate-900">
           BankSplitter <span className="text-blue-600">AI</span>
         </h1>
         <p className="mt-4 text-lg text-slate-600 max-w-xl">
-          Convert PDF Bank Statements into clean formats (CSV).
+          Convert PDF Bank Statements into clean formats (CSV/QBO).
           We automatically detect and split multiple accounts.
         </p>
       </div>
@@ -159,7 +185,6 @@ export default function Home() {
         </CardHeader>
         <CardContent className="space-y-6">
 
-          {/* --- ÁREA DE DRAG & DROP --- */}
           <div
             {...getRootProps()}
             className={`
@@ -173,7 +198,6 @@ export default function Home() {
             <input {...getInputProps()} />
 
             {file ? (
-              // Estado: Arquivo Selecionado
               <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
                 <div className="bg-green-100 p-4 rounded-full mb-3">
                   <FileText className="h-8 w-8 text-green-600" />
@@ -183,7 +207,6 @@ export default function Home() {
                 <p className="text-xs text-blue-600 mt-2 font-medium">Click or Drop to replace</p>
               </div>
             ) : (
-              // Estado: Nenhum arquivo (Esperando Drop)
               <>
                 <div className={`p-4 rounded-full mb-3 ${isDragActive ? 'bg-blue-200' : 'bg-slate-100'}`}>
                   <Upload className={`h-8 w-8 ${isDragActive ? 'text-blue-600' : 'text-slate-400'}`} />
@@ -202,7 +225,7 @@ export default function Home() {
             disabled={!file || isLoading}
           >
             {isLoading ? (
-              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Processing...</>
+              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Processing ({uploadProgress}%)...</>
             ) : (
               "Convert & Split"
             )}
@@ -240,26 +263,31 @@ export default function Home() {
                     <div className="text-sm text-slate-500">
                       Found <strong>{account.transactions.length}</strong> transactions
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-2 border-slate-300 hover:bg-slate-50"
-                      onClick={() => downloadCSV(account)}
-                      disabled={account.transactions.length === 0}
-                    >
-                      <Download className="h-4 w-4" />
-                      Download CSV
-                    </Button>
-                    <Button
-                      variant="default" // Destaque para o QBO
-                      size="sm"
-                      className="gap-2 bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => downloadQBO(account)}
-                      disabled={!account.qbo_content}
-                    >
-                      <FileText className="h-4 w-4" />
-                      QBO
-                    </Button>
+
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 border-slate-300 hover:bg-slate-50"
+                        onClick={() => downloadCSV(account)}
+                        disabled={account.transactions.length === 0}
+                      >
+                        <Download className="h-4 w-4" />
+                        CSV
+                      </Button>
+
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+                        onClick={() => downloadQBO(account)}
+                        disabled={!account.qbo_content}
+                      >
+                        <FileJson className="h-4 w-4" />
+                        QBO
+                      </Button>
+                    </div>
+
                   </div>
                 </CardContent>
               </Card>

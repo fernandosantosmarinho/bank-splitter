@@ -6,3 +6,4 @@ openai
 pandas
 pydantic
 python-dotenv
+pymupdf

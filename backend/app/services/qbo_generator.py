@@ -81,10 +81,15 @@ NEWFILEUID:NONE
     # 3. Transações
     transactions_str = ""
     for tx in account_data.get("transactions", []):
-        amount = tx.get("amount", 0)
-        # QBO usa trntype: DEBIT, CREDIT, etc.
-        # Simplificação: Se amount < 0 é DEBIT, > 0 é CREDIT
-        trn_type = "DEBIT" if float(amount) < 0 else "CREDIT"
+        try:
+            amount = float(tx.get("amount", 0))
+        except:
+            amount = 0
+        
+        # REGRA DE OURO BANCÁRIA: 
+        # Se o valor é NEGATIVO, é um DEBIT (saída).
+        # Se o valor é POSITIVO, é um CREDIT (entrada).
+        trn_type = "DEBIT" if amount < 0 else "CREDIT"
         
         # Formatar data
         dt_posted = format_date_qbo(tx.get("date", ""))

@@ -247,10 +247,10 @@ export default function Home() {
     <main className="min-h-screen bg-[#F9FAFB] text-slate-900 font-sans antialiased">
       {/* NAVBAR */}
       <nav className="border-b border-slate-200/80 bg-white/70 backdrop-blur-xl sticky top-0 z-50 px-8 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-2.5">
+        <a href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
           <div className="bg-slate-900 p-2 rounded-xl shadow-lg shadow-slate-200"><Zap className="h-5 w-5 text-white fill-white" /></div>
           <span className="text-xl font-bold tracking-tight text-slate-800">BankSplitter</span>
-        </div>
+        </a>
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200/50">
             <ShieldCheck className="h-3.5 w-3.5 text-green-600" />

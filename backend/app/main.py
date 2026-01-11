@@ -8,7 +8,7 @@ import os
 # 1. Carrega variáveis de ambiente
 load_dotenv()
 
-# 2. Importa o serviço de extração com suporte a Streaming
+# 2. Importa o serviço de extração
 from app.services.extractor import process_pdf_stream
 
 # 3. Inicializa o App
@@ -18,17 +18,11 @@ app = FastAPI(
     version="2.0.0"
 )
 
-# 4. Configuração de CORS (Segurança para o navegador permitir a conexão)
-# Adicione aqui suas URLs oficiais
-origins = [
-    "http://localhost:3000",
-    "https://bank-splitter.vercel.app",
-    "https://bank-splitter-mvp.vercel.app",
-]
-
+# 4. Configuração de CORS (LIBERADO TOTAL PARA MVP)
+# Isso evita dores de cabeça com Headers entre Vercel e Hugging Face
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"], # Aceita qualquer origem
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -42,31 +36,36 @@ def health_check():
     return {
         "status": "online", 
         "service": "BankSplitter Engine", 
-        "engine": "Docling + o4-mini",
-        "mode": "Parallel Streaming"
+        "engine": "Docling + GPT-4o",
+        "mode": "Streaming"
     }
 
 @app.post("/api/v1/extract")
 async def extract_data(file: UploadFile = File(...)):
     """
     Endpoint de Alta Performance: Recebe o arquivo e retorna um 
-    Stream de dados (Server-Sent Events) para processamento em tempo real.
+    Stream de dados (Server-Sent Events).
     """
     
-    # Validação de Extensão
+    # DEBUG: Vamos ver no log o que está chegando
+    print(f"📥 REQUEST RECEIVED:")
+    print(f" - Filename: {file.filename}")
+    print(f" - Content-Type: {file.content_type}")
+
+    # Validação de Extensão (Mais robusta)
     allowed_extensions = ['.pdf', '.jpg', '.jpeg', '.png']
-    filename = file.filename.lower()
+    filename = file.filename.lower() if file.filename else ""
     
     if not any(filename.endswith(ext) for ext in allowed_extensions):
+        print("❌ Arquivo rejeitado pela validação de extensão.")
         raise HTTPException(
             status_code=400, 
-            detail="File type not supported. Please use PDF or Images."
+            detail=f"File type not supported. Received: {filename}"
         )
 
-    print(f"📥 Starting stream for: {file.filename}")
+    print(f"✅ Starting stream processing...")
 
-    # Retorna o gerador process_pdf_stream como um StreamingResponse
-    # Isso permite que o frontend receba os arquivos um por um
+    # Retorna o gerador como StreamingResponse
     return StreamingResponse(
         process_pdf_stream(file),
         media_type="text/event-stream"
@@ -74,9 +73,6 @@ async def extract_data(file: UploadFile = File(...)):
 
 # --- INICIALIZAÇÃO ---
 if __name__ == "__main__":
-    # Pega a porta injetada pelo servidor (Hugging Face usa 7860, Railway usa PORT)
-    port = int(os.environ.get("PORT", 8000))
-    
-    # Roda o servidor Uvicorn
-    # Em produção, o reload deve ser False para maior estabilidade
-    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=False)
+    # Pega a porta injetada pelo servidor (Hugging Face usa 7860)
+    port = int(os.environ.get("PORT", 7860))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port)

@@ -23,6 +23,9 @@ export default function LandingPage() {
     }
   }, [isSignedIn, router]);
 
+  // Se estiver logado, não renderiza nada da home (evita flash)
+  if (isSignedIn) return null;
+
   // Ciclo de animação sequencial (9 segundos total)
   const DURATION = 9;
 

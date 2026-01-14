@@ -7,6 +7,13 @@ const isProtectedRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+    const { userId } = await auth();
+
+    // Se o usuário estiver logado e tentar acessar a home ('/'), redireciona para o dashboard
+    if (userId && req.nextUrl.pathname === '/') {
+        return Response.redirect(new URL('/dashboard', req.url));
+    }
+
     if (isProtectedRoute(req)) {
         await auth.protect();
     }

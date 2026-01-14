@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
@@ -13,6 +15,13 @@ import { Card } from "@/components/ui/card";
 
 export default function LandingPage() {
   const { isSignedIn } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      router.push("/dashboard");
+    }
+  }, [isSignedIn, router]);
 
   // Ciclo de animação sequencial (9 segundos total)
   const DURATION = 9;
@@ -29,13 +38,7 @@ export default function LandingPage() {
           <span className="text-lg font-bold tracking-tight text-slate-900">BankSplitter</span>
         </div>
         <nav className="flex items-center gap-3">
-          {isSignedIn ? (
-            <Link href="/dashboard">
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-md text-sm font-medium px-5">
-                Go to Dashboard
-              </Button>
-            </Link>
-          ) : (
+          {!isSignedIn && (
             <>
               <SignInButton mode="modal">
                 <Button variant="ghost" className="text-sm font-medium text-slate-600 hover:text-slate-900">

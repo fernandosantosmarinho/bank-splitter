@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { motion } from "framer-motion";
 import {
     FileText,
@@ -14,7 +14,8 @@ import {
     Activity,
     Zap,
     LayoutDashboard,
-    Settings
+    Settings,
+    Loader2 // Importei o Loader2 para o fallback ficar bonito
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import ExtractionView from "@/components/ExtractionView";
@@ -23,20 +24,14 @@ import { UserButton } from "@clerk/nextjs";
 
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function Dashboard() {
+// 1. Renomeamos o componente principal original para DashboardContent
+// Este é o componente que PRECISA ser renderizado no Client por causa do useSearchParams
+function DashboardContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const currentTab = searchParams.get("tab") || "overview";
 
     const handleTabChange = (tab: string) => {
-        // Optional: Use router.push to create history entry so back button works
-        // If tab is overview, maybe verify if we want to remove the query param or keep it explicitly
-        // router.push(tab === "overview" ? "/dashboard" : `/dashboard?tab=${tab}`);
-        // However, since we are on app/page.tsx which is '/' route but inside the dashboard logic:
-        // Actually, middleware redirects '/' -> '/dashboard', but we disabled that?.
-        // Let's assume the user is at the current path.
-        // Using '?' works relative to current path.
-
         const params = new URLSearchParams(searchParams.toString());
         params.set("tab", tab);
         router.push(`?${params.toString()}`);
@@ -245,6 +240,23 @@ export default function Dashboard() {
                 </div>
             </main>
         </div>
+    );
+}
+
+// 2. Criamos o componente Wrapper que será exportado
+// Ele contém o Suspense que o Next.js exige para useSearchParams
+export default function DashboardPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+                    <p className="text-sm font-medium text-slate-500">Loading Dashboard...</p>
+                </div>
+            </div>
+        }>
+            <DashboardContent />
+        </Suspense>
     );
 }
 

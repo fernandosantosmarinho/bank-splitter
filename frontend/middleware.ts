@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server"; // <--- Importação Essencial
 
-// Define rotas que exigem autenticação (apenas o dashboard e a API)
+// Define rotas que exigem autenticação
 const isProtectedRoute = createRouteMatcher([
     '/dashboard(.*)',
     '/api(.*)',
@@ -11,7 +12,9 @@ export default clerkMiddleware(async (auth, req) => {
 
     // Se o usuário estiver logado e tentar acessar a home ('/'), redireciona para o dashboard
     if (userId && req.nextUrl.pathname === '/') {
-        return Response.redirect(new URL('/dashboard', req.url));
+        // CORREÇÃO: Usar NextResponse.redirect ao invés de Response.redirect
+        const dashboardUrl = new URL('/dashboard', req.url);
+        return NextResponse.redirect(dashboardUrl);
     }
 
     if (isProtectedRoute(req)) {

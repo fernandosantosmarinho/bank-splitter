@@ -63,3 +63,5 @@ backend/app/__pycache__
 *.pyc
 *.pyo
 *.pyd
+
+.agent/

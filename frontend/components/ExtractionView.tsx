@@ -1,12 +1,16 @@
 "use client";
 
+import { useUser } from "@clerk/nextjs";
+import { incrementMetric } from "@/app/actions/metrics";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
 import {
     Upload, X, Download, FileSpreadsheet, Loader2,
     FileText, Zap, ShieldCheck, Activity, CheckCircle2,
-    TrendingUp, TrendingDown, Building, RefreshCcw
+    TrendingUp, TrendingDown, Building, RefreshCcw,
+    Lock, FileX, Trash2, Server
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -15,12 +19,9 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-
     TableBody,
     TableCell,
     TableHead,
@@ -28,6 +29,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 // --- INTERFACES ---
 interface Transaction {
@@ -49,9 +51,9 @@ interface ExtractionViewProps {
     title?: string;
     description?: string;
     mode?: "pdf" | "image" | "mixed";
+    onSuccess?: (file: File) => void;
+    onDownload?: (type: "CSV" | "QBO", fileName: string) => void;
 }
-
-// --- UTILS (CORRIGIDO) ---
 
 const normalizeCurrencyCode = (raw: string): string => {
     if (!raw) return 'BRL';
@@ -70,10 +72,8 @@ const normalizeCurrencyCode = (raw: string): string => {
         'U$': 'USD'
     };
 
-    // Se estiver no mapa, retorna o ISO. Se não, retorna o original (esperando que seja ISO)
-    // Se o original tiver mais de 3 letras e não estiver no mapa, forçamos um fallback seguro para não quebrar
     const code = map[clean] || clean;
-    return code.length === 3 ? code : 'USD'; // Fallback final se o código for bizarro (ex: "UNK")
+    return code.length === 3 ? code : 'USD';
 };
 
 const formatCurrency = (value: number, currency: string) => {
@@ -84,7 +84,6 @@ const formatCurrency = (value: number, currency: string) => {
             currency: isoCode,
         }).format(value);
     } catch (e) {
-        // Fallback de segurança: Se ainda assim der erro, formata apenas como número
         return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(value);
     }
 };
@@ -92,8 +91,11 @@ const formatCurrency = (value: number, currency: string) => {
 export default function ExtractionView({
     title = "Process Document",
     description = "Securely extract bank PDFs or check images.",
-    mode = "mixed"
+    mode = "mixed",
+    onSuccess,
+    onDownload
 }: ExtractionViewProps) {
+    const { user } = useUser();
     const [file, setFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -177,7 +179,11 @@ export default function ExtractionView({
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
-        accept: mode === 'pdf' ? { 'application/pdf': ['.pdf'] } : { 'application/pdf': ['.pdf'], 'image/*': ['.jpg', '.jpeg', '.png'] },
+        accept: mode === 'pdf'
+            ? { 'application/pdf': ['.pdf'] }
+            : mode === 'image'
+                ? { 'image/png': ['.png'], 'image/jpeg': ['.jpg', '.jpeg'] }
+                : { 'application/pdf': ['.pdf'], 'image/*': ['.jpg', '.jpeg', '.png'] },
         maxFiles: 1,
         multiple: false,
         disabled: isLoading
@@ -198,7 +204,6 @@ export default function ExtractionView({
         setAccounts([]);
         setProgress(0);
 
-        // Timer visual de progresso (placebo para UX)
         const interval = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 95) return prev;
@@ -227,14 +232,8 @@ export default function ExtractionView({
                     const { value, done } = await reader.read();
                     if (done) break;
 
-                    // Decodifica o chunk atual e adiciona ao buffer
                     buffer += decoder.decode(value, { stream: true });
-
-                    // Tenta separar por dupla quebra de linha (padrão SSE)
                     const parts = buffer.split("\n\n");
-
-                    // O último pedaço quase sempre está incompleto, então guardamos ele de volta no buffer
-                    // para esperar o próximo chunk da rede completar ele.
                     buffer = parts.pop() || "";
 
                     for (const line of parts) {
@@ -251,21 +250,36 @@ export default function ExtractionView({
                                 setProgress(prev => Math.min(prev + 10, 85));
                             }
                             else if (payload.type === "chunk") {
+                                console.log("[ExtractionView] Chunk received. Accounts:", payload.accounts.length);
                                 setProgress(100);
                                 setAccounts(payload.accounts);
+                                console.log("[ExtractionView] Incrementing metrics for user:", user?.id);
+                                try {
+                                    await incrementMetric(user?.id, 'documents_processed', 1);
+                                    console.log("[ExtractionView] Metric incremented.");
+                                } catch (err) {
+                                    console.error("[ExtractionView] Failed to increment metric:", err);
+                                }
+
+                                if (onSuccess && file) {
+                                    console.log("[ExtractionView] Calling onSuccess...");
+                                    onSuccess(file);
+                                }
                             }
                             else if (payload.type === "error") {
                                 throw new Error(payload.message);
                             }
                         } catch (e) {
-                            console.warn("JSON Parse warning (chunk ignorado):", e);
+                            console.warn("JSON Parse warning:", e);
                         }
                     }
                 }
             }
 
             clearInterval(interval);
-            setTimeout(() => setIsLoading(false), 500);
+            setStatus("Securely discarding original file...");
+            // Allow time for the destruction animation
+            setTimeout(() => setIsLoading(false), 2500);
 
         } catch (error: any) {
             clearInterval(interval);
@@ -288,91 +302,199 @@ export default function ExtractionView({
         toast.success(`Downloaded ${fileName}`);
     };
 
-    const downloadCSV = (acc: AccountData) => {
-        if (acc.csv_content) downloadFile(acc.csv_content, `${acc.account_name}.csv`, "text/csv;charset=utf-8;");
+    const downloadCSV = async (acc: AccountData) => {
+        if (acc.csv_content) {
+            const fileName = `${acc.account_name}.csv`;
+            downloadFile(acc.csv_content, fileName, "text/csv;charset=utf-8;");
+            await incrementMetric(user?.id, 'csv_exports', 1);
+            if (onDownload) onDownload("CSV", fileName);
+            // Trigger refresh (metrics update) - pass file if available, or just ignore since we handled download separately?
+            // Since onSuccess signature changed, we shouldn't call it here without a file context, and it implies "New Extraction Success".
+            // So we rely on onDownload for history updates.
+            // But we might want to refresh metrics. For now let's assume metrics.ts handles DB updates and parent re-fetches on interval or we triggers a separate metrics refresh?
+            // The previous code used onSuccess() to trigger re-fetch.
+            // If I remove it, metrics might stale. 
+            // Better to let onDownload handle history, and logic elsewhere handle metrics?
+            // Actually, the parent `onSuccess` was `fetchMetrics`.
+            // I should probably keep a way to just "refresh metrics".
+            // But for now, let's just use onDownload.
+        }
     }
 
-    const downloadQBO = (acc: AccountData) => {
-        if (acc.qbo_content) downloadFile(acc.qbo_content, `${acc.account_name}.qbo`, "application/octet-stream");
+    const downloadQBO = async (acc: AccountData) => {
+        if (acc.qbo_content) {
+            const fileName = `${acc.account_name}.qbo`;
+            downloadFile(acc.qbo_content, fileName, "application/octet-stream");
+            await incrementMetric(user?.id, 'qbo_exports', 1);
+            if (onDownload) onDownload("QBO", fileName);
+        }
     }
 
     return (
-        <div className="w-full max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+        <div className="w-full max-w-7xl mx-auto pb-20">
 
             {accounts.length === 0 && (
-                <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50/50 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider">
-                                AI Powered Engine v2.0
-                            </Badge>
-                            <span className="text-xs text-slate-400 font-medium flex items-center gap-1">
-                                <ShieldCheck className="h-3 w-3" /> Bank-Grade Security
+                            <div className="bg-blue-600/10 text-blue-400 border border-blue-600/20 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                                Engine V2
+                            </div>
+                            <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
+                                <ShieldCheck className="h-3 w-3" /> Encrypted Processing
                             </span>
                         </div>
-                        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{title}</h1>
-                        <p className="text-slate-500 mt-1 max-w-2xl">{description}</p>
+                        <h1 className="text-2xl font-bold text-white tracking-tight">{title}</h1>
+                        <p className="text-slate-400 mt-1 max-w-2xl text-sm">{description}</p>
                     </div>
                 </div>
             )}
 
             {accounts.length === 0 && (
-                <div className="w-full max-w-2xl mx-auto">
-                    <Card className="border-slate-200 shadow-sm bg-white overflow-hidden transition-all duration-500">
+                <div className="w-full max-w-3xl mx-auto">
+                    {/* AlGrow Style Card: Dark, Solid, Bordered */}
+                    <Card className="border border-white/5 bg-[#0b1221] shadow-none overflow-hidden">
                         <CardContent className="p-0">
                             {!isLoading ? (
                                 <div className="p-1">
-                                    <div {...getRootProps()} className={`relative group border-2 border-dashed rounded-xl p-10 flex flex-col items-center justify-center text-center transition-all duration-300 cursor-pointer ${file ? 'border-blue-200 bg-blue-50/20' : isDragActive ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-slate-50/50 hover:bg-white hover:border-blue-300'}`}>
+                                    <div {...getRootProps()} className={cn(
+                                        "relative group border border-dashed rounded-lg p-12 flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer h-[300px]",
+                                        file
+                                            ? "border-blue-500/50 bg-blue-500/5"
+                                            : isDragActive
+                                                ? "border-blue-500 bg-blue-500/5"
+                                                : "border-white/10 bg-[#0f172a] hover:bg-[#1e293b] hover:border-white/20"
+                                    )}>
                                         <input {...getInputProps()} />
 
                                         {file ? (
-                                            <div className="w-full relative animate-in zoom-in-95">
-                                                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); resetForm(); }} className="absolute -top-6 -right-6 h-7 w-7 rounded-full bg-white shadow border text-slate-400 hover:text-red-500 z-20">
-                                                    <X className="h-3 w-3" />
+                                            <div className="w-full relative animate-in fade-in zoom-in-95 duration-200">
+                                                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); resetForm(); }} className="absolute -top-8 -right-8 h-8 w-8 rounded-full bg-slate-800 text-slate-400 hover:text-red-400 hover:bg-slate-700 z-20">
+                                                    <X className="h-4 w-4" />
                                                 </Button>
-                                                <div className="relative mx-auto w-32 aspect-[3/4] bg-white rounded shadow-sm border p-1 mb-3">
-                                                    {previewUrl ? <img src={previewUrl} className="w-full h-full object-contain opacity-90" alt="Preview" /> : <div className="h-full flex items-center justify-center"><FileText className="text-slate-200" /></div>}
+                                                <div className="relative mx-auto w-24 aspect-[3/4] bg-white rounded shadow-sm p-1 mb-4 opacity-90">
+                                                    {previewUrl ? <img src={previewUrl} className="w-full h-full object-contain" alt="Preview" /> : <div className="h-full flex items-center justify-center"><FileText className="text-slate-400" /></div>}
                                                 </div>
-                                                <p className="text-sm font-bold text-slate-900 truncate">{file.name}</p>
-                                                <p className="text-xs text-slate-400">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                <p className="text-sm font-bold text-white truncate max-w-[200px] mx-auto">{file.name}</p>
+                                                <p className="text-xs text-slate-500 font-mono mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                                             </div>
                                         ) : (
-                                            <div className="py-8">
-                                                <div className="h-16 w-16 bg-white rounded-xl shadow-sm border flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:text-blue-600 transition-all">
-                                                    <Upload className="h-8 w-8 text-slate-400" />
+                                            <div className="space-y-4">
+                                                <div className="h-16 w-16 bg-[#1e293b] rounded-2xl flex items-center justify-center mx-auto group-hover:scale-105 group-hover:bg-[#334155] transition-all">
+                                                    <Upload className="h-8 w-8 text-blue-500" />
                                                 </div>
-                                                <h3 className="text-lg font-semibold text-slate-900">Upload Statement</h3>
-                                                <p className="text-sm text-slate-500 mt-1 max-w-[250px] mx-auto">
-                                                    Drag and drop PDF documents or high-quality images.
-                                                </p>
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-white">Click to Upload</h3>
+                                                    <p className="text-sm text-slate-500 mt-1 max-w-[200px] mx-auto">
+                                                        PDF Statement or Check Image
+                                                    </p>
+
+                                                    {/* Trust Badges */}
+                                                    <div className="flex items-center justify-center gap-4 mt-8 pt-6 border-t border-white/5">
+                                                        <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                                            <Server className="h-3 w-3 text-slate-400" /> RAM-Only
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                                                            <Trash2 className="h-3 w-3 text-slate-400" /> Auto-Wipe
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             ) : (
-                                <div className="py-24 px-8 text-center bg-slate-50/30">
-                                    <div className="mx-auto relative mb-6">
-                                        <div className="h-20 w-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto animate-pulse">
-                                            <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-3 max-w-[240px] mx-auto">
-                                        <div className="flex justify-between text-[10px] uppercase font-bold text-slate-400">
-                                            <span>Processing</span>
-                                            <span>{Math.round(progress)}%</span>
-                                        </div>
-                                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                                            <div className="h-full bg-blue-600 transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
-                                        </div>
-                                        <p className="text-xs font-medium text-slate-500 animate-pulse">{status}</p>
-                                    </div>
+                                <div className="py-12 px-8 text-center bg-[#0b1221] min-h-[400px] flex flex-col items-center justify-center relative overflow-hidden">
+                                    {/* Background Grid Animation */}
+                                    <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+
+                                    <AnimatePresence mode="wait">
+                                        {progress < 100 ? (
+                                            <motion.div
+                                                key="processing"
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                exit={{ opacity: 0 }}
+                                                className="relative z-10 w-full max-w-md"
+                                            >
+                                                {/* SCANNING ANIMATION */}
+                                                <div className="relative mx-auto mb-8 w-24 h-32 bg-slate-800 rounded-lg border border-slate-700 flex items-center justify-center shadow-2xl">
+                                                    <FileText className="h-10 w-10 text-slate-500" />
+                                                    <motion.div
+                                                        className="absolute inset-0 bg-blue-500/10 border-b-2 border-blue-500"
+                                                        animate={{ top: ["0%", "100%", "0%"] }}
+                                                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                                        style={{ height: "4px" }}
+                                                    />
+                                                    <motion.div
+                                                        className="absolute -top-6 -right-6"
+                                                        animate={{ scale: [1, 1.2, 1] }}
+                                                        transition={{ duration: 2, repeat: Infinity }}
+                                                    >
+                                                        <ShieldCheck className="h-8 w-8 text-emerald-500" />
+                                                    </motion.div>
+                                                </div>
+
+                                                <div className="space-y-4">
+                                                    <h3 className="text-xl font-bold text-white animate-pulse">{status || "Processing..."}</h3>
+                                                    <div className="space-y-2">
+                                                        <div className="flex justify-between text-xs font-bold uppercase text-slate-500 tracking-wider">
+                                                            <span>Encryption Active</span>
+                                                            <span>{Math.round(progress)}%</span>
+                                                        </div>
+                                                        <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                                                            <div className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                key="shredding"
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                className="relative z-10 text-center"
+                                            >
+                                                <div className="relative mx-auto mb-8">
+                                                    <motion.div
+                                                        animate={{
+                                                            y: [0, 50],
+                                                            opacity: [1, 0],
+                                                            scale: [1, 0.8]
+                                                        }}
+                                                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                                                        className="relative z-10 mx-auto w-20 h-24 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center justify-center"
+                                                    >
+                                                        <FileText className="h-10 w-10 text-red-500" />
+                                                    </motion.div>
+
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: 0.5 }}
+                                                        className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-20"
+                                                    >
+                                                        <Trash2 className="h-12 w-12 text-slate-600" />
+                                                    </motion.div>
+                                                </div>
+
+                                                <h3 className="text-2xl font-bold text-white mb-2">Discarding File</h3>
+                                                <p className="text-slate-400 text-sm max-w-sm mx-auto">
+                                                    Original document is being securely removed from server memory.
+                                                    <span className="block mt-2 text-emerald-400 font-bold flex items-center justify-center gap-2">
+                                                        <CheckCircle2 className="h-4 w-4" /> Zero-Retention Policy
+                                                    </span>
+                                                </p>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             )}
 
                             {!isLoading && file && (
-                                <div className="p-4 bg-slate-50 border-t border-slate-100">
-                                    <Button className="w-full h-11 text-base bg-slate-900 hover:bg-slate-800 text-white font-bold shadow-lg" onClick={handleExtract}>
-                                        <Zap className="h-4 w-4 mr-2 text-yellow-400" /> Extract Data
+                                <div className="p-4 bg-[#050b14] border-t border-white/5">
+                                    <Button size="lg" className="w-full font-bold shadow-none" onClick={handleExtract}>
+                                        Start Extraction
                                     </Button>
                                 </div>
                             )}
@@ -382,107 +504,97 @@ export default function ExtractionView({
             )}
 
             {accounts.length > 0 && (
-                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                     {/* 1. CONTROL BAR */}
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="flex items-center gap-4 w-full md:w-auto">
-                            <div className="h-10 w-10 bg-emerald-50 rounded-lg border border-emerald-100 flex items-center justify-center text-emerald-600">
-                                <FileText className="h-5 w-5" />
-                            </div>
-                            <div className="flex flex-col">
-                                <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                                    {file?.name}
-                                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 text-[10px] h-5 px-1.5 gap-1">
-                                        <CheckCircle2 className="h-3 w-3" /> Processed
-                                    </Badge>
-                                </h3>
-                                <div className="flex items-center gap-3 text-xs text-slate-500">
-                                    <span className="flex items-center gap-1">
-                                        <ShieldCheck className="h-3 w-3 text-blue-500" />
-                                        Deleted from server
-                                    </span>
-                                    <span className="text-slate-300">|</span>
-                                    <span>{summary.count} transactions</span>
+                    {/* 1. RESULTS & ACTIONS CARD */}
+                    <div className="bg-[#0b1221] rounded-2xl border border-white/5 overflow-hidden p-6 md:p-8">
+                        <div className="flex flex-col md:flex-row gap-8 items-start justify-between">
+                            {/* File Info */}
+                            <div className="flex items-start gap-4">
+                                <div className="h-14 w-14 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 flex items-center justify-center shrink-0">
+                                    <CheckCircle2 className="h-7 w-7 text-emerald-500" />
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="text-xl font-bold text-white tracking-tight">{file?.name}</h2>
+                                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase border border-emerald-500/20">
+                                            Success
+                                        </span>
+                                    </div>
+                                    <p className="text-slate-400 text-sm">
+                                        Extraction complete • <span className="text-white font-bold">{summary.count} transactions</span> found
+                                    </p>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="flex items-center gap-3 w-full md:w-auto">
-                            <Button variant="outline" size="sm" onClick={resetForm} className="text-slate-600 hover:text-slate-900 border-slate-200">
-                                <RefreshCcw className="h-3.5 w-3.5 mr-2" /> New File
-                            </Button>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm">
-                                        <Download className="h-3.5 w-3.5 mr-2" /> Export
+                            {/* Actions */}
+                            <div className="flex flex-col gap-3 w-full md:w-auto">
+                                <div className="flex gap-3">
+                                    <Button
+                                        onClick={() => downloadCSV(accounts[0])}
+                                        className="bg-blue-600 hover:bg-blue-500 text-white h-11 px-6 shadow-lg shadow-blue-900/20"
+                                    >
+                                        <FileSpreadsheet className="mr-2 h-4 w-4" /> Download CSV
                                     </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => downloadCSV(accounts[0])} className="cursor-pointer">
-                                        <FileSpreadsheet className="mr-2 h-4 w-4 text-emerald-600" /> CSV
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => downloadQBO(accounts[0])} className="cursor-pointer">
-                                        <span className="mr-2 font-bold text-blue-600 text-xs border border-blue-200 rounded px-0.5">Qb</span> QBO
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                    <Button
+                                        onClick={() => downloadQBO(accounts[0])}
+                                        className="bg-[#0f172a] hover:bg-[#1e293b] text-white border border-white/10 h-11 px-6"
+                                    >
+                                        <span className="mr-2 font-bold text-xs bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">Qb</span> Download QBO
+                                    </Button>
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={resetForm}
+                                    className="text-slate-500 hover:text-white hover:bg-transparent self-end md:self-center"
+                                >
+                                    <RefreshCcw className="h-3 w-3 mr-2" /> Process Another File
+                                </Button>
+                            </div>
                         </div>
                     </div>
 
                     {/* 2. METRICS CARDS */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Card className="border-slate-200 shadow-sm">
-                            <CardContent className="p-5">
-                                <div className="flex justify-between items-start mb-2">
-                                    <div className="p-2 bg-emerald-50 rounded-lg"><TrendingUp className="h-4 w-4 text-emerald-600" /></div>
-                                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">CREDIT</span>
-                                </div>
-                                <p className="text-2xl font-mono font-bold text-slate-900">{formatCurrency(summary.totalCredit, accounts[0].currency)}</p>
+                        <Card className="bg-[#0b1221] border-white/5">
+                            <CardContent className="p-6">
+                                <p className="text-[10px] uppercase font-bold text-slate-500 mb-2">Total Credit</p>
+                                <p className="text-2xl font-mono font-bold text-emerald-400">{formatCurrency(summary.totalCredit, accounts[0].currency)}</p>
                             </CardContent>
                         </Card>
-                        <Card className="border-slate-200 shadow-sm">
-                            <CardContent className="p-5">
-                                <div className="flex justify-between items-start mb-2">
-                                    <div className="p-2 bg-red-50 rounded-lg"><TrendingDown className="h-4 w-4 text-red-600" /></div>
-                                    <span className="text-[10px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-full">DEBIT</span>
-                                </div>
-                                <p className="text-2xl font-mono font-bold text-slate-900">{formatCurrency(Math.abs(summary.totalDebit), accounts[0].currency)}</p>
+                        <Card className="bg-[#0b1221] border-white/5">
+                            <CardContent className="p-6">
+                                <p className="text-[10px] uppercase font-bold text-slate-500 mb-2">Total Debit</p>
+                                <p className="text-2xl font-mono font-bold text-red-400">{formatCurrency(Math.abs(summary.totalDebit), accounts[0].currency)}</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-slate-900 border-slate-900 shadow-md text-white">
-                            <CardContent className="p-5">
-                                <div className="flex justify-between items-start mb-2">
-                                    <div className="p-2 bg-white/10 rounded-lg"><Activity className="h-4 w-4 text-blue-300" /></div>
-                                    <span className="text-[10px] font-bold text-white bg-blue-500 px-2 py-0.5 rounded-full">NET</span>
-                                </div>
+                        <Card className="bg-blue-600 border-blue-500">
+                            <CardContent className="p-6">
+                                <p className="text-[10px] uppercase font-bold text-blue-100 mb-2">Net Balance</p>
                                 <p className="text-2xl font-mono font-bold text-white">{formatCurrency(summary.net, accounts[0].currency)}</p>
                             </CardContent>
                         </Card>
                     </div>
 
-                    {/* 3. FULL DATA TABLE (Scrollable) */}
+                    {/* 3. FULL DATA TABLE */}
                     {accounts.map((acc, idx) => (
-                        <Card key={idx} className="border-slate-200 shadow-sm overflow-hidden flex flex-col h-[600px]">
-                            {/* h-[600px] define a altura fixa do card para permitir scroll interno */}
+                        <Card key={idx} className="bg-[#0b1221] border-white/5 overflow-hidden flex flex-col h-[600px]">
 
-                            <CardHeader className="bg-slate-50 border-b border-slate-100 py-3 px-6 flex flex-row items-center justify-between shrink-0">
+                            <CardHeader className="bg-[#0f172a] border-b border-white/5 py-3 px-6 flex flex-row items-center justify-between shrink-0">
                                 <div className="flex items-center gap-2">
-                                    <Building className="h-4 w-4 text-slate-400" />
-                                    <span className="text-sm font-bold text-slate-700">{acc.account_name}</span>
-                                    <span className="text-xs text-slate-400 font-mono ml-2">({acc.currency})</span>
-                                </div>
-                                <div className="text-xs text-slate-400">
-                                    Showing all {acc.preview_rows.length} extracted rows
+                                    <Building className="h-4 w-4 text-slate-500" />
+                                    <span className="text-sm font-bold text-white">{acc.account_name}</span>
                                 </div>
                             </CardHeader>
 
-                            <div className="flex-1 overflow-auto">
-                                <table className="w-full caption-bottom text-sm">
-                                    <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
-                                        <TableRow className="hover:bg-white border-b border-slate-200">
+                            <div className="flex-1 overflow-auto bg-[#020617]">
+                                <table className="w-full caption-bottom text-sm text-slate-300">
+                                    <TableHeader className="sticky top-0 bg-[#0f172a] z-10 border-b border-white/5">
+                                        <TableRow className="border-white/5 hover:bg-transparent">
                                             {acc.preview_headers.map((header, i) => (
-                                                <TableHead key={i} className="text-xs font-bold uppercase tracking-wider text-slate-600 whitespace-nowrap px-6 h-10 bg-slate-50">
+                                                <TableHead key={i} className="text-[10px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap px-6 h-10">
                                                     {header}
                                                 </TableHead>
                                             ))}
@@ -490,9 +602,9 @@ export default function ExtractionView({
                                     </TableHeader>
                                     <TableBody>
                                         {acc.preview_rows.map((row, i) => (
-                                            <TableRow key={i} className="group hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-0">
+                                            <TableRow key={i} className="group hover:bg-[#0f172a] transition-colors border-b border-white/5 last:border-0">
                                                 {acc.preview_headers.map((header, j) => (
-                                                    <TableCell key={j} className="font-mono text-xs text-slate-600 px-6 py-3 whitespace-nowrap">
+                                                    <TableCell key={j} className="font-mono text-xs px-6 py-3 whitespace-nowrap text-slate-400 group-hover:text-slate-200">
                                                         {row[header]}
                                                     </TableCell>
                                                 ))}

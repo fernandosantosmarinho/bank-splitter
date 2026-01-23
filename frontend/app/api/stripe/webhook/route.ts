@@ -194,12 +194,10 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
             updated_at: new Date().toISOString(),
         };
 
-        // Only update the end date if this is NOT just a cancellation
-        // We update the end date when:
-        // 1. The subscription is becoming active (new or renewed)
-        // 2. The subscription is NOT being cancelled (cancel_at_period_end is false)
-        // We do NOT update the end date when cancel_at_period_end is true, as this preserves the original renewal date
-        if (!sub.cancel_at_period_end || sub.status === 'active') {
+        // Only update the end date if this is NOT a cancellation
+        // When cancel_at_period_end is true, we preserve the original renewal date
+        // When cancel_at_period_end is false, we update to reflect the current period end from Stripe
+        if (!sub.cancel_at_period_end) {
             let calculatedEnd: Date;
 
             if (sub.current_period_end) {

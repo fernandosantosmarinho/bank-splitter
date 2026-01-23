@@ -165,8 +165,8 @@ function DashboardContent() {
         qbo_exports: 0
     };
 
-    // Keep the loading screen if User is loading
-    if (!isUserLoaded) return <div className="h-screen w-full bg-[#020617] flex items-center justify-center"><Loader2 className="h-8 w-8 text-blue-500 animate-spin" /></div>;
+    // Keep the loading screen if User is loading OR initial stats are fetching
+    if (!isUserLoaded || !stats) return <div className="h-screen w-full bg-[#020617] flex items-center justify-center"><Loader2 className="h-8 w-8 text-blue-500 animate-spin" /></div>;
 
     if (!user) {
         // middleware protects this, but safe fallback

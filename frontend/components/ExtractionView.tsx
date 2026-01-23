@@ -8,7 +8,7 @@ import {
     Upload, X, Download, FileSpreadsheet, Loader2,
     FileText, Zap, ShieldCheck, Activity, CheckCircle2,
     TrendingUp, TrendingDown, Building, RefreshCcw,
-    Lock, FileX, Trash2, Server
+    Lock, FileX, Trash2, Server, Wallet
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -506,14 +506,32 @@ export default function ExtractionView({
             {accounts.length > 0 && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-                    {/* 1. CONTROL BAR */}
+                    {/* RESULTS HEADER ACTION BAR */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
+                        <div>
+                            <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Workflow Status</h2>
+                            <h3 className="text-xl font-bold text-white tracking-tight">Extraction Completed</h3>
+                        </div>
+                        <Button
+                            onClick={resetForm}
+                            className="bg-white/5 hover:bg-[#1e293b] border border-white/10 h-10 px-6 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] gap-2.5 transition-all duration-300 hover:-translate-y-0.5 active:scale-95 shadow-2xl hover:border-blue-500/30 hover:shadow-blue-500/5 group"
+                        >
+                            <RefreshCcw className="h-3.5 w-3.5 text-slate-400 group-hover:text-white group-hover:rotate-180 transition-transform duration-700 ease-in-out" />
+                            <span className="animate-text-shine group-hover:text-white transition-colors">Process New File</span>
+                        </Button>
+                    </div>
+
                     {/* 1. RESULTS & ACTIONS CARD */}
                     <div className="bg-[#0b1221] rounded-2xl border border-white/5 overflow-hidden p-6 md:p-8">
                         <div className="flex flex-col md:flex-row gap-8 items-start justify-between">
                             {/* File Info */}
                             <div className="flex items-start gap-4">
-                                <div className="h-14 w-14 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 flex items-center justify-center shrink-0">
-                                    <CheckCircle2 className="h-7 w-7 text-emerald-500" />
+                                <div className="shrink-0">
+                                    <img
+                                        src="https://png.pngtree.com/png-clipart/20250507/original/pngtree-modern-3d-icon-stylized-pdf-document-png-image_20937175.png"
+                                        alt="PDF Icon"
+                                        className="h-14 w-14 object-contain drop-shadow-2xl"
+                                    />
                                 </div>
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
@@ -533,46 +551,65 @@ export default function ExtractionView({
                                 <div className="flex gap-3">
                                     <Button
                                         onClick={() => downloadCSV(accounts[0])}
-                                        className="bg-blue-600 hover:bg-blue-500 text-white h-11 px-6 shadow-lg shadow-blue-900/20"
+                                        className="bg-[#0f172a] hover:bg-[#1e293b] text-white border border-white/10 h-11 px-6 shadow-xl transition-all duration-200 hover:-translate-y-0.5"
                                     >
-                                        <FileSpreadsheet className="mr-2 h-4 w-4" /> Download CSV
+                                        <div className="mr-3 h-5 w-5 bg-emerald-500/10 rounded flex items-center justify-center border border-emerald-500/20 shadow-sm">
+                                            <FileSpreadsheet className="h-3 w-3 text-emerald-500" />
+                                        </div>
+                                        Download CSV
                                     </Button>
                                     <Button
                                         onClick={() => downloadQBO(accounts[0])}
-                                        className="bg-[#0f172a] hover:bg-[#1e293b] text-white border border-white/10 h-11 px-6"
+                                        className="bg-[#0f172a] hover:bg-[#1e293b] text-white border border-white/10 h-11 px-6 shadow-xl transition-all duration-200 hover:-translate-y-0.5"
                                     >
-                                        <span className="mr-2 font-bold text-xs bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">Qb</span> Download QBO
+                                        <div className="mr-3 h-5 w-5 bg-[#2ca01c]/10 rounded flex items-center justify-center border border-[#2ca01c]/20 shadow-sm">
+                                            <span className="text-[10px] font-black text-[#2ca01c] italic tracking-tighter">QB</span>
+                                        </div>
+                                        Download QBO
                                     </Button>
                                 </div>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={resetForm}
-                                    className="text-slate-500 hover:text-white hover:bg-transparent self-end md:self-center"
-                                >
-                                    <RefreshCcw className="h-3 w-3 mr-2" /> Process Another File
-                                </Button>
                             </div>
                         </div>
                     </div>
 
                     {/* 2. METRICS CARDS */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <Card className="bg-[#0b1221] border-white/5">
-                            <CardContent className="p-6">
-                                <p className="text-[10px] uppercase font-bold text-slate-500 mb-2">Total Credit</p>
+                        {/* Total Credit */}
+                        <Card className="bg-[#0b1221] border-white/5 shadow-xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
+                                <TrendingUp className="h-12 w-12 text-emerald-500" />
+                            </div>
+                            <CardContent className="p-6 relative z-10">
+                                <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-widest flex items-center gap-1.5">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Total Credit
+                                </p>
                                 <p className="text-2xl font-mono font-bold text-emerald-400">{formatCurrency(summary.totalCredit, accounts[0].currency)}</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-[#0b1221] border-white/5">
-                            <CardContent className="p-6">
-                                <p className="text-[10px] uppercase font-bold text-slate-500 mb-2">Total Debit</p>
+
+                        {/* Total Debit */}
+                        <Card className="bg-[#0b1221] border-white/5 shadow-xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
+                                <TrendingDown className="h-12 w-12 text-red-500" />
+                            </div>
+                            <CardContent className="p-6 relative z-10">
+                                <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-widest flex items-center gap-1.5">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Total Debit
+                                </p>
                                 <p className="text-2xl font-mono font-bold text-red-400">{formatCurrency(Math.abs(summary.totalDebit), accounts[0].currency)}</p>
                             </CardContent>
                         </Card>
-                        <Card className="bg-blue-600 border-blue-500">
-                            <CardContent className="p-6">
-                                <p className="text-[10px] uppercase font-bold text-blue-100 mb-2">Net Balance</p>
+
+                        {/* Net Balance (Highlighted) */}
+                        <Card className="bg-[#0b1221] border-blue-500/20 shadow-xl shadow-blue-900/10 relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-transparent" />
+                            <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
+                                <Wallet className="h-12 w-12 text-blue-500" />
+                            </div>
+                            <CardContent className="p-6 relative z-10">
+                                <p className="text-[10px] uppercase font-bold text-blue-400 mb-2 tracking-widest flex items-center gap-1.5">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> Net Balance
+                                </p>
                                 <p className="text-2xl font-mono font-bold text-white">{formatCurrency(summary.net, accounts[0].currency)}</p>
                             </CardContent>
                         </Card>
@@ -589,7 +626,7 @@ export default function ExtractionView({
                                 </div>
                             </CardHeader>
 
-                            <div className="flex-1 overflow-auto bg-[#020617]">
+                            <div className="flex-1 overflow-auto bg-[#020617] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full">
                                 <table className="w-full caption-bottom text-sm text-slate-300">
                                     <TableHeader className="sticky top-0 bg-[#0f172a] z-10 border-b border-white/5">
                                         <TableRow className="border-white/5 hover:bg-transparent">

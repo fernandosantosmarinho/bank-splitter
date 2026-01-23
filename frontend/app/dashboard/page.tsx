@@ -258,32 +258,55 @@ function DashboardContent() {
                         </p>
                     </div>
 
-                    {/* Right: Credits, Help, Notifs */}
-                    {/* Right: Credits Widget */}
-                    <div className="flex items-center gap-3">
-                        {/* Credits Display (Compact) */}
-                        <div className="hidden md:flex items-center bg-[#0b1221] border border-white/10 rounded-full px-4 py-1.5 gap-2">
+                    {/* Right: Credits, Plan & Top Up */}
+                    <div className="flex items-center gap-4">
+                        {/* Plan & Credits Container */}
+                        <div className="hidden md:flex items-center gap-3 bg-[#0b1221]/50 backdrop-blur-xl border border-white/5 rounded-full px-4 py-1.5 shadow-2xl">
+                            {/* Plan Pill */}
+                            <div className="flex items-center gap-2 pr-3 border-r border-white/10">
+                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Plan</span>
+                                <SubscriptionBadge
+                                    tier={currentStats.subscription_tier}
+                                    className={cn(
+                                        "h-5 px-2 border-0 shadow-sm",
+                                        currentStats.subscription_tier === 'pro' ? "bg-blue-500/10 text-blue-400" :
+                                            currentStats.subscription_tier === 'enterprise' ? "bg-purple-500/10 text-purple-400" :
+                                                "bg-slate-500/10 text-slate-400"
+                                    )}
+                                />
+                            </div>
+
+                            {/* Credits Widget */}
                             <div className="flex flex-col gap-0.5">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Credits</span>
-                                    <span className="text-xs font-bold text-white font-mono">{currentStats.credits_used.toLocaleString()} <span className="text-slate-600">/</span> {currentStats.credits_total.toLocaleString()}</span>
+                                <div className="flex items-center justify-between gap-4">
+                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">Usage</span>
+                                    <span className="text-[11px] font-bold text-white font-mono leading-none">
+                                        {currentStats.credits_used.toLocaleString()}
+                                        <span className="text-slate-600 mx-1">/</span>
+                                        {currentStats.credits_total === 999999 ? '∞' : currentStats.credits_total.toLocaleString()}
+                                    </span>
                                 </div>
-                                <div className="h-1 w-28 bg-[#0f172a] rounded-full overflow-hidden">
+                                <div className="h-1.5 w-32 bg-[#0f172a] rounded-full overflow-hidden border border-white/5">
                                     <div
-                                        className={cn("h-full rounded-full transition-all duration-300", currentStats.credits_used > currentStats.credits_total * 0.9 ? "bg-red-500" : "bg-blue-500")}
-                                        style={{ width: `${Math.min((currentStats.credits_used / currentStats.credits_total) * 100, 100)}%` }}
+                                        className={cn(
+                                            "h-full rounded-full transition-all duration-700 ease-out",
+                                            currentStats.credits_used > currentStats.credits_total * 0.9
+                                                ? "bg-gradient-to-r from-red-600 to-orange-500"
+                                                : "bg-gradient-to-r from-blue-600 to-indigo-400"
+                                        )}
+                                        style={{ width: `${currentStats.credits_total === 999999 ? 0 : Math.min((currentStats.credits_used / currentStats.credits_total) * 100, 100)}%` }}
                                     />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Top Up Button (Standalone & Attractive) */}
+                        {/* Top Up Button */}
                         <Button
                             size="sm"
                             onClick={() => router.push("/dashboard?tab=settings&view=billing")}
-                            className="h-8 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold tracking-wide px-4 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all duration-200 flex items-center gap-1.5"
+                            className="h-9 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[11px] font-black tracking-widest px-5 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center gap-2 group border border-white/10"
                         >
-                            <Zap className="h-3.5 w-3.5" />
+                            <Zap className="h-3.5 w-3.5 fill-blue-200 group-hover:scale-110 transition-transform" />
                             TOP UP
                         </Button>
                     </div>

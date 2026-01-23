@@ -104,4 +104,32 @@
         background-image: linear-gradient(to bottom right, #020617, #0f172a, #1e1b4b);
         background-attachment: fixed;
     }
+
+    @keyframes text-shine {
+        0% {
+            background-position: 100% center;
+        }
+
+        40% {
+            background-position: 0% center;
+        }
+
+        100% {
+            background-position: 0% center;
+        }
+    }
+
+    .animate-text-shine {
+        background: linear-gradient(to right,
+                #94a3b8 35%,
+                #ffffff 50%,
+                #94a3b8 65%);
+        background-size: 300% auto;
+        background-repeat: no-repeat;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: text-shine 5s linear infinite;
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+    }
 }

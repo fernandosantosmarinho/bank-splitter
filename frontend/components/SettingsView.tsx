@@ -29,6 +29,7 @@ import {
 import CheckoutModal from "./CheckoutModal";
 import { SubscriptionTier } from "@/lib/stripe";
 import SubscriptionBadge from "@/components/SubscriptionBadge";
+import SubscriptionManagerModal from "./SubscriptionManagerModal";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -42,6 +43,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
     const [copied, setCopied] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [isSubscriptionManagerOpen, setIsSubscriptionManagerOpen] = useState(false);
     const [checkoutTier, setCheckoutTier] = useState<SubscriptionTier>('pro');
 
     const searchParams = useSearchParams();
@@ -85,27 +87,8 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
         setIsCheckoutOpen(true);
     };
 
-    const handleManageSubscription = async () => {
-        setIsLoading(true);
-        try {
-            const response = await fetch('/api/stripe/portal', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-            });
-
-            const data = await response.json();
-
-            if (data.url) {
-                window.location.href = data.url;
-            } else {
-                toast.error('Failed to open customer portal');
-                setIsLoading(false);
-            }
-        } catch (error) {
-            console.error('Error opening customer portal:', error);
-            toast.error('An error occurred. Please try again.');
-            setIsLoading(false);
-        }
+    const handleManageSubscription = () => {
+        setIsSubscriptionManagerOpen(true);
     };
 
     // Helper to get current tier
@@ -452,6 +435,11 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                 onClose={() => setIsCheckoutOpen(false)}
                 tier={checkoutTier}
                 email={user.primaryEmailAddress?.emailAddress}
+            />
+
+            <SubscriptionManagerModal
+                isOpen={isSubscriptionManagerOpen}
+                onClose={() => setIsSubscriptionManagerOpen(false)}
             />
         </div >
     );

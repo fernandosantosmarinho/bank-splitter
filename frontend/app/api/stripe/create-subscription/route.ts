@@ -125,6 +125,36 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Failed to initialize payment' }, { status: 500 });
         }
 
+        // Proactive update to Supabase to handle potential webhook delays/missing local delivery
+        const sub = subscription as any;
+        const calculatedEnd = sub.current_period_end
+            ? new Date(sub.current_period_end * 1000)
+            : new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+
+        // Sanity check for local tests (e.g. Stripe CLI)
+        let finalEndDate = calculatedEnd;
+        if (finalEndDate.getTime() < Date.now() + 24 * 60 * 60 * 1000) {
+            console.log("[Create Subscription] Stripe date is too early (often happens in mocks), forcing +31 days.");
+            finalEndDate = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+        }
+
+        console.log(`[Create Subscription] Proactively saving subscription ${subscription.id} for user ${userId}. Status: active, Expires: ${finalEndDate.toISOString()}`);
+
+        const { error: finalUpdateError } = await supabaseAdmin
+            .from('user_metrics')
+            .update({
+                stripe_subscription_id: subscription.id,
+                subscription_tier: tier,
+                subscription_status: 'active', // Immediate activation for better local/dev experience
+                subscription_current_period_end: finalEndDate.toISOString(),
+                updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId);
+
+        if (finalUpdateError) {
+            console.error("[Create Subscription] Error during proactive DB update:", finalUpdateError);
+        }
+
         return NextResponse.json({
             subscriptionId: subscription.id,
             clientSecret: clientSecret

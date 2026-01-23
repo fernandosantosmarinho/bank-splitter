@@ -74,7 +74,13 @@ export async function incrementMetric(userId: string | undefined | null, column:
             credits_total: row.credits_total,
             credits_used: row.credits_used,
             csv_exports: row.csv_exports,
-            qbo_exports: row.qbo_exports
+            qbo_exports: row.qbo_exports,
+            // Preserve subscription data during metrics update
+            subscription_tier: (row as any).subscription_tier,
+            subscription_status: (row as any).subscription_status,
+            stripe_customer_id: (row as any).stripe_customer_id,
+            stripe_subscription_id: (row as any).stripe_subscription_id,
+            subscription_current_period_end: (row as any).subscription_current_period_end,
         };
 
         // 5. Upsert

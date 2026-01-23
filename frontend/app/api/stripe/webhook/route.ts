@@ -98,9 +98,25 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
         const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
         const subscription = subscriptionResponse as any;
-
         const credits = getCreditsForTier(tier);
-        console.log(`[Checkout] User ${userId} subscribed to ${tier} with ${credits} credits`);
+
+        const rawPeriodEnd = subscription.current_period_end;
+        let calculatedEnd: Date;
+
+        if (rawPeriodEnd && typeof rawPeriodEnd === 'number' && rawPeriodEnd > 0) {
+            calculatedEnd = new Date(rawPeriodEnd * 1000);
+        } else {
+            console.warn(`[Checkout] Missing or invalid current_period_end (${rawPeriodEnd}), forcing 31 days.`);
+            calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+        }
+
+        // Final Sanity Check: If Stripe (or mock) says it ends too soon, force 31 days
+        if (calculatedEnd.getTime() < Date.now() + 24 * 60 * 60 * 1000) {
+            console.warn(`[Checkout] Stripe period end is too early (${calculatedEnd.toISOString()}), forcing 31 days.`);
+            calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+        }
+
+        console.log(`[Checkout] Final Calculated End Date: ${calculatedEnd.toISOString()}`);
 
         const { error } = await supabaseAdmin
             .from('user_metrics')
@@ -109,7 +125,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
                 stripe_subscription_id: subscription.id,
                 subscription_tier: tier,
                 subscription_status: subscription.status,
-                subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                subscription_current_period_end: calculatedEnd.toISOString(),
                 credits_total: credits === -1 ? 999999 : credits,
                 credits_used: 0,
                 updated_at: new Date().toISOString(),
@@ -171,7 +187,17 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         }
 
         const sub = subscription as any;
-        const validDate = sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : new Date().toISOString();
+        let calculatedEnd = sub.current_period_end
+            ? new Date(sub.current_period_end * 1000)
+            : new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+
+        // Sanity check: If Stripe says it ends in the past or right now, force it to 31 days
+        if (calculatedEnd.getTime() < Date.now() + 24 * 60 * 60 * 1000) {
+            console.warn(`[Subscription Update] Stripe period end is too early (${calculatedEnd.toISOString()}), forcing 31 days.`);
+            calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+        }
+
+        console.log(`[Subscription Update] Final validDate: ${calculatedEnd.toISOString()}`);
 
         const { error: updateError } = await supabaseAdmin
             .from('user_metrics')
@@ -179,7 +205,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
                 stripe_subscription_id: sub.id,
                 subscription_tier: tier || userData.subscription_tier, // Keep existing if unknown
                 subscription_status: sub.status,
-                subscription_current_period_end: validDate,
+                subscription_current_period_end: calculatedEnd.toISOString(),
                 ...creditsUpdate,
                 updated_at: new Date().toISOString(),
             })
@@ -275,14 +301,25 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
         }
 
         const credits = getCreditsForTier(tier);
-        const validDate = subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : new Date().toISOString();
+        let calculatedEnd = subscription.current_period_end
+            ? new Date(subscription.current_period_end * 1000)
+            : new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+
+        // Sanity check: If Stripe says it ends in the past or right now, force it to 31 days
+        if (calculatedEnd.getTime() < Date.now() + 24 * 60 * 60 * 1000) {
+            console.warn(`[Payment Succeeded] Stripe period end is too early (${calculatedEnd.toISOString()}), forcing 31 days.`);
+            calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+        }
+
+        console.log(`[Payment Succeeded] Raw Stripe current_period_end: ${subscription.current_period_end}`);
+        console.log(`[Payment Succeeded] Calculated ISO Date: ${calculatedEnd.toISOString()}`);
 
         const { error } = await supabaseAdmin
             .from('user_metrics')
             .update({
                 subscription_tier: tier,
                 subscription_status: subscription.status,
-                subscription_current_period_end: validDate,
+                subscription_current_period_end: calculatedEnd.toISOString(),
                 stripe_subscription_id: subscription.id,
                 credits_total: credits === -1 ? 999999 : credits,
                 credits_used: 0,

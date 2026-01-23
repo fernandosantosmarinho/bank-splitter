@@ -1,0 +1,242 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+    Elements,
+    PaymentElement,
+    useStripe,
+    useElements
+} from "@stripe/react-stripe-js";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, CheckCircle2, Loader2, Lock } from "lucide-react";
+import { toast } from "sonner";
+import { SubscriptionTier } from "@/lib/stripe";
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+
+interface CheckoutFormProps {
+    tier: SubscriptionTier;
+    price: number;
+    onSuccess: () => void;
+    onCancel: () => void;
+    email?: string;
+}
+
+function CheckoutForm({ tier, price, onSuccess, onCancel, email }: CheckoutFormProps) {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!stripe || !elements) {
+            return;
+        }
+
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        const { error } = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+                return_url: `${window.location.origin}/dashboard?tab=settings&payment_success=true`,
+            },
+            redirect: "if_required", // Important: Avoid redirect if possible
+        });
+
+        if (error) {
+            setErrorMessage(error.message || "An unexpected error occurred.");
+            setIsLoading(false);
+        } else {
+            // Payment successful
+            onSuccess();
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="bg-[#0f172a] p-4 rounded-lg border border-white/5 mb-4">
+                <div className="flex justify-between items-center mb-2">
+                    <span className="text-white font-medium capitalize">{tier} Plan</span>
+                    <span className="text-xl font-bold text-white">${price}/mo</span>
+                </div>
+                <p className="text-xs text-slate-400">
+                    Billed monthly. Cancel anytime.
+                </p>
+            </div>
+
+            <PaymentElement
+                options={{
+                    layout: "tabs",
+                    defaultValues: {
+                        billingDetails: {
+                            email: email
+                        }
+                    }
+                }}
+            />
+
+            {errorMessage && (
+                <div className="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    <p>{errorMessage}</p>
+                </div>
+            )}
+
+            <div className="flex gap-3 pt-2">
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={onCancel}
+                    className="flex-1 border-white/10 text-slate-300 hover:bg-white/5"
+                    disabled={isLoading}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    type="submit"
+                    disabled={!stripe || isLoading}
+                    className="flex-1 bg-blue-600 hover:bg-blue-500 text-white"
+                >
+                    {isLoading ? (
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...</>
+                    ) : (
+                        <><Lock className="mr-2 h-3 w-3" /> Pay ${price}</>
+                    )}
+                </Button>
+            </div>
+
+            <p className="text-center text-[10px] text-slate-500 flex items-center justify-center gap-1">
+                <Lock className="h-3 w-3" /> Payments secured by Stripe
+            </p>
+        </form>
+    );
+}
+
+interface CheckoutModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    tier: SubscriptionTier;
+    email?: string;
+}
+
+export default function CheckoutModal({ isOpen, onClose, tier, email }: CheckoutModalProps) {
+    const [clientSecret, setClientSecret] = useState<string | null>(null);
+    const [isLoadingSecret, setIsLoadingSecret] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    const prices = {
+        free: 0,
+        pro: 29,
+        enterprise: 99
+    };
+
+    useEffect(() => {
+        if (isOpen && tier !== 'free') {
+            const fetchClientSecret = async () => {
+                setIsLoadingSecret(true);
+                try {
+                    const response = await fetch("/api/stripe/create-subscription", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ tier }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.error) {
+                        toast.error(data.error);
+                        onClose();
+                    } else {
+                        setClientSecret(data.clientSecret);
+                    }
+                } catch (error) {
+                    console.error("Error creating subscription:", error);
+                    toast.error("Failed to initialize payment");
+                    onClose();
+                } finally {
+                    setIsLoadingSecret(false);
+                }
+            };
+
+            fetchClientSecret();
+        }
+    }, [isOpen, tier, onClose]);
+
+    const handleSuccess = () => {
+        setIsSuccess(true);
+        toast.success("Subscription upgraded successfully!");
+        // Optional: refresh page/data after a delay
+        setTimeout(() => {
+            onClose();
+            window.location.reload(); // Refresh to update UI with new subscription status
+        }, 2000);
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-md bg-[#0b1221] border border-white/10 text-white p-0 overflow-hidden">
+                <DialogHeader className="px-6 pt-6 pb-2">
+                    <DialogTitle>Upgrade Subscription</DialogTitle>
+                    <DialogDescription className="text-slate-400">
+                        Enter your payment details to upgrade to the {tier} plan.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="px-6 pb-6">
+                    {isSuccess ? (
+                        <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in zoom-in duration-300">
+                            <div className="h-16 w-16 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/20">
+                                <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-white">Payment Successful!</h3>
+                                <p className="text-slate-400 mt-2">Your subscription is now active.</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            {isLoadingSecret ? (
+                                <div className="py-12 flex flex-col items-center justify-center space-y-4 text-slate-400">
+                                    <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                                    <p>Initializing secure checkout...</p>
+                                </div>
+                            ) : (
+                                clientSecret && (
+                                    <Elements
+                                        stripe={stripePromise}
+                                        options={{
+                                            clientSecret,
+                                            appearance: {
+                                                theme: 'night',
+                                                variables: {
+                                                    colorPrimary: '#2563eb',
+                                                    colorBackground: '#020617',
+                                                    colorText: '#ffffff',
+                                                    colorDanger: '#ef4444',
+                                                    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+                                                },
+                                            },
+                                        }}
+                                    >
+                                        <CheckoutForm
+                                            tier={tier}
+                                            price={prices[tier] || 0}
+                                            onSuccess={handleSuccess}
+                                            onCancel={onClose}
+                                            email={email}
+                                        />
+                                    </Elements>
+                                )
+                            )}
+                        </>
+                    )}
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}

@@ -26,6 +26,11 @@ import {
     Save,
     Zap
 } from "lucide-react";
+import CheckoutModal from "./CheckoutModal";
+import { SubscriptionTier } from "@/lib/stripe";
+import SubscriptionBadge from "@/components/SubscriptionBadge";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface SettingsViewProps {
     user: UserResource;
@@ -36,6 +41,29 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
     const [apiKey, setApiKey] = useState("sk_live_51M..." + Math.random().toString(36).substring(7));
     const [copied, setCopied] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+    const [checkoutTier, setCheckoutTier] = useState<SubscriptionTier>('pro');
+
+    const searchParams = useSearchParams();
+    const router = useRouter(); // Import useRouter
+    const initialTab = searchParams.get('view') || 'general';
+    const [activeTab, setActiveTab] = useState(initialTab);
+
+    // Sync state with URL param
+    useEffect(() => {
+        const view = searchParams.get('view');
+        if (view) {
+            setActiveTab(view);
+        }
+    }, [searchParams]);
+
+    const handleTabChange = (val: string) => {
+        setActiveTab(val);
+        // Update URL without full reload
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('view', val);
+        window.history.pushState({}, '', newUrl.toString());
+    };
 
     const handleCopy = () => {
         navigator.clipboard.writeText(apiKey);
@@ -52,6 +80,37 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
         }, 1000);
     };
 
+    const handleUpgrade = (tier: 'pro' | 'enterprise') => {
+        setCheckoutTier(tier);
+        setIsCheckoutOpen(true);
+    };
+
+    const handleManageSubscription = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch('/api/stripe/portal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            const data = await response.json();
+
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                toast.error('Failed to open customer portal');
+                setIsLoading(false);
+            }
+        } catch (error) {
+            console.error('Error opening customer portal:', error);
+            toast.error('An error occurred. Please try again.');
+            setIsLoading(false);
+        }
+    };
+
+    // Helper to get current tier
+    const currentTier = (stats.subscription_tier || 'free') as 'free' | 'pro' | 'enterprise';
+
     return (
         <div className="max-w-4xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="mb-8">
@@ -59,11 +118,11 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                 <p className="text-slate-400 mt-1">Manage your account preferences and API access.</p>
             </div>
 
-            <Tabs defaultValue="general" className="w-full">
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                 <TabsList className="grid w-full max-w-md grid-cols-3 bg-[#0f172a] border border-white/5 h-10 mb-8">
-                    <TabsTrigger value="general" className="data-[state=active]:bg-[#1e293b] data-[state=active]:text-white text-slate-400">General</TabsTrigger>
-                    <TabsTrigger value="billing" className="data-[state=active]:bg-[#1e293b] data-[state=active]:text-white text-slate-400">Billing</TabsTrigger>
-                    <TabsTrigger value="api" className="data-[state=active]:bg-[#1e293b] data-[state=active]:text-white text-slate-400">API</TabsTrigger>
+                    <TabsTrigger value="general" className="data-[state=active]:bg-[#1e293b] data-[state=active]:text-white text-slate-400 cursor-pointer">General</TabsTrigger>
+                    <TabsTrigger value="billing" className="data-[state=active]:bg-[#1e293b] data-[state=active]:text-white text-slate-400 cursor-pointer">Billing</TabsTrigger>
+                    <TabsTrigger value="api" className="data-[state=active]:bg-[#1e293b] data-[state=active]:text-white text-slate-400 cursor-pointer">API</TabsTrigger>
                 </TabsList>
 
                 {/* --- GENERAL TAB --- */}
@@ -82,7 +141,9 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                 <div>
                                     <h3 className="font-bold text-white text-lg">{user.fullName}</h3>
                                     <p className="text-sm text-slate-400">{user.primaryEmailAddress?.emailAddress}</p>
-                                    <Badge variant="outline" className="mt-2 border-blue-500/30 text-blue-400 bg-blue-500/10">PRO PLAN</Badge>
+                                    <div className="mt-2">
+                                        <SubscriptionBadge tier={stats.subscription_tier} />
+                                    </div>
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -133,54 +194,211 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
 
                 {/* --- BILLING TAB --- */}
                 <TabsContent value="billing" className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card className="bg-[#0b1221] border-white/5">
-                            <CardHeader>
-                                <CardTitle className="text-white flex items-center gap-2">
-                                    <CreditCard className="h-5 w-5 text-purple-500" /> Subscription
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="p-4 rounded-lg bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-white/5">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <p className="text-sm text-slate-400 font-bold uppercase">Current Plan</p>
-                                            <h2 className="text-2xl font-bold text-white mt-1">Pro Tier</h2>
-                                            <p className="text-xs text-slate-500 mt-2">Renews on Feb 21, 2026</p>
-                                        </div>
-                                        <Badge className="bg-purple-500 text-white hover:bg-purple-600">Active</Badge>
-                                    </div>
-                                </div>
-                                <Button variant="outline" className="w-full border-white/10 text-slate-300 hover:bg-white/5">Manage Subscription</Button>
-                            </CardContent>
-                        </Card>
+                    {/* Pricing Tiers */}
+                    {(!stats.subscription_tier || stats.subscription_tier === 'free') && (
+                        <>
+                            <div className="mb-4">
+                                <h3 className="text-lg font-bold text-white mb-2">Upgrade Your Plan</h3>
+                                <p className="text-sm text-slate-400">Choose the plan that best fits your needs</p>
+                            </div>
 
-                        <Card className="bg-[#0b1221] border-white/5">
-                            <CardHeader>
-                                <CardTitle className="text-white flex items-center gap-2">
-                                    <Zap className="h-5 w-5 text-yellow-500" /> Usage Limits
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-slate-400">Credits Used</span>
-                                        <span className="text-white font-mono">{stats.credits_used} / {stats.credits_total}</span>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                {/* Free Tier */}
+                                <Card className="bg-[#0b1221] border-white/5">
+                                    <CardHeader>
+                                        <CardTitle className="text-white">Free</CardTitle>
+                                        <CardDescription className="text-slate-400">Perfect for trying out</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div>
+                                            <p className="text-3xl font-bold text-white">$0</p>
+                                            <p className="text-xs text-slate-500">per month</p>
+                                        </div>
+                                        <ul className="space-y-2 text-sm text-slate-300">
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                500 credits/month
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                Basic extraction
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                CSV & QBO exports
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                Email support
+                                            </li>
+                                        </ul>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full border-white/10 text-slate-400"
+                                            disabled
+                                        >
+                                            Current Plan
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Pro Tier */}
+                                <Card className="bg-[#0b1221] border-blue-500/30 relative">
+                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                                        <Badge className="bg-blue-500 text-white">Popular</Badge>
                                     </div>
-                                    <div className="h-2 w-full bg-[#0f172a] rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-yellow-500"
-                                            style={{ width: `${Math.min((stats.credits_used / stats.credits_total) * 100, 100)}%` }}
-                                        />
+                                    <CardHeader>
+                                        <CardTitle className="text-white">Pro</CardTitle>
+                                        <CardDescription className="text-slate-400">For professionals</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div>
+                                            <p className="text-3xl font-bold text-white">$29</p>
+                                            <p className="text-xs text-slate-500">per month</p>
+                                        </div>
+                                        <ul className="space-y-2 text-sm text-slate-300">
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                5,000 credits/month
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                Advanced extraction
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                Priority processing
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                API access
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                Priority support
+                                            </li>
+                                        </ul>
+                                        <Button
+                                            variant={currentTier === 'pro' ? 'outline' : 'default'}
+                                            className={currentTier === 'pro' ? 'w-full border-white/10 text-slate-400' : 'w-full bg-blue-600 hover:bg-blue-500 text-white'}
+                                            onClick={() => handleUpgrade('pro')}
+                                            disabled={isLoading || currentTier === 'pro'}
+                                        >
+                                            {currentTier === 'pro' ? 'Current Plan' : (isLoading ? 'Loading...' : 'Upgrade to Pro')}
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Enterprise Tier */}
+                                <Card className="bg-[#0b1221] border-white/5">
+                                    <CardHeader>
+                                        <CardTitle className="text-white">Enterprise</CardTitle>
+                                        <CardDescription className="text-slate-400">For large teams</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        <div>
+                                            <p className="text-3xl font-bold text-white">$99</p>
+                                            <p className="text-xs text-slate-500">per month</p>
+                                        </div>
+                                        <ul className="space-y-2 text-sm text-slate-300">
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                Unlimited credits
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                All Pro features
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                Dedicated manager
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                Custom integrations
+                                            </li>
+                                            <li className="flex items-center gap-2">
+                                                <Check className="h-4 w-4 text-emerald-500" />
+                                                24/7 phone support
+                                            </li>
+                                        </ul>
+                                        <Button
+                                            variant={currentTier === 'enterprise' ? 'outline' : 'default'}
+                                            className={currentTier === 'enterprise' ? 'w-full border-white/10 text-slate-400' : 'w-full bg-purple-600 hover:bg-purple-500 text-white'}
+                                            onClick={() => handleUpgrade('enterprise')}
+                                            disabled={isLoading || currentTier === 'enterprise'}
+                                        >
+                                            {currentTier === 'enterprise' ? 'Current Plan' : (isLoading ? 'Loading...' : 'Upgrade to Enterprise')}
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </>
+                    )}
+
+                    {/* Current Subscription Status */}
+                    <Card className="bg-[#0b1221] border-white/5">
+                        <CardHeader>
+                            <CardTitle className="text-white flex items-center gap-2">
+                                <CreditCard className="h-5 w-5 text-purple-500" /> Current Subscription
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="p-4 rounded-lg bg-gradient-to-br from-blue-900/20 to-purple-900/20 border border-white/5">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="text-sm text-slate-400 font-bold uppercase">Current Plan</p>
+                                        <h2 className="text-2xl font-bold text-white mt-1 capitalize">
+                                            {stats.subscription_tier || 'Free'} Tier
+                                        </h2>
+                                        {stats.subscription_current_period_end && (
+                                            <p className="text-xs text-slate-500 mt-2">
+                                                Renews on {new Date(stats.subscription_current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                            </p>
+                                        )}
                                     </div>
-                                    <p className="text-xs text-slate-500">1 Document = 10 Credits</p>
+                                    <Badge className={
+                                        stats.subscription_status === 'active'
+                                            ? "bg-emerald-500 text-white hover:bg-emerald-600"
+                                            : stats.subscription_status === 'past_due'
+                                                ? "bg-red-500 text-white hover:bg-red-600"
+                                                : "bg-slate-500 text-white hover:bg-slate-600"
+                                    }>
+                                        {stats.subscription_status === 'active' ? 'Active' : stats.subscription_status || 'Inactive'}
+                                    </Badge>
                                 </div>
-                                <Button className="w-full bg-[#0f172a] text-blue-400 hover:text-blue-300 hover:bg-[#1e293b] border border-blue-500/20">
-                                    Purchase More Credits
+                            </div>
+
+                            {/* Usage Stats */}
+                            <div className="space-y-2">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-slate-400">Credits Used</span>
+                                    <span className="text-white font-mono">
+                                        {stats.credits_used} / {stats.credits_total === 999999 ? '∞' : stats.credits_total}
+                                    </span>
+                                </div>
+                                <div className="h-2 w-full bg-[#0f172a] rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-yellow-500"
+                                        style={{ width: `${stats.credits_total === 999999 ? 0 : Math.min((stats.credits_used / stats.credits_total) * 100, 100)}%` }}
+                                    />
+                                </div>
+                                <p className="text-xs text-slate-500">1 Document = 10 Credits</p>
+                            </div>
+
+                            {/* Manage Subscription Button */}
+                            {stats.stripe_customer_id && stats.subscription_status === 'active' && (
+                                <Button
+                                    variant="outline"
+                                    className="w-full border-white/10 text-slate-300 hover:bg-white/5"
+                                    onClick={handleManageSubscription}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Loading...' : 'Manage Subscription'}
                                 </Button>
-                            </CardContent>
-                        </Card>
-                    </div>
+                            )}
+                        </CardContent>
+                    </Card>
                 </TabsContent>
 
                 {/* --- API TAB --- */}
@@ -226,7 +444,15 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                         </CardContent>
                     </Card>
                 </TabsContent>
+
             </Tabs>
-        </div>
+
+            <CheckoutModal
+                isOpen={isCheckoutOpen}
+                onClose={() => setIsCheckoutOpen(false)}
+                tier={checkoutTier}
+                email={user.primaryEmailAddress?.emailAddress}
+            />
+        </div >
     );
 }

@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@supabase/supabase-js';
+import { UserMetrics } from '@/lib/supabase';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -13,17 +14,6 @@ const supabase = createClient(
 );
 
 console.log("[Metrics] Initialized Supabase Client. Using Service Key?", !!supabaseServiceKey);
-
-interface UserMetrics {
-    user_id: string;
-    documents_processed: number;
-    time_saved_hours: number;
-    success_rate: number;
-    credits_total: number;
-    credits_used: number;
-    csv_exports: number;
-    qbo_exports: number;
-}
 
 export async function incrementMetric(userId: string | undefined | null, column: keyof UserMetrics, amount: number = 1) {
     if (!userId) return;
@@ -48,7 +38,7 @@ export async function incrementMetric(userId: string | undefined | null, column:
         }
 
         // 2. Prepare Data
-        let row: UserMetrics;
+        let row: Partial<UserMetrics>;
 
         if (data) {
             row = data as UserMetrics;
@@ -107,6 +97,7 @@ export async function incrementMetric(userId: string | undefined | null, column:
     }
 }
 
+
 export async function getMetrics(userId: string | undefined | null): Promise<UserMetrics | null> {
     if (!userId) return null;
     if (!supabaseUrl) return null;
@@ -116,7 +107,7 @@ export async function getMetrics(userId: string | undefined | null): Promise<Use
 
         const { data, error } = await supabase
             .from('user_metrics')
-            .select('*')
+            .select('user_id, documents_processed, time_saved_hours, success_rate, credits_total, credits_used, csv_exports, qbo_exports, subscription_tier, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_current_period_end')
             .eq('user_id', userId)
             .single();
 
@@ -125,6 +116,7 @@ export async function getMetrics(userId: string | undefined | null): Promise<Use
             return null;
         }
 
+        console.log("[Metrics] Data returned:", JSON.stringify(data));
         return data as UserMetrics;
     } catch (e) {
         console.error("[Metrics] Fetch Exception:", e);

@@ -22,6 +22,11 @@ export interface UserMetrics {
     credits_used: number;
     csv_exports: number;
     qbo_exports: number;
+    subscription_tier?: 'free' | 'pro' | 'enterprise';
+    subscription_status?: string;
+    stripe_customer_id?: string;
+    stripe_subscription_id?: string;
+    subscription_current_period_end?: string;
 }
 
 // incrementMetric moved to app/actions/metrics.ts to run on server-side

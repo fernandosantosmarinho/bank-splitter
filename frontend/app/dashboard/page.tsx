@@ -27,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import ExtractionView from "@/components/ExtractionView";
 import SettingsView from "@/components/SettingsView";
+import SubscriptionBadge from "@/components/SubscriptionBadge";
 
 const MOCK_HISTORY = [
     { name: "Statement_Jan_2026.pdf", time: "Today, 10:42 AM", size: "1.2 MB", downloads: ["CSV", "QBO"] },
@@ -47,13 +48,14 @@ interface HistoryItem {
 }
 
 function DashboardContent() {
-    const { user, isLoaded } = useUser();
+    const { user, isLoaded: isUserLoaded } = useUser(); // Renamed isLoaded to isUserLoaded to avoid conflict
     const router = useRouter();
     const searchParams = useSearchParams();
     const currentTab = searchParams.get("tab") || "overview";
 
     const [stats, setStats] = useState<UserMetrics | null>(null);
     const [history, setHistory] = useState<HistoryItem[]>([]);
+    const [isDashboardDataLoaded, setIsDashboardDataLoaded] = useState(false); // New state for dashboard data loading
 
     // Load history from localStorage on mount
     useEffect(() => {
@@ -75,10 +77,10 @@ function DashboardContent() {
     }, [history]);
 
     useEffect(() => {
-        if (isLoaded && !user) {
+        if (isUserLoaded && !user) {
             router.push("/");
         }
-    }, [isLoaded, user, router]);
+    }, [isUserLoaded, user, router]);
 
     useEffect(() => {
         if (user) {
@@ -163,7 +165,8 @@ function DashboardContent() {
         qbo_exports: 0
     };
 
-    if (!isLoaded) return <div className="h-screen w-full bg-[#020617] flex items-center justify-center"><Loader2 className="h-8 w-8 text-blue-500 animate-spin" /></div>;
+    // Keep the loading screen if User is loading
+    if (!isUserLoaded) return <div className="h-screen w-full bg-[#020617] flex items-center justify-center"><Loader2 className="h-8 w-8 text-blue-500 animate-spin" /></div>;
 
     if (!user) {
         // middleware protects this, but safe fallback
@@ -234,7 +237,7 @@ function DashboardContent() {
                         }} />
                         <div className="flex flex-col overflow-hidden">
                             <span className="text-sm font-medium text-white truncate">{user.fullName || user.firstName}</span>
-                            <span className="text-xs text-slate-500 truncate">Pro Plan</span>
+                            <span className="text-xs text-slate-500 truncate capitalize">{currentStats.subscription_tier || 'Free'} Plan</span>
                         </div>
                     </div>
                 </div>
@@ -256,26 +259,32 @@ function DashboardContent() {
                     </div>
 
                     {/* Right: Credits, Help, Notifs */}
-                    <div className="flex items-center gap-6">
-                        {/* Credits Badge */}
-                        <div className="flex items-center gap-3 px-3 py-1.5 bg-[#0f172a] border border-white/5 rounded-full">
-                            <div className="flex items-center gap-2">
-                                <div className={cn("h-2 w-2 rounded-full animate-pulse", currentStats.credits_used > currentStats.credits_total * 0.9 ? "bg-red-500" : "bg-emerald-500")} />
-                                <span className="text-xs font-bold text-slate-300">{currentStats.credits_used.toLocaleString()} <span className="text-slate-600">/</span> {currentStats.credits_total.toLocaleString()} Credits</span>
+                    {/* Right: Credits Widget */}
+                    <div className="flex items-center gap-3">
+                        {/* Credits Display (Compact) */}
+                        <div className="hidden md:flex items-center bg-[#0b1221] border border-white/10 rounded-full px-4 py-1.5 gap-2">
+                            <div className="flex flex-col gap-0.5">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Credits</span>
+                                    <span className="text-xs font-bold text-white font-mono">{currentStats.credits_used.toLocaleString()} <span className="text-slate-600">/</span> {currentStats.credits_total.toLocaleString()}</span>
+                                </div>
+                                <div className="h-1 w-28 bg-[#0f172a] rounded-full overflow-hidden">
+                                    <div
+                                        className={cn("h-full rounded-full transition-all duration-300", currentStats.credits_used > currentStats.credits_total * 0.9 ? "bg-red-500" : "bg-blue-500")}
+                                        style={{ width: `${Math.min((currentStats.credits_used / currentStats.credits_total) * 100, 100)}%` }}
+                                    />
+                                </div>
                             </div>
-                            <div className="h-3 w-[1px] bg-white/10" />
-                            <span className="text-[10px] font-bold text-blue-500 cursor-pointer hover:underline">TOP UP</span>
                         </div>
 
-                        <div className="h-5 w-[1px] bg-white/5" />
-
-                        <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hover:bg-white/5 h-8 w-8">
-                            <HelpCircle className="h-4 w-4" />
-                        </Button>
-
-                        <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white hover:bg-white/5 h-8 w-8 relative">
-                            <Bell className="h-4 w-4" />
-                            <span className="absolute top-2 right-2 h-1.5 w-1.5 bg-red-500 rounded-full border border-[#020617]" />
+                        {/* Top Up Button (Standalone & Attractive) */}
+                        <Button
+                            size="sm"
+                            onClick={() => router.push("/dashboard?tab=settings&view=billing")}
+                            className="h-8 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold tracking-wide px-4 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all duration-200 flex items-center gap-1.5"
+                        >
+                            <Zap className="h-3.5 w-3.5" />
+                            TOP UP
                         </Button>
                     </div>
                 </header>
@@ -293,58 +302,88 @@ function DashboardContent() {
                                             <Wallet className="h-6 w-6 text-blue-500" />
                                         </div>
                                         <div>
-                                            <h1 className="text-xl font-bold text-white">Workspace Overview</h1>
-                                            <p className="text-xs text-slate-500">Financial Data Extraction</p>
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <h1 className="text-xl font-bold text-white">Workspace Overview</h1>
+                                                <SubscriptionBadge tier={currentStats.subscription_tier} />
+                                            </div>
+                                            <p className="text-xs text-slate-500">Your extraction analytics at a glance</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="px-3 py-1 bg-white/5 rounded-full border border-white/10 text-xs font-medium text-slate-300 flex items-center gap-2">
-                                            <Zap className="h-3 w-3" /> V2 Engine Active
+                                    <Button
+                                        size="sm"
+                                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all duration-200"
+                                        onClick={() => router.push("/dashboard?tab=statements")}
+                                    >
+                                        <FileText className="h-4 w-4 mr-2" />
+                                        New Extraction
+                                    </Button>
+                                </div>
+
+                                {/* STATS GRID - 3 Columns */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {/* Documents Processed */}
+                                    <div className="bg-[#0f172a] rounded-lg p-5 border border-white/5">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <p className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1">
+                                                <FileText className="h-3 w-3" /> Documents
+                                            </p>
+                                            <div className="h-8 w-8 rounded-full bg-blue-600/10 flex items-center justify-center">
+                                                <FileText className="h-4 w-4 text-blue-500" />
+                                            </div>
                                         </div>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 ml-2"><MoreVertical className="h-4 w-4 text-slate-400" /></Button>
+                                        <p className="text-3xl font-bold text-white tracking-tight mb-1">{currentStats.documents_processed.toLocaleString()}</p>
+                                        <p className="text-xs text-slate-500">Total processed</p>
+                                    </div>
+
+                                    {/* Time Saved */}
+                                    <div className="bg-[#0f172a] rounded-lg p-5 border border-white/5">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <p className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1">
+                                                <Clock className="h-3 w-3" /> Time Saved
+                                            </p>
+                                            <div className="h-8 w-8 rounded-full bg-emerald-600/10 flex items-center justify-center">
+                                                <Clock className="h-4 w-4 text-emerald-500" />
+                                            </div>
+                                        </div>
+                                        <p className="text-3xl font-bold text-white tracking-tight mb-1">~{currentStats.time_saved_hours}h</p>
+                                        <p className="text-xs text-slate-500">Through automation</p>
+                                    </div>
+
+                                    {/* Success Rate */}
+                                    <div className="bg-[#0f172a] rounded-lg p-5 border border-white/5">
+                                        <div className="flex items-center justify-between mb-3">
+                                            <p className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1">
+                                                <CheckCircle2 className="h-3 w-3" /> Success Rate
+                                            </p>
+                                            <div className="h-8 w-8 rounded-full bg-purple-600/10 flex items-center justify-center">
+                                                <CheckCircle2 className="h-4 w-4 text-purple-500" />
+                                            </div>
+                                        </div>
+                                        <p className="text-3xl font-bold text-white tracking-tight mb-1">{currentStats.success_rate}%</p>
+                                        <p className="text-xs text-slate-500">Extraction accuracy</p>
                                     </div>
                                 </div>
 
-                                {/* STATS ROW */}
-                                <div className="grid grid-cols-3 gap-8 mb-8 border-b border-white/5 pb-8">
-                                    <div>
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1 flex items-center gap-1"><FileText className="h-3 w-3" /> DOCUMENTS PROCESSED</p>
-                                        <p className="text-2xl font-bold text-white tracking-tight">{currentStats.documents_processed.toLocaleString()}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1 flex items-center gap-1"><Clock className="h-3 w-3" /> TIME SAVED (HOURS)</p>
-                                        <p className="text-2xl font-bold text-white tracking-tight">~{currentStats.time_saved_hours}h</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" /> SUCCESS RATE</p>
-                                        <p className="text-2xl font-bold text-white tracking-tight">{currentStats.success_rate}%</p>
-                                    </div>
-                                </div>
-
-                                {/* SUB STATS GRID */}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-[#0f172a] rounded-lg p-4 border border-white/5">
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1">TOTAL CREDITS</p>
-                                        <p className="text-white font-semibold">{currentStats.credits_total.toLocaleString()}</p>
-                                    </div>
-                                    <div className="bg-[#0f172a] rounded-lg p-4 border border-white/5">
-                                        <p className="text-[10px] uppercase font-bold text-slate-500 mb-1">CREDITS USED</p>
-                                        <p className="text-white font-semibold">{currentStats.credits_used.toLocaleString()}</p>
-                                    </div>
-                                </div>
-
-                                <div className="mt-8 flex flex-col md:flex-row gap-6 justify-between items-center border-t border-white/5 pt-6">
-                                    <div className="flex gap-8 w-full md:w-auto">
+                                {/* Export Stats - Compact Footer */}
+                                <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
+                                    <div className="flex gap-8">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm text-slate-400">CSV Exports:</span>
+                                            <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                                            <span className="text-xs text-slate-500">CSV:</span>
                                             <span className="text-sm font-bold text-emerald-400">{currentStats.csv_exports}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm text-slate-400">QBO Exports:</span>
+                                            <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                                            <span className="text-xs text-slate-500">QBO:</span>
                                             <span className="text-sm font-bold text-blue-400">{currentStats.qbo_exports}</span>
                                         </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-2 w-2 rounded-full bg-slate-500"></div>
+                                            <span className="text-xs text-slate-500">Total Exports:</span>
+                                            <span className="text-sm font-bold text-white">{currentStats.csv_exports + currentStats.qbo_exports}</span>
+                                        </div>
                                     </div>
-                                    <Button size="sm" className="w-full md:w-auto bg-[#0f172a] border border-white/10 hover:bg-white/5 text-blue-400 h-9" onClick={() => router.push("/dashboard?tab=statements")}>New Extraction</Button>
+                                    <p className="text-xs text-slate-600">Updated {new Date().toLocaleTimeString()}</p>
                                 </div>
                             </div>
 

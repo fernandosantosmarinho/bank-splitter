@@ -81,6 +81,7 @@ export async function incrementMetric(userId: string | undefined | null, column:
             stripe_customer_id: (row as any).stripe_customer_id,
             stripe_subscription_id: (row as any).stripe_subscription_id,
             subscription_current_period_end: (row as any).subscription_current_period_end,
+            subscription_cancel_at_period_end: (row as any).subscription_cancel_at_period_end,
         };
 
         // 5. Upsert
@@ -113,7 +114,7 @@ export async function getMetrics(userId: string | undefined | null): Promise<Use
 
         const { data, error } = await supabase
             .from('user_metrics')
-            .select('user_id, documents_processed, time_saved_hours, success_rate, credits_total, credits_used, csv_exports, qbo_exports, subscription_tier, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_current_period_end')
+            .select('user_id, documents_processed, time_saved_hours, success_rate, credits_total, credits_used, csv_exports, qbo_exports, subscription_tier, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_current_period_end, subscription_cancel_at_period_end')
             .eq('user_id', userId)
             .single();
 

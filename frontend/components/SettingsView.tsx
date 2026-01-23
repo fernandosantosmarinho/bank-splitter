@@ -336,18 +336,25 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                         </h2>
                                         {stats.subscription_current_period_end && (
                                             <p className="text-xs text-slate-500 mt-2">
-                                                Renews on {new Date(stats.subscription_current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                                {stats.subscription_cancel_at_period_end ? "Ends on " : "Renews on "}
+                                                {new Date(stats.subscription_current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                                             </p>
                                         )}
                                     </div>
                                     <Badge className={
-                                        stats.subscription_status === 'active'
+                                        stats.subscription_status === 'active' && !stats.subscription_cancel_at_period_end
                                             ? "bg-emerald-500 text-white hover:bg-emerald-600"
-                                            : stats.subscription_status === 'past_due'
-                                                ? "bg-red-500 text-white hover:bg-red-600"
-                                                : "bg-slate-500 text-white hover:bg-slate-600"
+                                            : stats.subscription_status === 'active' && stats.subscription_cancel_at_period_end
+                                                ? "bg-amber-500 text-white hover:bg-amber-600"
+                                                : stats.subscription_status === 'past_due'
+                                                    ? "bg-red-500 text-white hover:bg-red-600"
+                                                    : "bg-slate-500 text-white hover:bg-slate-600"
                                     }>
-                                        {stats.subscription_status === 'active' ? 'Active' : stats.subscription_status || 'Inactive'}
+                                        {stats.subscription_status === 'active' && stats.subscription_cancel_at_period_end
+                                            ? "Cancels Soon"
+                                            : stats.subscription_status === 'active'
+                                                ? 'Active'
+                                                : stats.subscription_status || 'Inactive'}
                                     </Badge>
                                 </div>
                             </div>

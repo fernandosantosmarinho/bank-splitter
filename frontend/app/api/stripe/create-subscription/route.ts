@@ -134,13 +134,6 @@ export async function POST(req: NextRequest) {
         if (sub.current_period_end) {
             finalEndDate = new Date(sub.current_period_end * 1000);
             console.log(`[Create Subscription] Using Stripe's period end: ${finalEndDate.toISOString()}`);
-
-            // Sanity check: if Stripe's date is in the past or less than 1 day from now (shouldn't happen in production)
-            const oneDayFromNow = Date.now() + (24 * 60 * 60 * 1000);
-            if (finalEndDate.getTime() < oneDayFromNow) {
-                console.warn(`[Create Subscription] WARNING: Stripe date ${finalEndDate.toISOString()} is too early, forcing +31 days from now`);
-                finalEndDate = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
-            }
         } else {
             // Fallback only if Stripe didn't provide a date (very rare)
             console.warn("[Create Subscription] WARNING: No current_period_end from Stripe, using fallback +31 days");

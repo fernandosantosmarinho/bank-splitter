@@ -106,13 +106,6 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
         if (rawPeriodEnd && typeof rawPeriodEnd === 'number' && rawPeriodEnd > 0) {
             calculatedEnd = new Date(rawPeriodEnd * 1000);
             console.log(`[Checkout] Using Stripe's period end: ${calculatedEnd.toISOString()}`);
-
-            // Sanity Check: Only override if date is in the past or less than 24h away
-            const oneDayFromNow = Date.now() + (24 * 60 * 60 * 1000);
-            if (calculatedEnd.getTime() < oneDayFromNow) {
-                console.warn(`[Checkout] Stripe date ${calculatedEnd.toISOString()} is too early, forcing +31 days`);
-                calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
-            }
         } else {
             console.warn(`[Checkout] Missing or invalid current_period_end (${rawPeriodEnd}), forcing 31 days.`);
             calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
@@ -128,6 +121,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
                 subscription_tier: tier,
                 subscription_status: subscription.status,
                 subscription_current_period_end: calculatedEnd.toISOString(),
+                subscription_cancel_at_period_end: subscription.cancel_at_period_end,
                 credits_total: credits === -1 ? 999999 : credits,
                 credits_used: 0,
                 updated_at: new Date().toISOString(),
@@ -189,35 +183,42 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         }
 
         const sub = subscription as any;
-        let calculatedEnd: Date;
 
-        if (sub.current_period_end) {
-            calculatedEnd = new Date(sub.current_period_end * 1000);
-            console.log(`[Subscription Update] Using Stripe's period end: ${calculatedEnd.toISOString()}`);
+        // Prepare the update payload
+        let updatePayload: any = {
+            stripe_subscription_id: sub.id,
+            subscription_tier: tier || userData.subscription_tier, // Keep existing if unknown
+            subscription_status: sub.status,
+            subscription_cancel_at_period_end: sub.cancel_at_period_end,
+            ...creditsUpdate,
+            updated_at: new Date().toISOString(),
+        };
 
-            // Sanity check: Only override if date is in the past or less than 24h away
-            const oneDayFromNow = Date.now() + (24 * 60 * 60 * 1000);
-            if (calculatedEnd.getTime() < oneDayFromNow) {
-                console.warn(`[Subscription Update] Stripe date ${calculatedEnd.toISOString()} is too early, forcing +31 days`);
+        // Only update the end date if this is NOT just a cancellation
+        // We update the end date when:
+        // 1. The subscription is becoming active (new or renewed)
+        // 2. The subscription is NOT being cancelled (cancel_at_period_end is false)
+        // We do NOT update the end date when cancel_at_period_end is true, as this preserves the original renewal date
+        if (!sub.cancel_at_period_end || sub.status === 'active') {
+            let calculatedEnd: Date;
+
+            if (sub.current_period_end) {
+                calculatedEnd = new Date(sub.current_period_end * 1000);
+                console.log(`[Subscription Update] Using Stripe's period end: ${calculatedEnd.toISOString()}`);
+            } else {
+                console.warn('[Subscription Update] No current_period_end from Stripe, forcing 31 days');
                 calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
             }
-        } else {
-            console.warn('[Subscription Update] No current_period_end from Stripe, forcing 31 days');
-            calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
-        }
 
-        console.log(`[Subscription Update] Final validDate: ${calculatedEnd.toISOString()}`);
+            console.log(`[Subscription Update] Final validDate: ${calculatedEnd.toISOString()}`);
+            updatePayload.subscription_current_period_end = calculatedEnd.toISOString();
+        } else {
+            console.log(`[Subscription Update] Skipping end date update - subscription is being cancelled, preserving original renewal date`);
+        }
 
         const { error: updateError } = await supabaseAdmin
             .from('user_metrics')
-            .update({
-                stripe_subscription_id: sub.id,
-                subscription_tier: tier || userData.subscription_tier, // Keep existing if unknown
-                subscription_status: sub.status,
-                subscription_current_period_end: calculatedEnd.toISOString(),
-                ...creditsUpdate,
-                updated_at: new Date().toISOString(),
-            })
+            .update(updatePayload)
             .eq('user_id', userData.user_id);
 
         if (updateError) {
@@ -315,13 +316,6 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
         if (subscription.current_period_end) {
             calculatedEnd = new Date(subscription.current_period_end * 1000);
             console.log(`[Payment Succeeded] Using Stripe's period end: ${calculatedEnd.toISOString()}`);
-
-            // Sanity check: Only override if date is in the past or less than 24h away
-            const oneDayFromNow = Date.now() + (24 * 60 * 60 * 1000);
-            if (calculatedEnd.getTime() < oneDayFromNow) {
-                console.warn(`[Payment Succeeded] Stripe date ${calculatedEnd.toISOString()} is too early, forcing +31 days`);
-                calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
-            }
         } else {
             console.warn('[Payment Succeeded] No current_period_end from Stripe, forcing 31 days');
             calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
@@ -336,6 +330,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
                 subscription_tier: tier,
                 subscription_status: subscription.status,
                 subscription_current_period_end: calculatedEnd.toISOString(),
+                subscription_cancel_at_period_end: subscription.cancel_at_period_end,
                 stripe_subscription_id: subscription.id,
                 credits_total: credits === -1 ? 999999 : credits,
                 credits_used: 0,

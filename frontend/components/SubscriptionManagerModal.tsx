@@ -7,6 +7,7 @@ import { Loader2, CreditCard, Calendar, ShieldCheck, AlertTriangle } from "lucid
 import { toast } from "sonner";
 import SubscriptionBadge from "@/components/SubscriptionBadge";
 import { SubscriptionTier } from "@/lib/stripe";
+import { useRouter } from "next/navigation";
 
 interface SubscriptionDetails {
     planName: string;
@@ -57,6 +58,8 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
         }
     };
 
+    const router = useRouter();
+
     const handleCancelSubscription = async () => {
         setIsCancelling(true);
         try {
@@ -65,7 +68,7 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
 
             toast.success("Subscription canceled. Access remains until the billing period ends.");
             onClose();
-            window.location.reload(); // Refresh to update UI
+            window.location.reload();
         } catch (error) {
             console.error(error);
             toast.error("Failed to cancel subscription");

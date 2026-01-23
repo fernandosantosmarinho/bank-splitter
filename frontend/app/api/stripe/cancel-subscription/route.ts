@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
         await supabase
             .from('user_metrics')
             .update({
-                subscription_status: 'canceled', // Or distinct status if preferred, but webhook will confirm
+                subscription_status: subscription.status,
                 subscription_cancel_at_period_end: true,
                 updated_at: new Date().toISOString()
             })

@@ -377,7 +377,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                             </div>
 
                             {/* Manage Subscription Button */}
-                            {stats.stripe_customer_id && stats.subscription_status === 'active' && (
+                            {stats.stripe_customer_id && (stats.subscription_status === 'active' || stats.subscription_status === 'past_due' || stats.subscription_cancel_at_period_end) && (
                                 <Button
                                     variant="outline"
                                     className="w-full border-white/10 text-slate-300 hover:bg-white/5"

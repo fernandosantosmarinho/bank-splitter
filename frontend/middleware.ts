@@ -4,7 +4,12 @@ import { NextResponse } from "next/server"; // <--- Importação Essencial
 // Define rotas que exigem autenticação
 const isProtectedRoute = createRouteMatcher([
     '/dashboard(.*)',
-    '/api/((?!stripe/webhook).*)', // Protect all API routes EXCEPT /api/stripe/webhook
+    '/api(.*)',
+]);
+
+// Define rotas públicas dentro da API (exceções)
+const isWebhookRoute = createRouteMatcher([
+    '/api/stripe/webhook',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
@@ -17,7 +22,8 @@ export default clerkMiddleware(async (auth, req) => {
         return NextResponse.redirect(dashboardUrl);
     }
 
-    if (isProtectedRoute(req)) {
+    // Protege rotas APENAS se não for o webhook
+    if (isProtectedRoute(req) && !isWebhookRoute(req)) {
         await auth.protect();
     }
 });

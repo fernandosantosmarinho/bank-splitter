@@ -80,166 +80,249 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-    const userId = session.metadata?.userId;
-    const tier = session.metadata?.tier as SubscriptionTier;
+    try {
+        console.log(`[Checkout] Processing session ${session.id}`);
+        const userId = session.metadata?.userId;
+        const tier = session.metadata?.tier as SubscriptionTier;
 
-    if (!userId || !tier) {
-        console.error('Missing metadata in checkout session');
-        return;
+        if (!userId || !tier) {
+            console.error('[Checkout] Missing metadata in checkout session', { userId, tier });
+            return;
+        }
+
+        const subscriptionId = session.subscription as string;
+        if (!subscriptionId) {
+            console.error('[Checkout] No subscription ID found in session');
+            return;
+        }
+
+        const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
+        const subscription = subscriptionResponse as any;
+
+        const credits = getCreditsForTier(tier);
+        console.log(`[Checkout] User ${userId} subscribed to ${tier} with ${credits} credits`);
+
+        const { error } = await supabaseAdmin
+            .from('user_metrics')
+            .update({
+                stripe_customer_id: session.customer as string,
+                stripe_subscription_id: subscription.id,
+                subscription_tier: tier,
+                subscription_status: subscription.status,
+                subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                credits_total: credits === -1 ? 999999 : credits,
+                credits_used: 0,
+            })
+            .eq('user_id', userId);
+
+        if (error) {
+            console.error('[Checkout] Failed to update user metrics:', error);
+            throw error;
+        }
+
+        console.log(`[Checkout] Successfully initialized subscription for user ${userId}`);
+    } catch (error) {
+        console.error('[Checkout] Error handling checkout completion:', error);
+        throw error;
     }
-
-    const subscriptionResponse = await stripe.subscriptions.retrieve(
-        session.subscription as string
-    );
-    const subscription = subscriptionResponse as any;
-
-    const credits = getCreditsForTier(tier);
-
-    await supabaseAdmin
-        .from('user_metrics')
-        .update({
-            stripe_customer_id: session.customer as string,
-            stripe_subscription_id: subscription.id,
-            subscription_tier: tier,
-            subscription_status: subscription.status,
-            subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            credits_total: credits === -1 ? 999999 : credits, // Unlimited = very large number
-            credits_used: 0, // Reset credits on new subscription
-        })
-        .eq('user_id', userId);
-
-    console.log(`Subscription created for user ${userId}: ${tier}`);
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-    const customerId = subscription.customer as string;
+    try {
+        console.log(`[Subscription Update] Processing subscription ${subscription.id}`);
+        const customerId = subscription.customer as string;
 
-    // Get userId from customer
-    const { data: userData } = await supabaseAdmin
-        .from('user_metrics')
-        .select('user_id, subscription_tier')
-        .eq('stripe_customer_id', customerId)
-        .single();
+        // Get userId from customer
+        const { data: userData, error: fetchError } = await supabaseAdmin
+            .from('user_metrics')
+            .select('user_id, subscription_tier')
+            .eq('stripe_customer_id', customerId)
+            .single();
 
-    if (!userData) {
-        console.error('User not found for customer:', customerId);
-        return;
+        if (fetchError || !userData) {
+            console.error('[Subscription Update] User not found for customer:', customerId, fetchError);
+            return;
+        }
+
+        // Check metadata for tier (priority), then plan nickname, then fallback to current DB tier
+        // Note: We prioritize metadata because our checkout flow sets it there.
+        let tier = subscription.metadata?.tier as SubscriptionTier;
+
+        if (!tier) {
+            console.log('[Subscription Update] No tier in metadata, checking previous user tier');
+            tier = userData.subscription_tier as SubscriptionTier;
+        }
+
+        if (!tier) {
+            // Last resort: try to infer from plan nickname or ID if possible, but for now log warning
+            console.warn('[Subscription Update] Could not determine subscription tier, skipping credit update');
+        }
+
+        // If we have a new tier, calculate credits. 
+        // Be careful not to reset credits if it's just a status update, unless it's a renewal (checked via current_period_end usually, but logic here is simplified)
+        // For now, we update credits if we successfully identified the tier.
+        let creditsUpdate = {};
+        if (tier) {
+            const credits = getCreditsForTier(tier);
+            if (credits !== undefined) {
+                creditsUpdate = { credits_total: credits === -1 ? 999999 : credits };
+            }
+        }
+
+        const sub = subscription as any;
+        const validDate = sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : new Date().toISOString();
+
+        const { error: updateError } = await supabaseAdmin
+            .from('user_metrics')
+            .update({
+                stripe_subscription_id: sub.id,
+                subscription_tier: tier || userData.subscription_tier, // Keep existing if unknown
+                subscription_status: sub.status,
+                subscription_current_period_end: validDate,
+                ...creditsUpdate
+            })
+            .eq('user_id', userData.user_id);
+
+        if (updateError) {
+            console.error('[Subscription Update] Failed to update Supabase:', updateError);
+            throw updateError;
+        }
+
+        console.log(`[Subscription Update] Successfully updated user ${userData.user_id}`);
+    } catch (error) {
+        console.error('[Subscription Update] Error processing update:', error);
+        throw error;
     }
-
-    // Check metadata for tier (priority), otherwise fallback to current DB tier
-    const metadataTier = (subscription.metadata?.tier as SubscriptionTier);
-    const tier = metadataTier || (userData.subscription_tier as SubscriptionTier);
-
-    // If we have a new tier in metadata, use it. If not, we might be just renewing the current tier.
-    const credits = getCreditsForTier(tier);
-    const sub = subscription as any;
-
-    await supabaseAdmin
-        .from('user_metrics')
-        .update({
-            stripe_subscription_id: sub.id,
-            subscription_tier: tier, // Update the tier!
-            subscription_status: sub.status,
-            subscription_current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
-            credits_total: credits === -1 ? 999999 : credits,
-        })
-        .eq('user_id', userData.user_id);
-
-    console.log(`Subscription updated for user ${userData.user_id}`);
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
-    const customerId = subscription.customer as string;
+    try {
+        console.log(`[Subscription Deleted] Processing subscription ${subscription.id}`);
+        const customerId = subscription.customer as string;
 
-    const { data: userData } = await supabaseAdmin
-        .from('user_metrics')
-        .select('user_id')
-        .eq('stripe_customer_id', customerId)
-        .single();
+        const { data: userData } = await supabaseAdmin
+            .from('user_metrics')
+            .select('user_id')
+            .eq('stripe_customer_id', customerId)
+            .single();
 
-    if (!userData) {
-        console.error('User not found for customer:', customerId);
-        return;
+        if (!userData) {
+            console.error('[Subscription Deleted] User not found for customer:', customerId);
+            return;
+        }
+
+        // Downgrade to free tier
+        const freeCredits = getCreditsForTier('free');
+
+        const { error } = await supabaseAdmin
+            .from('user_metrics')
+            .update({
+                subscription_tier: 'free',
+                subscription_status: 'canceled',
+                stripe_subscription_id: null,
+                credits_total: freeCredits,
+            })
+            .eq('user_id', userData.user_id);
+
+        if (error) {
+            console.error('[Subscription Deleted] Failed to downgrade user:', error);
+            throw error;
+        }
+
+        console.log(`[Subscription Deleted] Downgraded user ${userData.user_id} to free`);
+    } catch (error) {
+        console.error('[Subscription Deleted] Error handling deletion:', error);
+        throw error;
     }
-
-    // Downgrade to free tier
-    const freeCredits = getCreditsForTier('free');
-
-    await supabaseAdmin
-        .from('user_metrics')
-        .update({
-            subscription_tier: 'free',
-            subscription_status: 'canceled',
-            stripe_subscription_id: null,
-            credits_total: freeCredits,
-        })
-        .eq('user_id', userData.user_id);
-
-    console.log(`Subscription canceled for user ${userData.user_id}, downgraded to free`);
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
-    const customerId = invoice.customer as string;
-    const inv = invoice as any;
-    const subscriptionId = inv.subscription as string;
+    try {
+        console.log(`[Payment Succeeded] Processing invoice ${invoice.id}`);
+        const customerId = invoice.customer as string;
+        const inv = invoice as any;
+        const subscriptionId = inv.subscription as string;
 
-    if (!subscriptionId) return; // Not a subscription invoice
+        if (!subscriptionId) {
+            console.log('[Payment Succeeded] not a subscription invoice, skipping');
+            return;
+        }
 
-    const { data: userData } = await supabaseAdmin
-        .from('user_metrics')
-        .select('user_id, subscription_tier')
-        .eq('stripe_customer_id', customerId)
-        .single();
+        const { data: userData } = await supabaseAdmin
+            .from('user_metrics')
+            .select('user_id, subscription_tier')
+            .eq('stripe_customer_id', customerId)
+            .single();
 
-    if (!userData) {
-        console.error('User not found for customer:', customerId);
-        return;
+        if (!userData) {
+            console.error('[Payment Succeeded] User not found for customer:', customerId);
+            return;
+        }
+
+        // Retrieve full subscription to get metadata
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
+
+        // Get tier from metadata (source of truth), fallback to DB
+        const metadataTier = (subscription.metadata?.tier as SubscriptionTier);
+        const tier = metadataTier || (userData.subscription_tier as SubscriptionTier);
+
+        if (!tier) {
+            console.warn('[Payment Succeeded] No tier found, skipping credit reset');
+            return;
+        }
+
+        const credits = getCreditsForTier(tier);
+        const validDate = subscription.current_period_end ? new Date(subscription.current_period_end * 1000).toISOString() : new Date().toISOString();
+
+        const { error } = await supabaseAdmin
+            .from('user_metrics')
+            .update({
+                subscription_tier: tier,
+                subscription_status: subscription.status,
+                subscription_current_period_end: validDate,
+                stripe_subscription_id: subscription.id,
+                credits_total: credits === -1 ? 999999 : credits,
+                credits_used: 0,
+            })
+            .eq('user_id', userData.user_id);
+
+        if (error) {
+            console.error('[Payment Succeeded] Failed to update Supabase:', error);
+            throw error;
+        }
+
+        console.log(`[Payment Succeeded] Processed for user ${userData.user_id}. Tier: ${tier}`);
+    } catch (error) {
+        console.error('[Payment Succeeded] Error processing payment:', error);
+        throw error;
     }
-
-    // Retrieve full subscription to get metadata
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId) as any;
-
-    // Get tier from metadata (source of truth), fallback to DB
-    const metadataTier = (subscription.metadata?.tier as SubscriptionTier);
-    const tier = metadataTier || (userData.subscription_tier as SubscriptionTier);
-    const credits = getCreditsForTier(tier);
-
-    await supabaseAdmin
-        .from('user_metrics')
-        .update({
-            subscription_tier: tier, // FORCE update tier on payment success
-            subscription_status: subscription.status,
-            subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-            stripe_subscription_id: subscription.id,
-            credits_total: credits === -1 ? 999999 : credits,
-            credits_used: 0,
-        })
-        .eq('user_id', userData.user_id);
-
-    console.log(`Payment succeeded for user ${userData.user_id}. Tier set to: ${tier}`);
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
-    const customerId = invoice.customer as string;
+    try {
+        const customerId = invoice.customer as string;
 
-    const { data: userData } = await supabaseAdmin
-        .from('user_metrics')
-        .select('user_id')
-        .eq('stripe_customer_id', customerId)
-        .single();
+        const { data: userData } = await supabaseAdmin
+            .from('user_metrics')
+            .select('user_id')
+            .eq('stripe_customer_id', customerId)
+            .single();
 
-    if (!userData) {
-        console.error('User not found for customer:', customerId);
-        return;
+        if (!userData) {
+            console.error('[Payment Failed] User not found for customer:', customerId);
+            return;
+        }
+
+        await supabaseAdmin
+            .from('user_metrics')
+            .update({
+                subscription_status: 'past_due',
+            })
+            .eq('user_id', userData.user_id);
+
+        console.log(`[Payment Failed] Marked subscription past_due for user ${userData.user_id}`);
+    } catch (error) {
+        console.error('[Payment Failed] Error processing failure:', error);
+        throw error;
     }
-
-    // Update subscription status
-    await supabaseAdmin
-        .from('user_metrics')
-        .update({
-            subscription_status: 'past_due',
-        })
-        .eq('user_id', userData.user_id);
-
-    console.log(`Payment failed for user ${userData.user_id}`);
 }

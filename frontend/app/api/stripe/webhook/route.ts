@@ -105,14 +105,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
         if (rawPeriodEnd && typeof rawPeriodEnd === 'number' && rawPeriodEnd > 0) {
             calculatedEnd = new Date(rawPeriodEnd * 1000);
+            console.log(`[Checkout] Using Stripe's period end: ${calculatedEnd.toISOString()}`);
+
+            // Sanity Check: Only override if date is in the past or less than 24h away
+            const oneDayFromNow = Date.now() + (24 * 60 * 60 * 1000);
+            if (calculatedEnd.getTime() < oneDayFromNow) {
+                console.warn(`[Checkout] Stripe date ${calculatedEnd.toISOString()} is too early, forcing +31 days`);
+                calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+            }
         } else {
             console.warn(`[Checkout] Missing or invalid current_period_end (${rawPeriodEnd}), forcing 31 days.`);
-            calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
-        }
-
-        // Final Sanity Check: If Stripe (or mock) says it ends too soon, force 31 days
-        if (calculatedEnd.getTime() < Date.now() + 24 * 60 * 60 * 1000) {
-            console.warn(`[Checkout] Stripe period end is too early (${calculatedEnd.toISOString()}), forcing 31 days.`);
             calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
         }
 
@@ -187,13 +189,20 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
         }
 
         const sub = subscription as any;
-        let calculatedEnd = sub.current_period_end
-            ? new Date(sub.current_period_end * 1000)
-            : new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+        let calculatedEnd: Date;
 
-        // Sanity check: If Stripe says it ends in the past or right now, force it to 31 days
-        if (calculatedEnd.getTime() < Date.now() + 24 * 60 * 60 * 1000) {
-            console.warn(`[Subscription Update] Stripe period end is too early (${calculatedEnd.toISOString()}), forcing 31 days.`);
+        if (sub.current_period_end) {
+            calculatedEnd = new Date(sub.current_period_end * 1000);
+            console.log(`[Subscription Update] Using Stripe's period end: ${calculatedEnd.toISOString()}`);
+
+            // Sanity check: Only override if date is in the past or less than 24h away
+            const oneDayFromNow = Date.now() + (24 * 60 * 60 * 1000);
+            if (calculatedEnd.getTime() < oneDayFromNow) {
+                console.warn(`[Subscription Update] Stripe date ${calculatedEnd.toISOString()} is too early, forcing +31 days`);
+                calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+            }
+        } else {
+            console.warn('[Subscription Update] No current_period_end from Stripe, forcing 31 days');
             calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
         }
 
@@ -301,13 +310,20 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
         }
 
         const credits = getCreditsForTier(tier);
-        let calculatedEnd = subscription.current_period_end
-            ? new Date(subscription.current_period_end * 1000)
-            : new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+        let calculatedEnd: Date;
 
-        // Sanity check: If Stripe says it ends in the past or right now, force it to 31 days
-        if (calculatedEnd.getTime() < Date.now() + 24 * 60 * 60 * 1000) {
-            console.warn(`[Payment Succeeded] Stripe period end is too early (${calculatedEnd.toISOString()}), forcing 31 days.`);
+        if (subscription.current_period_end) {
+            calculatedEnd = new Date(subscription.current_period_end * 1000);
+            console.log(`[Payment Succeeded] Using Stripe's period end: ${calculatedEnd.toISOString()}`);
+
+            // Sanity check: Only override if date is in the past or less than 24h away
+            const oneDayFromNow = Date.now() + (24 * 60 * 60 * 1000);
+            if (calculatedEnd.getTime() < oneDayFromNow) {
+                console.warn(`[Payment Succeeded] Stripe date ${calculatedEnd.toISOString()} is too early, forcing +31 days`);
+                calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+            }
+        } else {
+            console.warn('[Payment Succeeded] No current_period_end from Stripe, forcing 31 days');
             calculatedEnd = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
         }
 

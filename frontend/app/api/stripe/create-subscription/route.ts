@@ -127,18 +127,27 @@ export async function POST(req: NextRequest) {
 
         // Proactive update to Supabase to handle potential webhook delays/missing local delivery
         const sub = subscription as any;
-        const calculatedEnd = sub.current_period_end
-            ? new Date(sub.current_period_end * 1000)
-            : new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
 
-        // Sanity check for local tests (e.g. Stripe CLI)
-        let finalEndDate = calculatedEnd;
-        if (finalEndDate.getTime() < Date.now() + 24 * 60 * 60 * 1000) {
-            console.log("[Create Subscription] Stripe date is too early (often happens in mocks), forcing +31 days.");
+        // Get the end date from Stripe (Unix timestamp in seconds, convert to milliseconds)
+        let finalEndDate: Date;
+
+        if (sub.current_period_end) {
+            finalEndDate = new Date(sub.current_period_end * 1000);
+            console.log(`[Create Subscription] Using Stripe's period end: ${finalEndDate.toISOString()}`);
+
+            // Sanity check: if Stripe's date is in the past or less than 1 day from now (shouldn't happen in production)
+            const oneDayFromNow = Date.now() + (24 * 60 * 60 * 1000);
+            if (finalEndDate.getTime() < oneDayFromNow) {
+                console.warn(`[Create Subscription] WARNING: Stripe date ${finalEndDate.toISOString()} is too early, forcing +31 days from now`);
+                finalEndDate = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+            }
+        } else {
+            // Fallback only if Stripe didn't provide a date (very rare)
+            console.warn("[Create Subscription] WARNING: No current_period_end from Stripe, using fallback +31 days");
             finalEndDate = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
         }
 
-        console.log(`[Create Subscription] Proactively saving subscription ${subscription.id} for user ${userId}. Status: active, Expires: ${finalEndDate.toISOString()}`);
+        console.log(`[Create Subscription] Saving to DB: subscription_id=${subscription.id}, user=${userId}, tier=${tier}, status=active, expires=${finalEndDate.toISOString()}`);
 
         const { error: finalUpdateError } = await supabaseAdmin
             .from('user_metrics')

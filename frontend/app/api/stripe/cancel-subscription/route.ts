@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
         const subscription = await stripe.subscriptions.update(
             userData.stripe_subscription_id,
             { cancel_at_period_end: true }
-        );
+        ) as any;
 
         // Update Supabase immediately to reflect pending cancellation
         await supabase

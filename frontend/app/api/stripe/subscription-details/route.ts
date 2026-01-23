@@ -50,14 +50,17 @@ export async function GET(req: NextRequest) {
         const price = subscription.items.data[0].price;
         const product = await stripe.products.retrieve(price.product as string);
 
+        // Cast to any to access properties not in strict type definition
+        const sub = subscription as any;
+
         return NextResponse.json({
             planName: product.name,
             amount: price.unit_amount ? price.unit_amount / 100 : 0,
             currency: price.currency,
             interval: price.recurring?.interval,
-            status: subscription.status,
-            currentPeriodEnd: new Date(subscription.current_period_end * 1000).toISOString(),
-            cancelAtPeriodEnd: subscription.cancel_at_period_end,
+            status: sub.status,
+            currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
+            cancelAtPeriodEnd: sub.cancel_at_period_end,
             paymentMethod: paymentMethodDetails
         });
 

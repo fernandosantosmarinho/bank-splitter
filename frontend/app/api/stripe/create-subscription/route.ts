@@ -57,7 +57,10 @@ export async function POST(req: NextRequest) {
             // Save to Supabase IMMEDIATELY and wait
             const { error: updateError } = await supabaseAdmin
                 .from('user_metrics')
-                .update({ stripe_customer_id: customerId })
+                .update({
+                    stripe_customer_id: customerId,
+                    updated_at: new Date().toISOString()
+                })
                 .eq('user_id', userId);
 
             if (updateError) {

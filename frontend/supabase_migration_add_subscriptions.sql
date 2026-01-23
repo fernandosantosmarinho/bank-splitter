@@ -6,7 +6,8 @@ ADD COLUMN IF NOT EXISTS subscription_tier TEXT DEFAULT 'free',
 ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'inactive',
 ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT,
 ADD COLUMN IF NOT EXISTS stripe_subscription_id TEXT,
-ADD COLUMN IF NOT EXISTS subscription_current_period_end TIMESTAMP;
+ADD COLUMN IF NOT EXISTS subscription_current_period_end TIMESTAMP,
+ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
 
 -- Create index for faster lookups by stripe_customer_id
 CREATE INDEX IF NOT EXISTS idx_user_metrics_stripe_customer_id 

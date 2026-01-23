@@ -112,6 +112,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
                 subscription_current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
                 credits_total: credits === -1 ? 999999 : credits,
                 credits_used: 0,
+                updated_at: new Date().toISOString(),
             })
             .eq('user_id', userId);
 
@@ -179,7 +180,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
                 subscription_tier: tier || userData.subscription_tier, // Keep existing if unknown
                 subscription_status: sub.status,
                 subscription_current_period_end: validDate,
-                ...creditsUpdate
+                ...creditsUpdate,
+                updated_at: new Date().toISOString(),
             })
             .eq('user_id', userData.user_id);
 
@@ -221,6 +223,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
                 subscription_status: 'canceled',
                 stripe_subscription_id: null,
                 credits_total: freeCredits,
+                updated_at: new Date().toISOString(),
             })
             .eq('user_id', userData.user_id);
 
@@ -283,6 +286,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
                 stripe_subscription_id: subscription.id,
                 credits_total: credits === -1 ? 999999 : credits,
                 credits_used: 0,
+                updated_at: new Date().toISOString(),
             })
             .eq('user_id', userData.user_id);
 
@@ -317,6 +321,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
             .from('user_metrics')
             .update({
                 subscription_status: 'past_due',
+                updated_at: new Date().toISOString(),
             })
             .eq('user_id', userData.user_id);
 

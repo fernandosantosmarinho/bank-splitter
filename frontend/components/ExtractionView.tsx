@@ -337,15 +337,15 @@ export default function ExtractionView({
                 <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
                     <div>
                         <div className="flex items-center gap-2 mb-2">
-                            <div className="bg-blue-600/10 text-blue-400 border border-blue-600/20 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                            <div className="bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
                                 Engine V2
                             </div>
-                            <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground font-medium flex items-center gap-1">
                                 <ShieldCheck className="h-3 w-3" /> Encrypted Processing
                             </span>
                         </div>
-                        <h1 className="text-2xl font-bold text-white tracking-tight">{title}</h1>
-                        <p className="text-slate-400 mt-1 max-w-2xl text-sm">{description}</p>
+                        <h1 className="text-2xl font-bold text-foreground tracking-tight">{title}</h1>
+                        <p className="text-muted-foreground mt-1 max-w-2xl text-sm">{description}</p>
                     </div>
                 </div>
             )}
@@ -353,49 +353,49 @@ export default function ExtractionView({
             {accounts.length === 0 && (
                 <div className="w-full max-w-3xl mx-auto">
                     {/* AlGrow Style Card: Dark, Solid, Bordered */}
-                    <Card className="border border-white/5 bg-[#0b1221] shadow-none overflow-hidden">
+                    <Card className="border border-border bg-card shadow-none overflow-hidden">
                         <CardContent className="p-0">
                             {!isLoading ? (
                                 <div className="p-1">
                                     <div {...getRootProps()} className={cn(
                                         "relative group border border-dashed rounded-lg p-12 flex flex-col items-center justify-center text-center transition-all duration-200 cursor-pointer h-[300px]",
                                         file
-                                            ? "border-blue-500/50 bg-blue-500/5"
+                                            ? "border-primary/50 bg-primary/5"
                                             : isDragActive
-                                                ? "border-blue-500 bg-blue-500/5"
-                                                : "border-white/10 bg-[#0f172a] hover:bg-[#1e293b] hover:border-white/20"
+                                                ? "border-primary bg-primary/5"
+                                                : "border-border bg-muted/30 hover:bg-muted/50 hover:border-border/80"
                                     )}>
                                         <input {...getInputProps()} />
 
                                         {file ? (
                                             <div className="w-full relative animate-in fade-in zoom-in-95 duration-200">
-                                                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); resetForm(); }} className="absolute -top-8 -right-8 h-8 w-8 rounded-full bg-slate-800 text-slate-400 hover:text-red-400 hover:bg-slate-700 z-20">
+                                                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); resetForm(); }} className="absolute -top-8 -right-8 h-8 w-8 rounded-full bg-muted text-muted-foreground hover:text-destructive hover:bg-muted/80 z-20">
                                                     <X className="h-4 w-4" />
                                                 </Button>
                                                 <div className="relative mx-auto w-24 aspect-[3/4] bg-white rounded shadow-sm p-1 mb-4 opacity-90">
                                                     {previewUrl ? <img src={previewUrl} className="w-full h-full object-contain" alt="Preview" /> : <div className="h-full flex items-center justify-center"><FileText className="text-slate-400" /></div>}
                                                 </div>
-                                                <p className="text-sm font-bold text-white truncate max-w-[200px] mx-auto">{file.name}</p>
-                                                <p className="text-xs text-slate-500 font-mono mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                                <p className="text-sm font-bold text-foreground truncate max-w-[200px] mx-auto">{file.name}</p>
+                                                <p className="text-xs text-muted-foreground font-mono mt-1">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
                                             </div>
                                         ) : (
                                             <div className="space-y-4">
-                                                <div className="h-16 w-16 bg-[#1e293b] rounded-2xl flex items-center justify-center mx-auto group-hover:scale-105 group-hover:bg-[#334155] transition-all">
-                                                    <Upload className="h-8 w-8 text-blue-500" />
+                                                <div className="h-16 w-16 bg-muted rounded-2xl flex items-center justify-center mx-auto group-hover:scale-105 group-hover:bg-muted/80 transition-all">
+                                                    <Upload className="h-8 w-8 text-primary" />
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-lg font-bold text-white">Click to Upload</h3>
-                                                    <p className="text-sm text-slate-500 mt-1 max-w-[200px] mx-auto">
+                                                    <h3 className="text-lg font-bold text-foreground">Click to Upload</h3>
+                                                    <p className="text-sm text-muted-foreground mt-1 max-w-[200px] mx-auto">
                                                         PDF Statement or Check Image
                                                     </p>
 
                                                     {/* Trust Badges */}
-                                                    <div className="flex items-center justify-center gap-4 mt-8 pt-6 border-t border-white/5">
-                                                        <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                                                            <Server className="h-3 w-3 text-slate-400" /> RAM-Only
+                                                    <div className="flex items-center justify-center gap-4 mt-8 pt-6 border-t border-border">
+                                                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+                                                            <Server className="h-3 w-3 text-muted-foreground" /> RAM-Only
                                                         </div>
-                                                        <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                                                            <Trash2 className="h-3 w-3 text-slate-400" /> Auto-Wipe
+                                                        <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+                                                            <Trash2 className="h-3 w-3 text-muted-foreground" /> Auto-Wipe
                                                         </div>
                                                     </div>
                                                 </div>
@@ -404,7 +404,7 @@ export default function ExtractionView({
                                     </div>
                                 </div>
                             ) : (
-                                <div className="py-12 px-8 text-center bg-[#0b1221] min-h-[400px] flex flex-col items-center justify-center relative overflow-hidden">
+                                <div className="py-12 px-8 text-center bg-card min-h-[400px] flex flex-col items-center justify-center relative overflow-hidden">
                                     {/* Background Grid Animation */}
                                     <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
 
@@ -418,10 +418,10 @@ export default function ExtractionView({
                                                 className="relative z-10 w-full max-w-md"
                                             >
                                                 {/* SCANNING ANIMATION */}
-                                                <div className="relative mx-auto mb-8 w-24 h-32 bg-slate-800 rounded-lg border border-slate-700 flex items-center justify-center shadow-2xl">
-                                                    <FileText className="h-10 w-10 text-slate-500" />
+                                                <div className="relative mx-auto mb-8 w-24 h-32 bg-muted rounded-lg border border-border flex items-center justify-center shadow-2xl">
+                                                    <FileText className="h-10 w-10 text-muted-foreground" />
                                                     <motion.div
-                                                        className="absolute inset-0 bg-blue-500/10 border-b-2 border-blue-500"
+                                                        className="absolute inset-0 bg-primary/10 border-b-2 border-primary"
                                                         animate={{ top: ["0%", "100%", "0%"] }}
                                                         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                                                         style={{ height: "4px" }}
@@ -436,13 +436,13 @@ export default function ExtractionView({
                                                 </div>
 
                                                 <div className="space-y-4">
-                                                    <h3 className="text-xl font-bold text-white animate-pulse">{status || "Processing..."}</h3>
+                                                    <h3 className="text-xl font-bold text-foreground animate-pulse">{status || "Processing..."}</h3>
                                                     <div className="space-y-2">
-                                                        <div className="flex justify-between text-xs font-bold uppercase text-slate-500 tracking-wider">
+                                                        <div className="flex justify-between text-xs font-bold uppercase text-muted-foreground tracking-wider">
                                                             <span>Encryption Active</span>
                                                             <span>{Math.round(progress)}%</span>
                                                         </div>
-                                                        <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden border border-white/5">
+                                                        <div className="h-2 w-full bg-muted rounded-full overflow-hidden border border-border">
                                                             <div className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
                                                         </div>
                                                     </div>
@@ -492,7 +492,7 @@ export default function ExtractionView({
                             )}
 
                             {!isLoading && file && (
-                                <div className="p-4 bg-[#050b14] border-t border-white/5">
+                                <div className="p-4 bg-muted/30 border-t border-border">
                                     <Button size="lg" className="w-full font-bold shadow-none" onClick={handleExtract}>
                                         Start Extraction
                                     </Button>
@@ -507,22 +507,19 @@ export default function ExtractionView({
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                     {/* RESULTS HEADER ACTION BAR */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
-                        <div>
-                            <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Workflow Status</h2>
-                            <h3 className="text-xl font-bold text-white tracking-tight">Extraction Completed</h3>
-                        </div>
+                    {/* RESULTS HEADER ACTION BAR */}
+                    <div className="flex flex-col md:flex-row md:items-center justify-end gap-4 pb-2">
                         <Button
                             onClick={resetForm}
-                            className="bg-white/5 hover:bg-[#1e293b] border border-white/10 h-10 px-6 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] gap-2.5 transition-all duration-300 hover:-translate-y-0.5 active:scale-95 shadow-2xl hover:border-blue-500/30 hover:shadow-blue-500/5 group"
+                            className="bg-white dark:bg-[#0f172a] hover:bg-slate-100 dark:hover:bg-[#1e293b] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white shadow-xl dark:shadow-2xl shadow-blue-500/5 dark:shadow-blue-500/20 h-10 px-6 rounded-full font-bold text-[10px] uppercase tracking-[0.2em] gap-2.5 transition-all duration-300 hover:-translate-y-0.5 active:scale-95 group"
                         >
-                            <RefreshCcw className="h-3.5 w-3.5 text-slate-400 group-hover:text-white group-hover:rotate-180 transition-transform duration-700 ease-in-out" />
-                            <span className="animate-text-shine group-hover:text-white transition-colors">Process New File</span>
+                            <RefreshCcw className="h-3.5 w-3.5 text-slate-400 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white group-hover:rotate-180 transition-transform duration-700 ease-in-out" />
+                            <span className="animate-text-shine group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Process New File</span>
                         </Button>
                     </div>
 
                     {/* 1. RESULTS & ACTIONS CARD */}
-                    <div className="bg-[#0b1221] rounded-2xl border border-white/5 overflow-hidden p-6 md:p-8">
+                    <div className="bg-card rounded-2xl border border-border overflow-hidden p-6 md:p-8">
                         <div className="flex flex-col md:flex-row gap-8 items-start justify-between">
                             {/* File Info */}
                             <div className="flex items-start gap-4">
@@ -535,23 +532,23 @@ export default function ExtractionView({
                                 </div>
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <h2 className="text-xl font-bold text-white tracking-tight">{file?.name}</h2>
-                                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase border border-emerald-500/20">
+                                        <h2 className="text-xl font-bold text-foreground tracking-tight">{file?.name}</h2>
+                                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-bold uppercase border border-emerald-500/20">
                                             Success
                                         </span>
                                     </div>
-                                    <p className="text-slate-400 text-sm">
-                                        Extraction complete • <span className="text-white font-bold">{summary.count} transactions</span> found
+                                    <p className="text-muted-foreground text-sm">
+                                        Extraction complete • <span className="text-foreground font-bold">{summary.count} transactions</span> found
                                     </p>
                                 </div>
                             </div>
 
                             {/* Actions */}
                             <div className="flex flex-col gap-3 w-full md:w-auto">
-                                <div className="flex gap-3">
+                                <div className="flex flex-col sm:flex-row gap-3">
                                     <Button
                                         onClick={() => downloadCSV(accounts[0])}
-                                        className="bg-[#0f172a] hover:bg-[#1e293b] text-white border border-white/10 h-11 px-6 shadow-xl transition-all duration-200 hover:-translate-y-0.5"
+                                        className="bg-muted hover:bg-muted/80 text-foreground border border-border h-11 px-6 shadow-xl transition-all duration-200 hover:-translate-y-0.5"
                                     >
                                         <div className="mr-3 h-5 w-5 bg-emerald-500/10 rounded flex items-center justify-center border border-emerald-500/20 shadow-sm">
                                             <FileSpreadsheet className="h-3 w-3 text-emerald-500" />
@@ -560,7 +557,7 @@ export default function ExtractionView({
                                     </Button>
                                     <Button
                                         onClick={() => downloadQBO(accounts[0])}
-                                        className="bg-[#0f172a] hover:bg-[#1e293b] text-white border border-white/10 h-11 px-6 shadow-xl transition-all duration-200 hover:-translate-y-0.5"
+                                        className="bg-muted hover:bg-muted/80 text-foreground border border-border h-11 px-6 shadow-xl transition-all duration-200 hover:-translate-y-0.5"
                                     >
                                         <div className="mr-3 h-5 w-5 bg-[#2ca01c]/10 rounded flex items-center justify-center border border-[#2ca01c]/20 shadow-sm">
                                             <span className="text-[10px] font-black text-[#2ca01c] italic tracking-tighter">QB</span>
@@ -575,25 +572,25 @@ export default function ExtractionView({
                     {/* 2. METRICS CARDS */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* Total Credit */}
-                        <Card className="bg-[#0b1221] border-white/5 shadow-xl relative overflow-hidden group">
+                        <Card className="bg-card border-border shadow-xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
                                 <TrendingUp className="h-12 w-12 text-emerald-500" />
                             </div>
                             <CardContent className="p-6 relative z-10">
-                                <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-widest flex items-center gap-1.5">
+                                <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 tracking-widest flex items-center gap-1.5">
                                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Total Credit
                                 </p>
-                                <p className="text-2xl font-mono font-bold text-emerald-400">{formatCurrency(summary.totalCredit, accounts[0].currency)}</p>
+                                <p className="text-2xl font-mono font-bold text-emerald-500">{formatCurrency(summary.totalCredit, accounts[0].currency)}</p>
                             </CardContent>
                         </Card>
 
                         {/* Total Debit */}
-                        <Card className="bg-[#0b1221] border-white/5 shadow-xl relative overflow-hidden group">
+                        <Card className="bg-card border-border shadow-xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
                                 <TrendingDown className="h-12 w-12 text-red-500" />
                             </div>
                             <CardContent className="p-6 relative z-10">
-                                <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-widest flex items-center gap-1.5">
+                                <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 tracking-widest flex items-center gap-1.5">
                                     <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Total Debit
                                 </p>
                                 <p className="text-2xl font-mono font-bold text-red-400">{formatCurrency(Math.abs(summary.totalDebit), accounts[0].currency)}</p>
@@ -601,37 +598,37 @@ export default function ExtractionView({
                         </Card>
 
                         {/* Net Balance (Highlighted) */}
-                        <Card className="bg-[#0b1221] border-blue-500/20 shadow-xl shadow-blue-900/10 relative overflow-hidden group">
+                        <Card className="bg-card border-blue-500/20 shadow-xl shadow-blue-900/10 relative overflow-hidden group">
                             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 to-transparent" />
                             <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity">
                                 <Wallet className="h-12 w-12 text-blue-500" />
                             </div>
                             <CardContent className="p-6 relative z-10">
-                                <p className="text-[10px] uppercase font-bold text-blue-400 mb-2 tracking-widest flex items-center gap-1.5">
+                                <p className="text-[10px] uppercase font-bold text-blue-500 mb-2 tracking-widest flex items-center gap-1.5">
                                     <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> Net Balance
                                 </p>
-                                <p className="text-2xl font-mono font-bold text-white">{formatCurrency(summary.net, accounts[0].currency)}</p>
+                                <p className="text-2xl font-mono font-bold text-foreground">{formatCurrency(summary.net, accounts[0].currency)}</p>
                             </CardContent>
                         </Card>
                     </div>
 
                     {/* 3. FULL DATA TABLE */}
                     {accounts.map((acc, idx) => (
-                        <Card key={idx} className="bg-[#0b1221] border-white/5 overflow-hidden flex flex-col h-[600px]">
+                        <Card key={idx} className="bg-card border-border overflow-hidden flex flex-col h-[600px]">
 
-                            <CardHeader className="bg-[#0f172a] border-b border-white/5 py-3 px-6 flex flex-row items-center justify-between shrink-0">
+                            <CardHeader className="bg-muted/50 border-b border-border py-3 px-6 flex flex-row items-center justify-between shrink-0">
                                 <div className="flex items-center gap-2">
-                                    <Building className="h-4 w-4 text-slate-500" />
-                                    <span className="text-sm font-bold text-white">{acc.account_name}</span>
+                                    <Building className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm font-bold text-foreground">{acc.account_name}</span>
                                 </div>
                             </CardHeader>
 
-                            <div className="flex-1 overflow-auto bg-[#020617] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full">
-                                <table className="w-full caption-bottom text-sm text-slate-300">
-                                    <TableHeader className="sticky top-0 bg-[#0f172a] z-10 border-b border-white/5">
-                                        <TableRow className="border-white/5 hover:bg-transparent">
+                            <div className="flex-1 overflow-auto bg-background [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted [&::-webkit-scrollbar-thumb]:rounded-full">
+                                <table className="w-full caption-bottom text-sm text-muted-foreground">
+                                    <TableHeader className="sticky top-0 bg-muted z-10 border-b border-border">
+                                        <TableRow className="border-border hover:bg-transparent">
                                             {acc.preview_headers.map((header, i) => (
-                                                <TableHead key={i} className="text-[10px] font-bold uppercase tracking-wider text-slate-500 whitespace-nowrap px-6 h-10">
+                                                <TableHead key={i} className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap px-6 h-10">
                                                     {header}
                                                 </TableHead>
                                             ))}
@@ -639,9 +636,9 @@ export default function ExtractionView({
                                     </TableHeader>
                                     <TableBody>
                                         {acc.preview_rows.map((row, i) => (
-                                            <TableRow key={i} className="group hover:bg-[#0f172a] transition-colors border-b border-white/5 last:border-0">
+                                            <TableRow key={i} className="group hover:bg-muted/50 transition-colors border-b border-border last:border-0">
                                                 {acc.preview_headers.map((header, j) => (
-                                                    <TableCell key={j} className="font-mono text-xs px-6 py-3 whitespace-nowrap text-slate-400 group-hover:text-slate-200">
+                                                    <TableCell key={j} className="font-mono text-xs px-6 py-3 whitespace-nowrap text-muted-foreground group-hover:text-foreground">
                                                         {row[header]}
                                                     </TableCell>
                                                 ))}

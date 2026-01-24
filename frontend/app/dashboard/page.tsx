@@ -22,7 +22,8 @@ import {
     Bell,
     Trash2,
     Loader2,
-    ShieldCheck
+    ShieldCheck,
+    Menu
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ExtractionView from "@/components/ExtractionView";
@@ -55,6 +56,7 @@ function DashboardContent() {
 
     const [stats, setStats] = useState<UserMetrics | null>(null);
     const [history, setHistory] = useState<HistoryItem[]>([]);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile menu state
     const [isDashboardDataLoaded, setIsDashboardDataLoaded] = useState(false); // New state for dashboard data loading
 
     // Load history from localStorage on mount
@@ -166,7 +168,7 @@ function DashboardContent() {
     };
 
     // Keep the loading screen if User is loading OR initial stats are fetching
-    if (!isUserLoaded || !stats) return <div className="h-screen w-full bg-[#020617] flex items-center justify-center"><Loader2 className="h-8 w-8 text-blue-500 animate-spin" /></div>;
+    if (!isUserLoaded || !stats) return <div className="h-screen w-full bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 text-primary animate-spin" /></div>;
 
     if (!user) {
         // middleware protects this, but safe fallback
@@ -184,45 +186,58 @@ function DashboardContent() {
     const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
     return (
-        <div className="flex h-screen bg-[#020617] font-sans text-slate-200 overflow-hidden">
+        <div className="flex h-screen bg-background font-sans text-foreground overflow-hidden">
+
+            {/* MOBILE OVERLAY */}
+            {isMobileMenuOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden animate-in fade-in duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
 
             {/* SIDEBAR */}
-            <aside className="w-64 bg-[#050b14] border-r border-white/5 flex flex-col z-20">
-                <div className="p-6 h-16 border-b border-white/5 flex items-center gap-3">
-                    <div className="bg-gradient-to-br from-blue-600 to-indigo-600 p-1.5 rounded-lg shadow-sm">
-                        <Wallet className="h-4 w-4 text-white" />
+            <aside className={cn(
+                "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 md:translate-x-0 md:static md:flex",
+                isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+            )}>
+                <div className="p-6 h-16 border-b border-border flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-primary/10 p-1.5 rounded-lg shadow-sm">
+                            <Wallet className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-lg font-bold tracking-tight text-foreground">BankSplitter</span>
                     </div>
-                    <span className="text-lg font-bold tracking-tight text-white">BankSplitter</span>
                 </div>
 
                 <div className="px-6 py-4">
-                    <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-wider">Navigation</p>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 tracking-wider">Navigation</p>
                     <nav className="space-y-1">
-                        <Button variant={currentTab === "overview" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "overview" ? "bg-[#1e293b] text-white" : "text-slate-400 hover:text-white hover:bg-white/5")} onClick={() => router.push("/dashboard?tab=overview")}>
+                        <Button variant={currentTab === "overview" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "overview" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/50")} onClick={() => { router.push("/dashboard?tab=overview"); setIsMobileMenuOpen(false); }}>
                             <Activity className="h-4 w-4" /> Overview
                         </Button>
-                        <Button variant={currentTab === "statements" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "statements" ? "bg-[#1e293b] text-white" : "text-slate-400 hover:text-white hover:bg-white/5")} onClick={() => router.push("/dashboard?tab=statements")}>
+                        <Button variant={currentTab === "statements" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "statements" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/50")} onClick={() => { router.push("/dashboard?tab=statements"); setIsMobileMenuOpen(false); }}>
                             <FileSpreadsheet className="h-4 w-4" /> Extract Statement
                         </Button>
-                        <Button variant={currentTab === "checks" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "checks" ? "bg-[#1e293b] text-white" : "text-slate-400 hover:text-white hover:bg-white/5")} onClick={() => router.push("/dashboard?tab=checks")}>
+                        <Button variant={currentTab === "checks" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "checks" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/50")} onClick={() => { router.push("/dashboard?tab=checks"); setIsMobileMenuOpen(false); }}>
                             <ShieldCheck className="h-4 w-4" /> Extract Check
                         </Button>
                     </nav>
                 </div>
 
                 <div className="px-6 py-2">
-                    <p className="text-[10px] uppercase font-bold text-slate-500 mb-2 tracking-wider">Account</p>
+                    <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 tracking-wider">Account</p>
                     <nav className="space-y-1">
-                        <Button variant={currentTab === "settings" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "settings" ? "bg-[#1e293b] text-white" : "text-slate-400 hover:text-white hover:bg-white/5")} onClick={() => router.push("/dashboard?tab=settings")}>
+                        <Button variant={currentTab === "settings" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "settings" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/50")} onClick={() => { router.push("/dashboard?tab=settings"); setIsMobileMenuOpen(false); }}>
                             <Settings className="h-4 w-4" /> Settings
                         </Button>
                     </nav>
                 </div>
 
-                <div className="mt-auto p-4 border-t border-white/5">
+                <div className="mt-auto p-4 border-t border-border">
                     {/* Compact User Profile */}
                     <div
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer"
                         onClick={(e) => {
                             const btn = e.currentTarget.querySelector('button');
                             if (btn && e.target !== btn && !btn.contains(e.target as Node)) {
@@ -236,42 +251,47 @@ function DashboardContent() {
                             }
                         }} />
                         <div className="flex flex-col overflow-hidden">
-                            <span className="text-sm font-medium text-white truncate">{user.fullName || user.firstName}</span>
-                            <span className="text-xs text-slate-500 truncate capitalize">{currentStats.subscription_tier || 'Free'} Plan</span>
+                            <span className="text-sm font-medium text-foreground truncate">{user.fullName || user.firstName}</span>
+                            <span className="text-xs text-muted-foreground truncate capitalize">{currentStats.subscription_tier || 'Free'} Plan</span>
                         </div>
                     </div>
                 </div>
             </aside>
 
             {/* MAIN CONTENT */}
-            <main className="flex-1 flex flex-col relative z-10 overflow-hidden bg-[#020617]">
+            <main className="flex-1 flex flex-col relative z-10 overflow-hidden bg-background">
 
                 {/* NEW WORKSTATION HEADER */}
-                <header className="h-16 border-b border-white/5 bg-[#020617] flex items-center justify-between px-8">
-                    {/* Left: Greeting & Date */}
-                    <div>
-                        <h2 className="text-sm font-bold text-white tracking-tight">
-                            {getGreeting()}, {user.firstName}
-                        </h2>
-                        <p className="text-xs text-slate-500 font-medium">
-                            {todayDate}
-                        </p>
+                <header className="h-16 border-b border-border bg-background flex items-center justify-between px-4 md:px-8">
+                    {/* Left: Hamburger & Greeting */}
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" className="md:hidden -ml-2 text-muted-foreground" onClick={() => setIsMobileMenuOpen(true)}>
+                            <Menu className="h-6 w-6" />
+                        </Button>
+                        <div>
+                            <h2 className="text-sm font-bold text-foreground tracking-tight">
+                                {getGreeting()}, {user.firstName}
+                            </h2>
+                            <p className="text-xs text-muted-foreground font-medium">
+                                {todayDate}
+                            </p>
+                        </div>
                     </div>
 
                     {/* Right: Credits, Plan & Top Up */}
                     <div className="flex items-center gap-4">
                         {/* Plan & Credits Container */}
-                        <div className="hidden md:flex items-center gap-3 bg-[#0b1221]/50 backdrop-blur-xl border border-white/5 rounded-full px-4 py-1.5 shadow-2xl">
+                        <div className="hidden md:flex items-center gap-3 bg-card/50 backdrop-blur-xl border border-border rounded-full px-4 py-1.5 shadow-sm">
                             {/* Plan Pill */}
-                            <div className="flex items-center gap-2 pr-3 border-r border-white/10">
-                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Plan</span>
+                            <div className="flex items-center gap-2 pr-3 border-r border-border">
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Plan</span>
                                 <SubscriptionBadge
                                     tier={currentStats.subscription_tier}
                                     className={cn(
                                         "h-5 px-2 border-0 shadow-sm",
-                                        currentStats.subscription_tier === 'pro' ? "bg-blue-500/10 text-blue-400" :
-                                            currentStats.subscription_tier === 'enterprise' ? "bg-purple-500/10 text-purple-400" :
-                                                "bg-slate-500/10 text-slate-400"
+                                        currentStats.subscription_tier === 'pro' ? "bg-blue-500/10 text-blue-500" :
+                                            currentStats.subscription_tier === 'enterprise' ? "bg-purple-500/10 text-purple-500" :
+                                                "bg-slate-500/10 text-muted-foreground"
                                     )}
                                 />
                             </div>
@@ -279,14 +299,14 @@ function DashboardContent() {
                             {/* Credits Widget */}
                             <div className="flex flex-col gap-0.5">
                                 <div className="flex items-center justify-between gap-4">
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-none">Usage</span>
-                                    <span className="text-[11px] font-bold text-white font-mono leading-none">
+                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Usage</span>
+                                    <span className="text-[11px] font-bold text-foreground font-mono leading-none">
                                         {currentStats.credits_used.toLocaleString()}
-                                        <span className="text-slate-600 mx-1">/</span>
+                                        <span className="text-muted-foreground mx-1">/</span>
                                         {currentStats.credits_total === 999999 ? '∞' : currentStats.credits_total.toLocaleString()}
                                     </span>
                                 </div>
-                                <div className="h-1.5 w-32 bg-[#0f172a] rounded-full overflow-hidden border border-white/5">
+                                <div className="h-1.5 w-32 bg-muted rounded-full overflow-hidden border border-border">
                                     <div
                                         className={cn(
                                             "h-full rounded-full transition-all duration-700 ease-out",
@@ -304,37 +324,37 @@ function DashboardContent() {
                         <Button
                             size="sm"
                             onClick={() => router.push("/dashboard?tab=settings&view=billing")}
-                            className="h-9 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[11px] font-black tracking-widest px-5 shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center gap-2 group border border-white/10"
+                            className="h-9 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-[11px] font-black tracking-widest px-5 shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center gap-2 group border border-border"
                         >
-                            <Zap className="h-3.5 w-3.5 fill-blue-200 group-hover:scale-110 transition-transform" />
+                            <Zap className="h-3.5 w-3.5 fill-current group-hover:scale-110 transition-transform" />
                             TOP UP
                         </Button>
                     </div>
                 </header>
 
                 {/* CONTENT AREA */}
-                <div className="flex-1 overflow-hidden p-6 relative">
+                <div className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 relative">
                     {currentTab === "overview" && (
-                        <div className="h-full flex flex-col gap-6 max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="h-full flex flex-col gap-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                             {/* OVERVIEW HEADER CARD */}
-                            <div className="bg-[#0b1221] border border-white/5 rounded-xl p-6 shrink-0">
-                                <div className="flex items-center justify-between mb-8">
+                            <div className="bg-card border border-border rounded-xl p-6 shrink-0">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
                                     <div className="flex items-center gap-4">
-                                        <div className="h-12 w-12 rounded-full bg-blue-600/20 border border-blue-600/30 flex items-center justify-center">
-                                            <Wallet className="h-6 w-6 text-blue-500" />
+                                        <div className="h-12 w-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
+                                            <Wallet className="h-6 w-6 text-primary" />
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
-                                                <h1 className="text-xl font-bold text-white">Workspace Overview</h1>
+                                                <h1 className="text-xl font-bold text-card-foreground">Workspace Overview</h1>
                                                 <SubscriptionBadge tier={currentStats.subscription_tier} />
                                             </div>
-                                            <p className="text-xs text-slate-500">Your extraction analytics at a glance</p>
+                                            <p className="text-xs text-muted-foreground">Your extraction analytics at a glance</p>
                                         </div>
                                     </div>
                                     <Button
                                         size="sm"
-                                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all duration-200"
+                                        className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transition-all duration-200"
                                         onClick={() => router.push("/dashboard?tab=statements")}
                                     >
                                         <FileText className="h-4 w-4 mr-2" />
@@ -345,131 +365,132 @@ function DashboardContent() {
                                 {/* STATS GRID - 3 Columns */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {/* Documents Processed */}
-                                    <div className="bg-[#0f172a] rounded-lg p-5 border border-white/5">
+                                    <div className="bg-muted/50 rounded-lg p-5 border border-border">
                                         <div className="flex items-center justify-between mb-3">
-                                            <p className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1">
+                                            <p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
                                                 <FileText className="h-3 w-3" /> Documents
                                             </p>
-                                            <div className="h-8 w-8 rounded-full bg-blue-600/10 flex items-center justify-center">
+                                            <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center">
                                                 <FileText className="h-4 w-4 text-blue-500" />
                                             </div>
                                         </div>
-                                        <p className="text-3xl font-bold text-white tracking-tight mb-1">{currentStats.documents_processed.toLocaleString()}</p>
-                                        <p className="text-xs text-slate-500">Total processed</p>
+                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">{currentStats.documents_processed.toLocaleString()}</p>
+                                        <p className="text-xs text-muted-foreground">Total processed</p>
                                     </div>
 
                                     {/* Time Saved */}
-                                    <div className="bg-[#0f172a] rounded-lg p-5 border border-white/5">
+                                    <div className="bg-muted/50 rounded-lg p-5 border border-border">
                                         <div className="flex items-center justify-between mb-3">
-                                            <p className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1">
+                                            <p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
                                                 <Clock className="h-3 w-3" /> Time Saved
                                             </p>
-                                            <div className="h-8 w-8 rounded-full bg-emerald-600/10 flex items-center justify-center">
+                                            <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                                 <Clock className="h-4 w-4 text-emerald-500" />
                                             </div>
                                         </div>
-                                        <p className="text-3xl font-bold text-white tracking-tight mb-1">~{currentStats.time_saved_hours}h</p>
-                                        <p className="text-xs text-slate-500">Through automation</p>
+                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">~{currentStats.time_saved_hours}h</p>
+                                        <p className="text-xs text-muted-foreground">Through automation</p>
                                     </div>
 
                                     {/* Success Rate */}
-                                    <div className="bg-[#0f172a] rounded-lg p-5 border border-white/5">
+                                    <div className="bg-muted/50 rounded-lg p-5 border border-border">
                                         <div className="flex items-center justify-between mb-3">
-                                            <p className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1">
+                                            <p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
                                                 <CheckCircle2 className="h-3 w-3" /> Success Rate
                                             </p>
-                                            <div className="h-8 w-8 rounded-full bg-purple-600/10 flex items-center justify-center">
+                                            <div className="h-8 w-8 rounded-full bg-purple-500/10 flex items-center justify-center">
                                                 <CheckCircle2 className="h-4 w-4 text-purple-500" />
                                             </div>
                                         </div>
-                                        <p className="text-3xl font-bold text-white tracking-tight mb-1">{currentStats.success_rate}%</p>
-                                        <p className="text-xs text-slate-500">Extraction accuracy</p>
+                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">{currentStats.success_rate}%</p>
+                                        <p className="text-xs text-muted-foreground">Extraction accuracy</p>
                                     </div>
                                 </div>
 
                                 {/* Export Stats - Compact Footer */}
-                                <div className="mt-6 pt-6 border-t border-white/5 flex items-center justify-between">
+                                <div className="mt-6 pt-6 border-t border-border flex items-center justify-between">
                                     <div className="flex gap-8">
                                         <div className="flex items-center gap-2">
                                             <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                                            <span className="text-xs text-slate-500">CSV:</span>
-                                            <span className="text-sm font-bold text-emerald-400">{currentStats.csv_exports}</span>
+                                            <span className="text-xs text-muted-foreground">CSV:</span>
+                                            <span className="text-sm font-bold text-emerald-500">{currentStats.csv_exports}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                                            <span className="text-xs text-slate-500">QBO:</span>
-                                            <span className="text-sm font-bold text-blue-400">{currentStats.qbo_exports}</span>
+                                            <span className="text-xs text-muted-foreground">QBO:</span>
+                                            <span className="text-sm font-bold text-blue-500">{currentStats.qbo_exports}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <div className="h-2 w-2 rounded-full bg-slate-500"></div>
-                                            <span className="text-xs text-slate-500">Total Exports:</span>
-                                            <span className="text-sm font-bold text-white">{currentStats.csv_exports + currentStats.qbo_exports}</span>
+                                            <span className="text-xs text-muted-foreground">Total Exports:</span>
+                                            <span className="text-sm font-bold text-foreground">{currentStats.csv_exports + currentStats.qbo_exports}</span>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-slate-600">Updated {new Date().toLocaleTimeString()}</p>
                                 </div>
                             </div>
 
                             {/* PROCESSING HISTORY (PRIVACY LOG) */}
-                            <div className="flex-1 min-h-0 flex flex-col">
-                                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 shrink-0">
-                                    <div className="h-5 w-5 rounded-full bg-slate-700 flex items-center justify-center"><Clock className="h-3 w-3" /></div>
+                            <div className="flex flex-col min-h-[400px] flex-1">
+                                <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2 shrink-0">
+                                    <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center"><Clock className="h-3 w-3 text-muted-foreground" /></div>
                                     Processing History
                                 </h3>
-                                <div className="bg-[#0b1221] border border-white/5 rounded-xl overflow-hidden flex flex-col flex-1 min-h-0">
-                                    <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-6 py-3 border-b border-white/5 bg-[#0f172a] text-[10px] uppercase font-bold text-slate-500 tracking-wider shrink-0">
-                                        <span>File Name</span>
-                                        <span className="w-24">Downloads</span>
-                                        <span className="w-32">Processed At</span>
-                                        <span className="text-right w-20">Status</span>
-                                    </div>
-                                    {/* SCROLLABLE LIST CONTAINER */}
-                                    <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full">
-                                        {history.map((item, i) => (
-                                            <div key={i} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-6 py-4 border-b border-white/5 last:border-0 hover:bg-[#0f172a] transition-colors items-center group">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-[#020617] rounded-lg border border-white/5 text-slate-400 group-hover:text-blue-500 transition-colors">
-                                                        <FileText className="h-4 w-4" />
+                                <div className="bg-card border border-border rounded-xl overflow-hidden flex flex-col flex-1 min-h-0 relative">
+                                    <div className="overflow-x-auto">
+                                        <div className="grid grid-cols-[minmax(200px,2fr)_minmax(150px,1.5fr)_minmax(140px,1fr)_100px] min-w-[800px] gap-4 px-6 py-3 border-b border-border bg-muted/30 text-[10px] uppercase font-bold text-muted-foreground tracking-wider shrink-0">
+                                            <span>File Name</span>
+                                            <span>Downloads</span>
+                                            <span>Processed At</span>
+                                            <span className="text-right">Status</span>
+                                        </div>
+                                        {/* SCROLLABLE LIST CONTAINER */}
+                                        <div className="min-w-[800px]">
+                                            {history.map((item, i) => (
+                                                <div key={i} className="grid grid-cols-[minmax(200px,2fr)_minmax(150px,1.5fr)_minmax(140px,1fr)_100px] gap-4 px-6 py-4 border-b border-border last:border-0 hover:bg-muted/50 transition-colors items-center group">
+                                                    <div className="flex items-center gap-3 min-w-0 overflow-hidden">
+                                                        <div className="p-2 bg-background rounded-lg border border-border text-muted-foreground group-hover:text-primary transition-colors shrink-0">
+                                                            <FileText className="h-4 w-4" />
+                                                        </div>
+                                                        <div className="min-w-0">
+                                                            <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">{item.name}</p>
+                                                            <p className="text-[10px] text-muted-foreground">{item.size}</p>
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">{item.name}</p>
-                                                        <p className="text-[10px] text-slate-500">{item.size}</p>
-                                                    </div>
-                                                </div>
 
-                                                {/* DOWNLOADS COLUMN */}
-                                                <div className="w-24 flex items-center gap-1">
-                                                    {item.downloads.length > 0 ? (
-                                                        item.downloads.map((type) => (
-                                                            <span
-                                                                key={type}
-                                                                className={cn(
-                                                                    "text-[10px] font-bold px-1.5 py-0.5 rounded border",
-                                                                    type === "CSV"
-                                                                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
-                                                                        : "bg-blue-600/10 text-blue-400 border-blue-600/20"
-                                                                )}
-                                                            >
-                                                                {type}
-                                                            </span>
-                                                        ))
-                                                    ) : (
-                                                        <span className="text-[10px] text-slate-600">-</span>
-                                                    )}
-                                                </div>
+                                                    {/* DOWNLOADS COLUMN */}
+                                                    <div className="flex items-center gap-1 flex-wrap">
+                                                        {item.downloads.length > 0 ? (
+                                                            item.downloads.map((type) => (
+                                                                <span
+                                                                    key={type}
+                                                                    className={cn(
+                                                                        "text-[10px] font-bold px-1.5 py-0.5 rounded border",
+                                                                        type === "CSV"
+                                                                            ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                                                                            : "bg-blue-600/10 text-blue-500 border-blue-600/20"
+                                                                    )}
+                                                                >
+                                                                    {type}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-[10px] text-muted-foreground">-</span>
+                                                        )}
+                                                    </div>
 
-                                                <div className="text-xs text-slate-400 font-mono w-32">
-                                                    {item.time}
-                                                </div>
-                                                <div className="flex justify-end w-20">
-                                                    <div className="flex items-center gap-1.5 px-2 py-1 bg-slate-800/50 rounded text-[10px] font-bold text-slate-400 border border-transparent group-hover:border-slate-700">
-                                                        <Trash2 className="h-3 w-3" /> DELETED
+                                                    <div className="text-xs text-muted-foreground font-mono truncate">
+                                                        {item.time}
+                                                    </div>
+                                                    <div className="flex justify-end">
+                                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded text-[10px] font-bold text-muted-foreground border border-transparent group-hover:border-border whitespace-nowrap">
+                                                            <Trash2 className="h-3 w-3" /> DELETED
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
-                                    <div className="px-6 py-3 bg-[#0f172a]/50 text-center text-[10px] text-slate-500 border-t border-white/5 shrink-0">
+                                    <div className="px-6 py-3 bg-muted/30 text-center text-[10px] text-muted-foreground border-t border-border shrink-0">
                                         System automatically wipes all files from memory after extraction.
                                     </div>
                                 </div>
@@ -516,7 +537,7 @@ function SidebarItem({ icon, label, active, onClick }: { icon: React.ReactNode, 
 
 export default function DashboardPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-[#020617] flex items-center justify-center text-slate-500 font-mono text-sm">Loading Workspace...</div>}>
+        <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground font-mono text-sm">Loading Workspace...</div>}>
             <DashboardContent />
         </Suspense>
     );

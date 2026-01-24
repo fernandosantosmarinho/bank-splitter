@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle2, Loader2, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { SubscriptionTier } from "@/lib/stripe";
+import { useTheme } from "next-themes";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -59,12 +60,12 @@ function CheckoutForm({ tier, price, onSuccess, onCancel, email }: CheckoutFormP
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="bg-[#0f172a] p-4 rounded-lg border border-white/5 mb-4">
+            <div className="bg-muted/50 p-4 rounded-lg border border-border mb-4">
                 <div className="flex justify-between items-center mb-2">
-                    <span className="text-white font-medium capitalize">{tier} Plan</span>
-                    <span className="text-xl font-bold text-white">${price}/mo</span>
+                    <span className="text-foreground font-medium capitalize">{tier} Plan</span>
+                    <span className="text-xl font-bold text-foreground">${price}/mo</span>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-muted-foreground">
                     Billed monthly. Cancel anytime.
                 </p>
             </div>
@@ -92,7 +93,7 @@ function CheckoutForm({ tier, price, onSuccess, onCancel, email }: CheckoutFormP
                     type="button"
                     variant="outline"
                     onClick={onCancel}
-                    className="flex-1 border-white/10 text-slate-300 hover:bg-white/5"
+                    className="flex-1 border-border text-foreground hover:bg-muted"
                     disabled={isLoading}
                 >
                     Cancel
@@ -110,7 +111,7 @@ function CheckoutForm({ tier, price, onSuccess, onCancel, email }: CheckoutFormP
                 </Button>
             </div>
 
-            <p className="text-center text-[10px] text-slate-500 flex items-center justify-center gap-1">
+            <p className="text-center text-[10px] text-muted-foreground flex items-center justify-center gap-1">
                 <Lock className="h-3 w-3" /> Payments secured by Stripe
             </p>
         </form>
@@ -125,6 +126,7 @@ interface CheckoutModalProps {
 }
 
 export default function CheckoutModal({ isOpen, onClose, tier, email }: CheckoutModalProps) {
+    const { theme } = useTheme();
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [isLoadingSecret, setIsLoadingSecret] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -179,10 +181,10 @@ export default function CheckoutModal({ isOpen, onClose, tier, email }: Checkout
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md bg-[#0b1221] border border-white/10 text-white p-0 overflow-hidden">
+            <DialogContent className="sm:max-w-md bg-card border border-border text-foreground p-0 overflow-hidden">
                 <DialogHeader className="px-6 pt-6 pb-2">
                     <DialogTitle>Upgrade Subscription</DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogDescription className="text-muted-foreground">
                         Enter your payment details to upgrade to the {tier} plan.
                     </DialogDescription>
                 </DialogHeader>
@@ -194,14 +196,14 @@ export default function CheckoutModal({ isOpen, onClose, tier, email }: Checkout
                                 <CheckCircle2 className="h-8 w-8 text-emerald-500" />
                             </div>
                             <div>
-                                <h3 className="text-xl font-bold text-white">Payment Successful!</h3>
-                                <p className="text-slate-400 mt-2">Your subscription is now active.</p>
+                                <h3 className="text-xl font-bold text-foreground">Payment Successful!</h3>
+                                <p className="text-muted-foreground mt-2">Your subscription is now active.</p>
                             </div>
                         </div>
                     ) : (
                         <>
                             {isLoadingSecret ? (
-                                <div className="py-12 flex flex-col items-center justify-center space-y-4 text-slate-400">
+                                <div className="py-12 flex flex-col items-center justify-center space-y-4 text-muted-foreground">
                                     <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                                     <p>Initializing secure checkout...</p>
                                 </div>
@@ -212,12 +214,9 @@ export default function CheckoutModal({ isOpen, onClose, tier, email }: Checkout
                                         options={{
                                             clientSecret,
                                             appearance: {
-                                                theme: 'night',
+                                                theme: theme === 'dark' ? 'night' : 'stripe',
                                                 variables: {
                                                     colorPrimary: '#2563eb',
-                                                    colorBackground: '#020617',
-                                                    colorText: '#ffffff',
-                                                    colorDanger: '#ef4444',
                                                     fontFamily: 'ui-sans-serif, system-ui, sans-serif',
                                                 },
                                             },

@@ -5,6 +5,45 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+    /* Algrow Light Theme - Soft/Gentle Mode */
+    --background: 210 40% 96.1%;
+    /* Slate 100 - Softer gray base */
+    --foreground: 222.2 47.4% 11.2%;
+    /* Slate 900 - Soft Black */
+
+    --card: 0 0% 100%;
+    /* Pure White cards to pop */
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 90%;
+    /* Slate 200 - Distinct from background */
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 90%;
+    /* Slate 200 */
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 90%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 88%;
+    /* Slate 250 - Subtle borders */
+    --input: 214.3 31.8% 88%;
+    --ring: 221.2 83.2% 53.3%;
+
+    --radius: 0.5rem;
+}
+
+.dark {
     /* Algrow Dark Theme Base Colors - HSL Values for Shadcn compatibility */
     --background: 222.2 84% 4.9%;
     /* Slate 950 */
@@ -12,18 +51,15 @@
     /* Slate 50 */
 
     --card: 222.2 47% 11%;
-    /* Slate 900 */
     --card-foreground: 210 40% 98%;
 
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
     --primary: 221.2 83.2% 53.3%;
-    /* Blue 600 */
     --primary-foreground: 210 40% 98%;
 
     --secondary: 217.2 32.6% 17.5%;
-    /* Slate 800 */
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
@@ -35,31 +71,6 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-
-    --radius: 0.5rem;
-}
-
-.dark {
-    /* Force same dark theme in .dark class if used */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
@@ -99,10 +110,17 @@
     }
 
     body {
+        transition: background-color 0.5s ease, color 0.5s ease;
         background-color: var(--color-background);
         color: var(--color-foreground);
+        /* Default dark gradient - will be overridden by light mode specific background if needed, but let's keep it adaptable */
         background-image: linear-gradient(to bottom right, #020617, #0f172a, #1e1b4b);
         background-attachment: fixed;
+    }
+
+    /* Light mode background override */
+    :root:not(.dark) body {
+        background-image: linear-gradient(to bottom right, #f1f5f9, #e2e8f0, #cbd5e1);
     }
 
     @keyframes text-shine {

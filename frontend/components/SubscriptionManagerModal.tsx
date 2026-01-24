@@ -87,34 +87,34 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-md bg-[#0b1221] border border-white/10 text-white p-0 overflow-hidden">
+            <DialogContent className="sm:max-w-md bg-card border border-border text-foreground p-0 overflow-hidden">
                 <DialogHeader className="px-6 pt-6 pb-2">
                     <DialogTitle>Manage Subscription</DialogTitle>
-                    <DialogDescription className="text-slate-400">
+                    <DialogDescription className="text-muted-foreground">
                         View and manage your active plan details.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="px-6 pb-6">
                     {isLoading ? (
-                        <div className="py-12 flex flex-col items-center justify-center space-y-4 text-slate-400">
+                        <div className="py-12 flex flex-col items-center justify-center space-y-4 text-muted-foreground">
                             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                             <p>Loading subscription details...</p>
                         </div>
                     ) : details ? (
                         <div className="space-y-6 mt-4">
                             {/* Plan Info Card */}
-                            <div className="bg-[#0f172a] rounded-lg p-4 border border-white/5 space-y-3">
+                            <div className="bg-muted/50 rounded-lg p-4 border border-border space-y-3">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <p className="text-xs text-slate-500 uppercase font-bold tracking-wider mb-1">Current Plan</p>
+                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Current Plan</p>
                                         <div className="flex items-center gap-2">
-                                            <h3 className="text-lg font-bold text-white">{details.planName}</h3>
+                                            <h3 className="text-lg font-bold text-foreground">{details.planName}</h3>
                                             <SubscriptionBadge tier={details.planName.toLowerCase().includes('pro') ? 'pro' : 'enterprise'} />
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-lg font-bold text-white">
+                                        <p className="text-lg font-bold text-foreground">
                                             ${details.amount}/{details.interval}
                                         </p>
                                         <p className={details.cancelAtPeriodEnd ? "text-amber-500 text-xs" : "text-emerald-500 text-xs"}>
@@ -123,12 +123,12 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                                     </div>
                                 </div>
 
-                                <div className="h-px bg-white/5 w-full" />
+                                <div className="h-px bg-border w-full" />
 
-                                <div className="flex items-center gap-3 text-sm text-slate-300">
-                                    <Calendar className="h-4 w-4 text-slate-500" />
+                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                    <Calendar className="h-4 w-4 text-muted-foreground" />
                                     <span>
-                                        {details.cancelAtPeriodEnd ? "Access ends on" : "Renews on"} <span className="text-white font-medium">{formatDate(details.currentPeriodEnd)}</span>
+                                        {details.cancelAtPeriodEnd ? "Access ends on" : "Renews on"} <span className="text-foreground font-medium">{formatDate(details.currentPeriodEnd)}</span>
                                     </span>
                                 </div>
                             </div>

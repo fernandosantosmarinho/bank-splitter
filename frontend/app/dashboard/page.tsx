@@ -23,7 +23,9 @@ import {
     Trash2,
     Loader2,
     ShieldCheck,
-    Menu
+    Menu,
+    Info,
+    Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ExtractionView from "@/components/ExtractionView";
@@ -31,14 +33,14 @@ import SettingsView from "@/components/SettingsView";
 import SubscriptionBadge from "@/components/SubscriptionBadge";
 
 const MOCK_HISTORY = [
-    { name: "Statement_Jan_2026.pdf", time: "Today, 10:42 AM", size: "1.2 MB", downloads: ["CSV", "QBO"] },
-    { name: "Amex_Dec_2025_Final.pdf", time: "Yesterday, 4:15 PM", size: "2.4 MB", downloads: ["CSV"] },
-    { name: "Chase_Check_#1024.jpg", time: "Jan 19, 2:30 PM", size: "0.8 MB", downloads: [] },
-    { name: "Invoice_Q4_Consulting.pdf", time: "Jan 18, 9:00 AM", size: "0.5 MB", downloads: ["QBO"] },
-    { name: "Boa_Statement_Nov25.pdf", time: "Jan 15, 11:20 AM", size: "1.8 MB", downloads: ["CSV"] },
-    { name: "Receipt_Uber_Trip.png", time: "Jan 12, 8:45 PM", size: "0.4 MB", downloads: [] },
-    { name: "WellsFargo_Check_99.jpg", time: "Jan 10, 1:15 PM", size: "0.9 MB", downloads: ["CSV"] },
-    { name: "Payroll_Summary_2025.pdf", time: "Jan 05, 10:00 AM", size: "3.1 MB", downloads: ["CSV", "QBO"] }
+    { name: "Statement_Jan_2026.pdf", time: "Today, 10:42 AM", size: "1.2 MB", downloads: ["CSV", "QBO"], rowsExtracted: 237, timestamp: Date.now() - 2 * 60 * 60 * 1000 },
+    { name: "Amex_Dec_2025_Final.pdf", time: "Yesterday, 4:15 PM", size: "2.4 MB", downloads: ["CSV"], rowsExtracted: 189, timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000 },
+    { name: "Chase_Check_#1024.jpg", time: "Jan 19, 2:30 PM", size: "0.8 MB", downloads: [], rowsExtracted: 1, timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000 },
+    { name: "Invoice_Q4_Consulting.pdf", time: "Jan 18, 9:00 AM", size: "0.5 MB", downloads: ["QBO"], rowsExtracted: 42, timestamp: Date.now() - 6 * 24 * 60 * 60 * 1000 },
+    { name: "Boa_Statement_Nov25.pdf", time: "Jan 15, 11:20 AM", size: "1.8 MB", downloads: ["CSV"], rowsExtracted: 312, timestamp: Date.now() - 9 * 24 * 60 * 60 * 1000 },
+    { name: "Receipt_Uber_Trip.png", time: "Jan 12, 8:45 PM", size: "0.4 MB", downloads: [], rowsExtracted: 1, timestamp: Date.now() - 12 * 24 * 60 * 60 * 1000 },
+    { name: "WellsFargo_Check_99.jpg", time: "Jan 10, 1:15 PM", size: "0.9 MB", downloads: ["CSV"], rowsExtracted: 1, timestamp: Date.now() - 14 * 24 * 60 * 60 * 1000 },
+    { name: "Payroll_Summary_2025.pdf", time: "Jan 05, 10:00 AM", size: "3.1 MB", downloads: ["CSV", "QBO"], rowsExtracted: 156, timestamp: Date.now() - 19 * 24 * 60 * 60 * 1000 }
 ];
 
 interface HistoryItem {
@@ -46,6 +48,8 @@ interface HistoryItem {
     time: string;
     size: string;
     downloads: string[];
+    rowsExtracted?: number;
+    timestamp?: number; // Unix timestamp for filtering
 }
 
 function DashboardContent() {
@@ -56,8 +60,9 @@ function DashboardContent() {
 
     const [stats, setStats] = useState<UserMetrics | null>(null);
     const [history, setHistory] = useState<HistoryItem[]>([]);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile menu state
-    const [isDashboardDataLoaded, setIsDashboardDataLoaded] = useState(false); // New state for dashboard data loading
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isDashboardDataLoaded, setIsDashboardDataLoaded] = useState(false);
+    const [period, setPeriod] = useState<'7D' | '30D' | '90D' | 'All'>('30D');
 
     // Load history from localStorage on mount
     useEffect(() => {
@@ -104,7 +109,7 @@ function DashboardContent() {
         }
     }, [user]);
 
-    const handleExtractionSuccess = useCallback((file: File) => {
+    const handleExtractionSuccess = useCallback((file: File, transactionCount: number) => {
         // Refresh metrics
         if (user) {
             getMetrics(user.id).then(data => {
@@ -117,7 +122,9 @@ function DashboardContent() {
             name: file.name,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             size: (file.size / 1024 / 1024).toFixed(1) + " MB",
-            downloads: []
+            downloads: [],
+            rowsExtracted: transactionCount,
+            timestamp: Date.now()
         };
 
         setHistory(prev => {
@@ -154,6 +161,53 @@ function DashboardContent() {
             return updated;
         });
     }, [user]);
+
+    // Period filtering helper
+    const getPeriodMs = (periodKey: '7D' | '30D' | '90D' | 'All') => {
+        const day = 24 * 60 * 60 * 1000;
+        switch (periodKey) {
+            case '7D': return 7 * day;
+            case '30D': return 30 * day;
+            case '90D': return 90 * day;
+            case 'All': return Infinity;
+        }
+    };
+
+    // Filter history by selected period
+    const filteredHistory = history.filter(item => {
+        if (period === 'All' || !item.timestamp) return true;
+        const cutoff = Date.now() - getPeriodMs(period);
+        return item.timestamp >= cutoff;
+    });
+
+    // Compute period-specific stats from filtered history
+    const periodStats = {
+        documents: filteredHistory.length,
+        timeSaved: filteredHistory.length * 0.25, // 15 min = 0.25 hours per doc
+        csvExports: filteredHistory.reduce((sum, item) => sum + (item.downloads.includes('CSV') ? 1 : 0), 0),
+        qboExports: filteredHistory.reduce((sum, item) => sum + (item.downloads.includes('QBO') ? 1 : 0), 0),
+    };
+
+    // Calculate delta vs previous period
+    const getPreviousPeriodStats = () => {
+        if (period === 'All') return null;
+        const periodMs = getPeriodMs(period);
+        const previousCutoff = Date.now() - (2 * periodMs);
+        const currentCutoff = Date.now() - periodMs;
+
+        const previousPeriodHistory = history.filter(item => {
+            if (!item.timestamp) return false;
+            return item.timestamp >= previousCutoff && item.timestamp < currentCutoff;
+        });
+
+        return {
+            documents: previousPeriodHistory.length,
+            timeSaved: previousPeriodHistory.length * 0.25,
+        };
+    };
+
+    const previousStats = getPreviousPeriodStats();
+    const timeSavedDelta = previousStats ? periodStats.timeSaved - previousStats.timeSaved : null;
 
     // Default Fallback
     const currentStats: UserMetrics = stats || {
@@ -362,6 +416,26 @@ function DashboardContent() {
                                     </Button>
                                 </div>
 
+                                {/* Period Toggle */}
+                                <div className="flex items-center justify-end mb-4">
+                                    <div className="inline-flex items-center gap-1 p-1 bg-muted rounded-lg border border-border">
+                                        {(['7D', '30D', '90D', 'All'] as const).map((p) => (
+                                            <button
+                                                key={p}
+                                                onClick={() => setPeriod(p)}
+                                                className={cn(
+                                                    "px-3 py-1.5 text-xs font-bold rounded transition-all",
+                                                    period === p
+                                                        ? "bg-background text-foreground shadow-sm"
+                                                        : "text-muted-foreground hover:text-foreground"
+                                                )}
+                                            >
+                                                {p}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 {/* STATS GRID - 3 Columns */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {/* Documents Processed */}
@@ -374,56 +448,52 @@ function DashboardContent() {
                                                 <FileText className="h-4 w-4 text-blue-500" />
                                             </div>
                                         </div>
-                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">{currentStats.documents_processed.toLocaleString()}</p>
-                                        <p className="text-xs text-muted-foreground">Total processed</p>
+                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">{periodStats.documents.toLocaleString()}</p>
+                                        <p className="text-xs text-muted-foreground">{period === 'All' ? 'All time' : `Last ${period.replace('D', ' days')}`}</p>
                                     </div>
 
                                     {/* Time Saved */}
                                     <div className="bg-muted/50 rounded-lg p-5 border border-border">
                                         <div className="flex items-center justify-between mb-3">
-                                            <p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
-                                                <Clock className="h-3 w-3" /> Time Saved
-                                            </p>
+                                            <div className="flex items-center gap-1.5">
+                                                <p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
+                                                    <Clock className="h-3 w-3" /> Time Saved
+                                                </p>
+                                                <div className="group relative">
+                                                    <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                                                    <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-popover border border-border rounded-md shadow-lg text-xs text-popover-foreground z-10">
+                                                        <p className="font-semibold mb-1">How we estimate</p>
+                                                        <p className="text-muted-foreground">Based on 15 min avg manual entry per statement</p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
                                                 <Clock className="h-4 w-4 text-emerald-500" />
                                             </div>
                                         </div>
-                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">~{currentStats.time_saved_hours}h</p>
-                                        <p className="text-xs text-muted-foreground">Through automation</p>
+                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">
+                                            {Math.floor(periodStats.timeSaved)}h {Math.round((periodStats.timeSaved % 1) * 60)}m
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">{period === 'All' ? 'All time' : `Last ${period.replace('D', ' days')}`}</p>
                                     </div>
 
-                                    {/* Success Rate */}
+                                    {/* Exports Generated */}
                                     <div className="bg-muted/50 rounded-lg p-5 border border-border">
                                         <div className="flex items-center justify-between mb-3">
                                             <p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
-                                                <CheckCircle2 className="h-3 w-3" /> Success Rate
+                                                <Download className="h-3 w-3" /> Exports
                                             </p>
                                             <div className="h-8 w-8 rounded-full bg-purple-500/10 flex items-center justify-center">
-                                                <CheckCircle2 className="h-4 w-4 text-purple-500" />
+                                                <Download className="h-4 w-4 text-purple-500" />
                                             </div>
                                         </div>
-                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">{currentStats.success_rate}%</p>
-                                        <p className="text-xs text-muted-foreground">Extraction accuracy</p>
-                                    </div>
-                                </div>
-
-                                {/* Export Stats - Compact Footer */}
-                                <div className="mt-6 pt-6 border-t border-border flex items-center justify-between">
-                                    <div className="flex gap-8">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                                            <span className="text-xs text-muted-foreground">CSV:</span>
-                                            <span className="text-sm font-bold text-emerald-500">{currentStats.csv_exports}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                                            <span className="text-xs text-muted-foreground">QBO:</span>
-                                            <span className="text-sm font-bold text-blue-500">{currentStats.qbo_exports}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-slate-500"></div>
-                                            <span className="text-xs text-muted-foreground">Total Exports:</span>
-                                            <span className="text-sm font-bold text-foreground">{currentStats.csv_exports + currentStats.qbo_exports}</span>
+                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">{(periodStats.csvExports + periodStats.qboExports).toLocaleString()}</p>
+                                        <div className="flex items-center gap-2 text-xs">
+                                            <span className="text-muted-foreground">{period === 'All' ? 'All time' : `Last ${period.replace('D', ' days')}`}</span>
+                                            <span className="text-muted-foreground">·</span>
+                                            <span className="text-emerald-500 font-semibold">CSV {periodStats.csvExports}</span>
+                                            <span className="text-muted-foreground">·</span>
+                                            <span className="text-blue-500 font-semibold">QBO {periodStats.qboExports}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -435,18 +505,34 @@ function DashboardContent() {
                                     <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center"><Clock className="h-3 w-3 text-muted-foreground" /></div>
                                     Processing History
                                 </h3>
+
+                                {/* Privacy Banner */}
+                                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-4 flex gap-3">
+                                    <ShieldCheck className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+                                    <div>
+                                        <h4 className="text-sm font-semibold text-foreground mb-1">Privacy-first processing</h4>
+                                        <p className="text-xs text-muted-foreground">We don't store uploaded statement files. This history is an audit log of what you processed and what exports you downloaded at the time.</p>
+                                    </div>
+                                </div>
+
                                 <div className="bg-card border border-border rounded-xl overflow-hidden flex flex-col flex-1 min-h-0 relative">
-                                    <div className="overflow-x-auto">
-                                        <div className="grid grid-cols-[minmax(200px,2fr)_minmax(150px,1.5fr)_minmax(140px,1fr)_100px] min-w-[800px] gap-4 px-6 py-3 border-b border-border bg-muted/30 text-[10px] uppercase font-bold text-muted-foreground tracking-wider shrink-0">
-                                            <span>File Name</span>
-                                            <span>Downloads</span>
-                                            <span>Processed At</span>
-                                            <span className="text-right">Status</span>
-                                        </div>
+                                    {/* Sticky Header */}
+                                    <div className="grid grid-cols-[minmax(180px,2fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)_100px] min-w-[900px] gap-4 px-6 py-3 border-b border-border bg-muted/30 text-[10px] uppercase font-bold text-muted-foreground tracking-wider sticky top-0 z-10">
+                                        <span>File Name</span>
+                                        <span className="flex items-center gap-1" title="Displayed when extraction results were generated successfully">
+                                            Rows extracted
+                                            <Info className="h-3 w-3 cursor-help" />
+                                        </span>
+                                        <span>Downloaded exports</span>
+                                        <span>Processed At</span>
+                                        <span className="text-right">Privacy</span>
+                                    </div>
+                                    {/* Scrollable Content */}
+                                    <div className="overflow-x-auto overflow-y-auto flex-1">
                                         {/* SCROLLABLE LIST CONTAINER */}
-                                        <div className="min-w-[800px]">
+                                        <div className="min-w-[900px]">
                                             {history.map((item, i) => (
-                                                <div key={i} className="grid grid-cols-[minmax(200px,2fr)_minmax(150px,1.5fr)_minmax(140px,1fr)_100px] gap-4 px-6 py-4 border-b border-border last:border-0 hover:bg-muted/50 transition-colors items-center group">
+                                                <div key={i} className="grid grid-cols-[minmax(180px,2fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)_100px] gap-4 px-6 py-4 border-b border-border last:border-0 hover:bg-muted/50 transition-colors items-center group">
                                                     <div className="flex items-center gap-3 min-w-0 overflow-hidden">
                                                         <div className="p-2 bg-background rounded-lg border border-border text-muted-foreground group-hover:text-primary transition-colors shrink-0">
                                                             <FileText className="h-4 w-4" />
@@ -457,24 +543,30 @@ function DashboardContent() {
                                                         </div>
                                                     </div>
 
-                                                    {/* DOWNLOADS COLUMN */}
+                                                    {/* ROWS EXTRACTED COLUMN */}
+                                                    <div className="text-sm font-mono font-semibold text-foreground">
+                                                        {item.rowsExtracted !== undefined ? item.rowsExtracted.toLocaleString() : <span className="text-muted-foreground">—</span>}
+                                                    </div>
+
+                                                    {/* DOWNLOADED EXPORTS COLUMN */}
                                                     <div className="flex items-center gap-1 flex-wrap">
                                                         {item.downloads.length > 0 ? (
                                                             item.downloads.map((type) => (
                                                                 <span
                                                                     key={type}
                                                                     className={cn(
-                                                                        "text-[10px] font-bold px-1.5 py-0.5 rounded border",
+                                                                        "text-[10px] font-bold px-1.5 py-0.5 rounded border cursor-default",
                                                                         type === "CSV"
                                                                             ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
                                                                             : "bg-blue-600/10 text-blue-500 border-blue-600/20"
                                                                     )}
+                                                                    title={`Downloaded ${type} at extraction time`}
                                                                 >
                                                                     {type}
                                                                 </span>
                                                             ))
                                                         ) : (
-                                                            <span className="text-[10px] text-muted-foreground">-</span>
+                                                            <span className="text-[10px] text-muted-foreground" title="No exports downloaded">—</span>
                                                         )}
                                                     </div>
 
@@ -482,8 +574,11 @@ function DashboardContent() {
                                                         {item.time}
                                                     </div>
                                                     <div className="flex justify-end">
-                                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded text-[10px] font-bold text-muted-foreground border border-transparent group-hover:border-border whitespace-nowrap">
-                                                            <Trash2 className="h-3 w-3" /> DELETED
+                                                        <div
+                                                            className="flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 rounded text-[10px] font-bold text-emerald-600 border border-emerald-500/20 whitespace-nowrap"
+                                                            title="For security, uploaded statements are automatically deleted after extraction"
+                                                        >
+                                                            <ShieldCheck className="h-3 w-3" /> Not stored
                                                         </div>
                                                     </div>
                                                 </div>
@@ -523,11 +618,11 @@ function SidebarItem({ icon, label, active, onClick }: { icon: React.ReactNode, 
             className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer group mb-1",
                 active
-                    ? "bg-[#0f172a] text-white border border-white/5 shadow-sm"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    ? "bg-accent text-accent-foreground border border-border shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
             )}
         >
-            <div className={cn("transition-colors", active ? "text-white" : "text-slate-500 group-hover:text-slate-300")}>
+            <div className={cn("transition-colors", active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
                 {icon}
             </div>
             <span>{label}</span>

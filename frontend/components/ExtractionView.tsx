@@ -11,6 +11,8 @@ import {
     Lock, FileX, Trash2, Server, Wallet
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations, useLocale } from "next-intl";
+import { Locale } from "@/i18n/locales";
 
 import { Button } from "@/components/ui/button";
 import { TaskHeader } from "@/components/TaskHeader";
@@ -99,6 +101,13 @@ export default function ExtractionView({
     onDownload
 }: ExtractionViewProps) {
     const { user } = useUser();
+    const t = useTranslations('Extraction');
+    const locale = useLocale() as Locale;
+
+    // Default fallback if props are missing (should generally be passed from parent though)
+    const viewTitle = title || t('titles.extract_statement');
+    const viewDesc = description || t('titles.desc_statement');
+
     const [file, setFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -134,13 +143,13 @@ export default function ExtractionView({
         let messageInterval: NodeJS.Timeout;
         if (isLoading && progress > 5) {
             const LOADING_MESSAGES = [
-                "Initializing secure enclave...",
-                "Scanning layout & geometry...",
-                "Detecting dynamic columns...",
-                "Aligning financial types...",
-                "Validating integrity...",
-                "Formatting exports...",
-                "Finalizing..."
+                t('processing.steps.secure_enclave'),
+                t('processing.steps.layout'),
+                t('processing.steps.columns'),
+                t('processing.steps.financial'),
+                t('processing.steps.integrity'),
+                t('processing.steps.export'),
+                t('processing.steps.finalizing')
             ];
             let msgIndex = 0;
             messageInterval = setInterval(() => {
@@ -180,7 +189,7 @@ export default function ExtractionView({
             setAccounts([]);
             if (f.type.startsWith("image/")) setPreviewUrl(URL.createObjectURL(f));
             else generatePDFPreview(f);
-            toast.info("Document loaded");
+            toast.info(t('dropzone.document_loaded'));
         }
     }, [mode]);
 
@@ -207,7 +216,7 @@ export default function ExtractionView({
     const handleExtract = async () => {
         if (!file) return;
         setIsLoading(true);
-        setStatus("Initializing extraction engine...");
+        setStatus(t('processing.init'));
         setAccounts([]);
         setProgress(0);
 
@@ -292,8 +301,8 @@ export default function ExtractionView({
 
         } catch (error: any) {
             clearInterval(interval);
-            setStatus("Process Failed");
-            toast.error(error.message || "Extraction interrupted");
+            setStatus(t('processing.error'));
+            toast.error(error.message || t('processing.error'));
             setIsLoading(false);
         }
     };
@@ -308,7 +317,7 @@ export default function ExtractionView({
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        toast.success(`Downloaded ${fileName}`);
+        toast.success(t('processing.downloaded', { file: fileName }));
     };
 
     const downloadCSV = async (acc: AccountData) => {
@@ -416,9 +425,9 @@ export default function ExtractionView({
     const chips = useMemo(() => {
         const c = [];
         if (search) c.push({ key: 'search', label: `Search: "${search}"` });
-        if (typeFilter !== 'all') c.push({ key: 'type', label: typeFilter === 'debit' ? 'Debit' : 'Credit' });
+        if (typeFilter !== 'all') c.push({ key: 'type', label: typeFilter === 'debit' ? t('toolbar.filter_debit') : t('toolbar.filter_credit') });
         return c;
-    }, [search, typeFilter]);
+    }, [search, typeFilter, t]);
 
     const handleRemoveChip = (key: string) => {
         if (key === 'search') setSearch("");
@@ -451,8 +460,8 @@ export default function ExtractionView({
                                     <ShieldCheck className="h-3 w-3" /> Encrypted Processing
                                 </span>
                             </div>
-                            <h1 className="text-2xl font-bold text-foreground tracking-tight">{title}</h1>
-                            <p className="text-muted-foreground mt-1 max-w-2xl text-sm">{description}</p>
+                            <h1 className="text-2xl font-bold text-foreground tracking-tight">{viewTitle}</h1>
+                            <p className="text-muted-foreground mt-1 max-w-2xl text-sm">{viewDesc}</p>
                         </div>
                     </div>
 
@@ -488,16 +497,16 @@ export default function ExtractionView({
                                                         <Upload className="h-8 w-8 text-primary" />
                                                     </div>
                                                     <div>
-                                                        <h3 className="text-lg font-bold text-foreground">Click to Upload</h3>
+                                                        <h3 className="text-lg font-bold text-foreground">{t('dropzone.click_to_upload')}</h3>
                                                         <p className="text-sm text-muted-foreground mt-1 max-w-[200px] mx-auto">
-                                                            PDF Statement or Check Image
+                                                            {t('dropzone.subtitle')}
                                                         </p>
                                                         <div className="flex items-center justify-center gap-4 mt-8 pt-6 border-t border-border">
                                                             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
-                                                                <Server className="h-3 w-3 text-muted-foreground" /> RAM-Only
+                                                                <Server className="h-3 w-3 text-muted-foreground" /> {t('dropzone.ram_only')}
                                                             </div>
                                                             <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
-                                                                <Trash2 className="h-3 w-3 text-muted-foreground" /> Auto-Wipe
+                                                                <Trash2 className="h-3 w-3 text-muted-foreground" /> {t('dropzone.auto_wipe')}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -534,10 +543,10 @@ export default function ExtractionView({
                                                         </motion.div>
                                                     </div>
                                                     <div className="space-y-4">
-                                                        <h3 className="text-xl font-bold text-foreground animate-pulse">{status || "Processing..."}</h3>
+                                                        <h3 className="text-xl font-bold text-foreground animate-pulse">{status || t('processing.title')}</h3>
                                                         <div className="space-y-2">
                                                             <div className="flex justify-between text-xs font-bold uppercase text-muted-foreground tracking-wider">
-                                                                <span>Encryption Active</span>
+                                                                <span>{t('processing.encryption_active')}</span>
                                                                 <span>{Math.round(progress)}%</span>
                                                             </div>
                                                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden border border-border">
@@ -576,11 +585,11 @@ export default function ExtractionView({
                                                         </motion.div>
                                                     </div>
 
-                                                    <h3 className="text-2xl font-bold text-white mb-2">Discarding File</h3>
+                                                    <h3 className="text-2xl font-bold text-white mb-2">{t('processing.discarding')}</h3>
                                                     <p className="text-slate-400 text-sm max-w-sm mx-auto">
-                                                        Original document is being securely removed from server memory.
+                                                        {t('processing.discarding_desc')}
                                                         <span className="block mt-2 text-emerald-400 font-bold flex items-center justify-center gap-2">
-                                                            <CheckCircle2 className="h-4 w-4" /> Zero-Retention Policy
+                                                            <CheckCircle2 className="h-4 w-4" /> {t('processing.zero_retention')}
                                                         </span>
                                                     </p>
                                                 </motion.div>
@@ -592,7 +601,7 @@ export default function ExtractionView({
                                 {!isLoading && file && (
                                     <div className="p-4 bg-muted/30 border-t border-border">
                                         <Button size="lg" className="w-full font-bold shadow-none" onClick={handleExtract}>
-                                            Start Extraction
+                                            {t('processing.start_extraction')}
                                         </Button>
                                     </div>
                                 )}
@@ -608,9 +617,9 @@ export default function ExtractionView({
 
                     {/* 1. Task Header with Primary CTA */}
                     <TaskHeader
-                        title="Extraction Results"
-                        subtitle="Review extracted data and download exports."
-                        primaryCtaLabel="Upload another statement"
+                        title={t('results.title')}
+                        subtitle={t('results.subtitle')}
+                        primaryCtaLabel={t('results.upload_another')}
                         onPrimaryCtaClick={resetForm}
                     />
 
@@ -641,7 +650,7 @@ export default function ExtractionView({
                             </div>
                             <CardContent className="p-6 relative z-10">
                                 <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 tracking-widest flex items-center gap-1.5">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Total Credit
+                                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {t('results.total_credit')}
                                 </p>
                                 <p className="text-2xl font-mono font-bold text-emerald-500">{formatCurrency(summary.totalCredit, accounts[0].currency)}</p>
                             </CardContent>
@@ -660,7 +669,7 @@ export default function ExtractionView({
                             </div>
                             <CardContent className="p-6 relative z-10">
                                 <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 tracking-widest flex items-center gap-1.5">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Total Debit
+                                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> {t('results.total_debit')}
                                 </p>
                                 <p className="text-2xl font-mono font-bold text-red-400">{formatCurrency(Math.abs(summary.totalDebit), accounts[0].currency)}</p>
                             </CardContent>
@@ -677,7 +686,7 @@ export default function ExtractionView({
                             </div>
                             <CardContent className="p-6 relative z-10">
                                 <p className="text-[10px] uppercase font-bold text-blue-500 mb-2 tracking-widest flex items-center gap-1.5">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> Net Balance
+                                    <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" /> {t('results.net_balance')}
                                 </p>
                                 <p className="text-2xl font-mono font-bold text-foreground">{formatCurrency(summary.net, accounts[0].currency)}</p>
                             </CardContent>
@@ -706,7 +715,7 @@ export default function ExtractionView({
                                     <span className="text-sm font-bold text-foreground">{acc.account_name}</span>
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                    {acc.preview_rows.length} rows visible
+                                    {t('results.rows_visible', { count: acc.preview_rows.length })}
                                 </div>
                             </CardHeader>
 
@@ -735,7 +744,7 @@ export default function ExtractionView({
                                         ) : (
                                             <TableRow>
                                                 <TableCell colSpan={acc.preview_headers.length} className="h-24 text-center">
-                                                    No results found.
+                                                    {t('results.no_results')}
                                                 </TableCell>
                                             </TableRow>
                                         )}

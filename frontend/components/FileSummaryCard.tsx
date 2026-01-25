@@ -10,6 +10,7 @@ import {
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface FileSummaryCardProps {
     fileName: string;
@@ -36,6 +37,8 @@ export function FileSummaryCard({
     onDownloadCsv,
     onDownloadQbo
 }: FileSummaryCardProps) {
+    const t = useTranslations('Extraction.file_summary');
+
     return (
         <Card>
             <CardContent className="p-4 sm:p-5">
@@ -59,12 +62,12 @@ export function FileSummaryCard({
                                         "shrink-0 capitalize",
                                         status === 'success' && "bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 border-emerald-500/20 dark:text-emerald-400"
                                     )}>
-                                        {status}
+                                        {status === 'success' ? t('status_success') : status}
                                     </Badge>
                                 </div>
                                 <p className="text-sm text-muted-foreground flex items-center gap-1.5">
                                     <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                                    Extraction complete — <span className="font-medium text-foreground">{transactionCount}</span> transactions found
+                                    {t('complete')} — <span className="font-medium text-foreground">{t('transactions_found', { count: transactionCount })}</span>
                                 </p>
                             </div>
                         </div>
@@ -76,7 +79,7 @@ export function FileSummaryCard({
                                 size="sm"
                                 onClick={onDownloadCsv}
                                 className="font-bold text-foreground group hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 dark:hover:bg-emerald-950/30 dark:hover:text-emerald-400 transition-colors"
-                                title="Download CSV"
+                                title={t('download_csv')}
                             >
                                 <Download className="mr-2 h-3.5 w-3.5 text-muted-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 sidebar-accent-icon" />
                                 CSV
@@ -86,7 +89,7 @@ export function FileSummaryCard({
                                 size="sm"
                                 onClick={onDownloadQbo}
                                 className="font-bold text-foreground group hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 dark:hover:bg-blue-950/30 dark:hover:text-blue-400 transition-colors"
-                                title="Download QBO"
+                                title={t('download_qbo')}
                             >
                                 <Download className="mr-2 h-3.5 w-3.5 text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 sidebar-accent-icon" />
                                 QBO
@@ -96,25 +99,24 @@ export function FileSummaryCard({
                                 <DropdownMenuTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-8 w-8">
                                         <MoreVertical className="h-4 w-4" />
-                                        <span className="sr-only">More actions</span>
+                                        <span className="sr-only">{t('more_actions')}</span>
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                     <DropdownMenuItem disabled>
-                                        <Eye className="mr-2 h-4 w-4" /> View original PDF
+                                        <Eye className="mr-2 h-4 w-4" /> {t('view_pdf')}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem disabled>
-                                        <RefreshCcw className="mr-2 h-4 w-4" /> Reprocess
+                                        <RefreshCcw className="mr-2 h-4 w-4" /> {t('reprocess')}
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem className="text-destructive focus:text-destructive" disabled>
-                                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                        <Trash2 className="mr-2 h-4 w-4" /> {t('delete')}
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
                     </div>
-                    {/* Bottom Row Metadata removed */}
                 </div>
             </CardContent>
         </Card>

@@ -1,0 +1,48 @@
+{
+    "Dashboard": {
+        "nav": {
+            "overview": "Visão Geral",
+            "extract_statement": "Extrair Extrato",
+            "extract_check": "Extrair Cheque",
+            "settings": "Configurações"
+        },
+        "header": {
+            "greeting_morning": "Bom Dia",
+            "greeting_afternoon": "Boa Tarde",
+            "greeting_evening": "Boa Noite",
+            "plan": "Plano",
+            "usage": "Uso",
+            "top_up": "RECARREGAR"
+        },
+        "overview": {
+            "title": "Visão Geral",
+            "subtitle": "Suas estatísticas de extração",
+            "new_extraction": "Nova Extração",
+            "documents": "Documentos",
+            "time_saved": "Tempo Salvo",
+            "exports": "Exportações",
+            "how_we_estimate": "Baseado em 15 min de entrada manual por extrato",
+            "not_stored": "Não armazenado",
+            "privacy_title": "Processamento focado em privacidade",
+            "privacy_desc": "Não armazenamos extratos enviados. Este histórico é apenas um registro de auditoria do que você processou e baixou.",
+            "processing_history": "Histórico de Processamento",
+            "history_cols": {
+                "file_name": "Nome do Arquivo",
+                "rows_extracted": "Linhas extraídas",
+                "downloads": "Downloads",
+                "processed_at": "Processado em",
+                "privacy": "Privacidade"
+            },
+            "period": {
+                "all_time": "Todo o período",
+                "last_days": "Últimos {days} dias"
+            }
+        }
+    },
+    "Common": {
+        "loading": "Carregando...",
+        "plan_free": "Plano Grátis",
+        "plan_pro": "Plano Pro",
+        "plan_enterprise": "Plano Enterprise"
+    }
+}

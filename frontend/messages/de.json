@@ -1,0 +1,227 @@
+{
+    "Dashboard": {
+        "nav": {
+            "overview": "Übersicht",
+            "extract_statement": "Auszug Extrahieren",
+            "extract_check": "Scheck Extrahieren",
+            "settings": "Einstellungen"
+        },
+        "header": {
+            "greeting_morning": "Guten Morgen",
+            "greeting_afternoon": "Guten Tag",
+            "greeting_evening": "Guten Abend",
+            "plan": "Plan",
+            "usage": "Nutzung",
+            "top_up": "AUFLADEN"
+        },
+        "overview": {
+            "title": "Arbeitsbereich Übersicht",
+            "subtitle": "Ihre Extraktionsanalysen auf einen Blick",
+            "new_extraction": "Neue Extraktion",
+            "documents": "Dokumente",
+            "time_saved": "Gesparte Zeit",
+            "exports": "Exporte",
+            "how_we_estimate": "Basierend auf 15 Min. manueller Eingabe pro Auszug",
+            "not_stored": "Nicht gespeichert",
+            "privacy_title": "Datenschutzorientierte Verarbeitung",
+            "privacy_desc": "Wir speichern keine hochgeladenen Auszugsdateien. Dieser Verlauf ist ein Audit-Protokoll dessen, was Sie verarbeitet und heruntergeladen haben.",
+            "processing_history": "Verarbeitungsverlauf",
+            "history_cols": {
+                "file_name": "Dateiname",
+                "rows_extracted": "Zeilen extrahiert",
+                "downloads": "Exporte heruntergeladen",
+                "processed_at": "Verarbeitet am",
+                "privacy": "Datenschutz"
+            },
+            "period": {
+                "all_time": "Gesamte Zeit",
+                "last_days": "Letzte {days} Tage"
+            }
+        }
+    },
+    "SubscriptionManager": {
+        "title": "Abonnement verwalten",
+        "description": "Zeigen Sie Details Ihres aktiven Plans an und verwalten Sie diese.",
+        "loading": "Lade Abonnement-Details...",
+        "current_plan": "Aktueller Plan",
+        "per_interval": "/{interval}",
+        "status_active": "Aktiv",
+        "status_cancels_soon": "Endet bald",
+        "renews_on": "Erneuert am",
+        "access_ends_on": "Zugang endet am",
+        "expires": "Läuft ab am {date}",
+        "cancel_button": "Abo kündigen",
+        "scheduled_button": "Kündigung geplant",
+        "keep_plan": "Plan behalten",
+        "confirm_cancel": "Kündigung bestätigen",
+        "cancelling": "Kündige...",
+        "confirm_title": "Abonnement kündigen?",
+        "confirm_desc": "Sie behalten den Zugang bis zum Ende Ihres Abrechnungszeitraums ({date}). Dies kann nicht rückgängig gemacht werden.",
+        "cancellation_scheduled_desc": "Ihr Plan bleibt bis zum Ende des Abrechnungszeitraums aktiv.",
+        "no_active_sub": "Keine aktiven Abonnement-Details gefunden.",
+        "close": "Schließen",
+        "error_load": "Abonnement-Details konnten nicht geladen werden",
+        "error_cancel": "Fehler beim Kündigen des Abonnements",
+        "success_cancel": "Abonnement gekündigt. Zugang bleibt bis zum Ende des Zeitraums."
+    },
+    "Checkout": {
+        "title": "Abonnement upgraden",
+        "description": "Geben Sie Ihre Zahlungsdaten ein, um auf den {tier}-Plan upzugraden.",
+        "plan_label": "{tier}-Plan",
+        "billed_monthly": "Monatliche Abrechnung. Jederzeit kündbar.",
+        "pay_button": "Zahlen ${price}",
+        "cancel_button": "Abbrechen",
+        "processing": "Verarbeitung...",
+        "initializing": "Initialisiere sichere Zahlung...",
+        "success": {
+            "title": "Zahlung erfolgreich!",
+            "message": "Ihr Abonnement ist jetzt aktiv."
+        },
+        "secured_by": "Zahlungen gesichert durch Stripe"
+    },
+    "Extraction": {
+        "titles": {
+            "extract_statement": "Kontoauszugsextraktion",
+            "extract_check": "Scheck-Scannen",
+            "desc_statement": "Extrahieren Sie sicher Bank-PDFs in CSV/QBO.",
+            "desc_check": "Laden Sie Scheckbilder zur Handschrifterkennung hoch."
+        },
+        "dropzone": {
+            "click_to_upload": "Klicken zum Hochladen",
+            "subtitle": "PDF-Kontoauszug oder Scheckbild",
+            "ram_only": "Nur RAM",
+            "auto_wipe": "Auto-Löschung",
+            "document_loaded": "Dokument geladen"
+        },
+        "processing": {
+            "title": "Verarbeitung...",
+            "encryption_active": "Verschlüsselung Aktiv",
+            "discarding": "Datei wird verworfen",
+            "discarding_desc": "Das Originaldokument wird sicher aus dem Serverspeicher entfernt.",
+            "zero_retention": "Null-Speicherungs-Richtlinie",
+            "start_extraction": "Extraktion starten",
+            "init": "Initialisiere Extraktions-Engine...",
+            "steps": {
+                "secure_enclave": "Initialisiere sichere Enklave...",
+                "layout": "Scanne Layout & Geometrie...",
+                "columns": "Erkenne dynamische Spalten...",
+                "financial": "Richte finanzielle Typen aus...",
+                "integrity": "Validiere Integrität...",
+                "export": "Formatiere Exporte...",
+                "finalizing": "Abschließen..."
+            },
+            "error": "Extraktion unterbrochen",
+            "success": "Extraktion Abgeschlossen",
+            "downloaded": "{file} heruntergeladen"
+        },
+        "results": {
+            "title": "Extraktionsergebnisse",
+            "subtitle": "Überprüfen Sie die extrahierten Daten und laden Sie Exporte herunter.",
+            "upload_another": "Weiteren Auszug hochladen",
+            "total_credit": "Gesamt Gutschrift",
+            "total_debit": "Gesamt Lastschrift",
+            "net_balance": "Nettosaldo",
+            "rows_visible": "{count} Zeilen sichtbar",
+            "no_results": "Keine Ergebnisse gefunden."
+        },
+        "toolbar": {
+            "search_placeholder": "Transaktionen suchen...",
+            "filter_all": "Alle",
+            "filter_debit": "Lastschrift",
+            "filter_credit": "Gutschrift",
+            "clear_filters": "Filter löschen"
+        },
+        "file_summary": {
+            "status_success": "Erfolg",
+            "status_default": "{status}",
+            "complete": "Extraktion abgeschlossen",
+            "transactions_found": "{count} Transaktionen gefunden",
+            "download_csv": "CSV herunterladen",
+            "download_qbo": "QBO herunterladen",
+            "more_actions": "Weitere Aktionen",
+            "view_pdf": "Original-PDF anzeigen",
+            "reprocess": "Erneut verarbeiten",
+            "delete": "Löschen"
+        }
+    },
+    "Settings": {
+        "title": "Einstellungen",
+        "subtitle": "Verwalten Sie Ihre Kontoeinstellungen und den API-Zugriff.",
+        "tabs": {
+            "general": "Allgemein",
+            "billing": "Abrechnung",
+            "api": "API"
+        },
+        "general": {
+            "profile": {
+                "title": "Profilinformationen",
+                "description": "Aktualisieren Sie Ihre persönlichen Daten.",
+                "label_name": "Vollständiger Name",
+                "label_email": "E-Mail-Adresse"
+            },
+            "preferences": {
+                "title": "Präferenzen",
+                "notifications": "E-Mail-Benachrichtigungen",
+                "notifications_desc": "Erhalten Sie Zusammenfassungen Ihrer Extraktionen.",
+                "appearance": "Erscheinungsbild",
+                "appearance_desc": "Wechseln Sie zwischen dunklem und hellem Modus."
+            },
+            "save": "Änderungen speichern",
+            "saving": "Speichern..."
+        },
+        "billing": {
+            "upgrade_title": "Plan upgraden",
+            "upgrade_subtitle": "Wählen Sie den Plan, der am besten zu Ihnen passt",
+            "per_month": "pro Monat",
+            "current_plan": "Aktueller Plan",
+            "upgrade_to": "Upgrade auf {tier}",
+            "current_subscription": "Aktuelles Abonnement",
+            "current_tier": "{tier} Tier",
+            "renews_on": "Erneuert am {date}",
+            "ends_on": "Endet am {date}",
+            "cancels_soon": "Endet bald",
+            "active": "Aktiv",
+            "credits_used": "Verbrauchte Credits",
+            "credits_info": "1 Dokument = 10 Credits",
+            "manage_subscription": "Abonnement verwalten",
+            "popular": "Beliebt",
+            "for_professionals": "Für Profis",
+            "for_teams": "Für große Teams",
+            "perfect_for_trying": "Perfekt zum Ausprobieren",
+            "features": {
+                "credits_500": "500 Credits/Monat",
+                "credits_5000": "5.000 Credits/Monat",
+                "credits_unlimited": "Unbegrenzte Credits",
+                "basic_extraction": "Basis-Extraktion",
+                "advanced_extraction": "Erweiterte Extraktion",
+                "csv_qbo": "CSV & QBO Exporte",
+                "priority_processing": "Priorisierte Verarbeitung",
+                "api_access": "API-Zugriff",
+                "email_support": "E-Mail-Support",
+                "priority_support": "Priorisierter Support",
+                "all_pro": "Alle Pro-Funktionen",
+                "dedicated_manager": "Persönlicher Manager",
+                "custom_integrations": "Benutzerdefinierte Integrationen",
+                "phone_support": "24/7 Telefon-Support"
+            }
+        },
+        "api": {
+            "title": "API-Zugriff",
+            "description": "Verwenden Sie diesen Schlüssel zur Authentifizierung bei der BankSplitter-API.",
+            "secret_key": "Geheimer Schlüssel",
+            "copy": "Kopieren",
+            "warning": "Teilen Sie diesen Schlüssel mit niemandem.",
+            "usage_example": "Anwendungsbeispiel"
+        },
+        "toasts": {
+            "copied": "API-Schlüssel in die Zwischenablage kopiert",
+            "saved": "Einstellungen erfolgreich gespeichert"
+        }
+    },
+    "Common": {
+        "loading": "Laden...",
+        "plan_free": "Kostenloser Plan",
+        "plan_pro": "Pro Plan",
+        "plan_enterprise": "Enterprise Plan"
+    }
+}

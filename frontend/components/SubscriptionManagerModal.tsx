@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import SubscriptionBadge from "@/components/SubscriptionBadge";
 import { SubscriptionTier } from "@/lib/stripe";
 import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
+import { Locale } from "@/i18n/locales";
 
 interface SubscriptionDetails {
     planName: string;
@@ -31,6 +33,8 @@ interface SubscriptionManagerModalProps {
 }
 
 export default function SubscriptionManagerModal({ isOpen, onClose }: SubscriptionManagerModalProps) {
+    const t = useTranslations('SubscriptionManager');
+    const locale = useLocale() as Locale;
     const [isLoading, setIsLoading] = useState(true);
     const [details, setDetails] = useState<SubscriptionDetails | null>(null);
     const [isCancelling, setIsCancelling] = useState(false);
@@ -45,13 +49,16 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
     const fetchDetails = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch('/api/stripe/subscription-details');
-            if (!res.ok) throw new Error('Failed to fetch subscription');
+            const res = await fetch('/api/stripe/subscription-details', { cache: 'no-store' });
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(`Failed to check subscription: ${res.status} ${err}`);
+            }
             const data = await res.json();
             setDetails(data);
         } catch (error) {
             console.error(error);
-            toast.error("Could not load subscription details");
+            toast.error(t('error_load'));
             onClose();
         } finally {
             setIsLoading(false);
@@ -64,21 +71,24 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
         setIsCancelling(true);
         try {
             const res = await fetch('/api/stripe/cancel-subscription', { method: 'POST' });
-            if (!res.ok) throw new Error('Failed to cancel');
+            if (!res.ok) {
+                const err = await res.text();
+                throw new Error(`Cancel failed: ${res.status} ${err}`);
+            }
 
-            toast.success("Subscription canceled. Access remains until the billing period ends.");
+            toast.success(t('success_cancel'));
             onClose();
             window.location.reload();
         } catch (error) {
             console.error(error);
-            toast.error("Failed to cancel subscription");
+            toast.error(t('error_cancel'));
         } finally {
             setIsCancelling(false);
         }
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        return new Date(dateString).toLocaleDateString(locale, {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
@@ -89,9 +99,9 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="sm:max-w-md bg-card border border-border text-foreground p-0 overflow-hidden">
                 <DialogHeader className="px-6 pt-6 pb-2">
-                    <DialogTitle>Manage Subscription</DialogTitle>
+                    <DialogTitle>{t('title')}</DialogTitle>
                     <DialogDescription className="text-muted-foreground">
-                        View and manage your active plan details.
+                        {t('description')}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -99,7 +109,7 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                     {isLoading ? (
                         <div className="py-12 flex flex-col items-center justify-center space-y-4 text-muted-foreground">
                             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                            <p>Loading subscription details...</p>
+                            <p>{t('loading')}</p>
                         </div>
                     ) : details ? (
                         <div className="space-y-6 mt-4">
@@ -107,7 +117,7 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                             <div className="bg-muted/50 rounded-lg p-4 border border-border space-y-3">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">Current Plan</p>
+                                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider mb-1">{t('current_plan')}</p>
                                         <div className="flex items-center gap-2">
                                             <h3 className="text-lg font-bold text-foreground">{details.planName}</h3>
                                             <SubscriptionBadge tier={details.planName.toLowerCase().includes('pro') ? 'pro' : 'enterprise'} />
@@ -115,10 +125,10 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                                     </div>
                                     <div className="text-right">
                                         <p className="text-lg font-bold text-foreground">
-                                            ${details.amount}/{details.interval}
+                                            ${details.amount}{t('per_interval', { interval: details.interval })}
                                         </p>
                                         <p className={details.cancelAtPeriodEnd ? "text-amber-500 text-xs" : "text-emerald-500 text-xs"}>
-                                            {details.cancelAtPeriodEnd ? "Cancels soon" : "Active"}
+                                            {details.cancelAtPeriodEnd ? t('status_cancels_soon') : t('status_active')}
                                         </p>
                                     </div>
                                 </div>
@@ -128,7 +138,7 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                     <Calendar className="h-4 w-4 text-muted-foreground" />
                                     <span>
-                                        {details.cancelAtPeriodEnd ? "Access ends on" : "Renews on"} <span className="text-foreground font-medium">{formatDate(details.currentPeriodEnd)}</span>
+                                        {details.cancelAtPeriodEnd ? t('access_ends_on') : t('renews_on')} <span className="text-foreground font-medium">{formatDate(details.currentPeriodEnd)}</span>
                                     </span>
                                 </div>
                             </div>
@@ -144,7 +154,7 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                                             {details.paymentMethod.brand} •••• {details.paymentMethod.last4}
                                         </p>
                                         <p className="text-xs text-slate-500">
-                                            Expires {details.paymentMethod.exp_month}/{details.paymentMethod.exp_year}
+                                            {t('expires', { date: `${details.paymentMethod.exp_month}/${details.paymentMethod.exp_year}` })}
                                         </p>
                                     </div>
                                 </div>
@@ -159,11 +169,11 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                                         onClick={() => setShowCancelConfirm(true)}
                                         disabled={details.cancelAtPeriodEnd}
                                     >
-                                        {details.cancelAtPeriodEnd ? "Cancellation Scheduled" : "Cancel Subscription"}
+                                        {details.cancelAtPeriodEnd ? t('scheduled_button') : t('cancel_button')}
                                     </Button>
                                     {details.cancelAtPeriodEnd && (
                                         <p className="text-center text-[10px] text-slate-500 mt-2">
-                                            Your plan will remain active until the end of the billing period.
+                                            {t('cancellation_scheduled_desc')}
                                         </p>
                                     )}
                                 </div>
@@ -172,9 +182,9 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                                     <div className="flex items-start gap-3">
                                         <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                                         <div>
-                                            <h4 className="text-sm font-bold text-red-500">Cancel Subscription?</h4>
+                                            <h4 className="text-sm font-bold text-red-500">{t('confirm_title')}</h4>
                                             <p className="text-xs text-red-200/70 mt-1">
-                                                You will match remaining credits and access at the end of your billing cycle ({formatDate(details.currentPeriodEnd)}). This action cannot be undone.
+                                                {t('confirm_desc', { date: formatDate(details.currentPeriodEnd) })}
                                             </p>
                                         </div>
                                     </div>
@@ -185,7 +195,7 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                                             className="flex-1 hover:bg-red-500/5 hover:text-red-300 text-slate-400"
                                             onClick={() => setShowCancelConfirm(false)}
                                         >
-                                            Keep Plan
+                                            {t('keep_plan')}
                                         </Button>
                                         <Button
                                             size="sm"
@@ -194,9 +204,9 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                                             disabled={isCancelling}
                                         >
                                             {isCancelling ? (
-                                                <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> Cancelling...</>
+                                                <><Loader2 className="mr-2 h-3 w-3 animate-spin" /> {t('cancelling')}</>
                                             ) : (
-                                                "Confirm Cancel"
+                                                t('confirm_cancel')
                                             )}
                                         </Button>
                                     </div>
@@ -205,8 +215,8 @@ export default function SubscriptionManagerModal({ isOpen, onClose }: Subscripti
                         </div>
                     ) : (
                         <div className="py-8 text-center text-slate-500">
-                            <p>No active subscription details found.</p>
-                            <Button variant="link" onClick={onClose} className="mt-2 text-blue-400">Close</Button>
+                            <p>{t('no_active_sub')}</p>
+                            <Button variant="link" onClick={onClose} className="mt-2 text-blue-400">{t('close')}</Button>
                         </div>
                     )}
                 </div>

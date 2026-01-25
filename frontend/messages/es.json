@@ -1,0 +1,227 @@
+{
+    "Dashboard": {
+        "nav": {
+            "overview": "Resumen",
+            "extract_statement": "Extraer Estado de Cuenta",
+            "extract_check": "Extraer Cheque",
+            "settings": "Configuración"
+        },
+        "header": {
+            "greeting_morning": "Buenos Días",
+            "greeting_afternoon": "Buenas Tardes",
+            "greeting_evening": "Buenas Noches",
+            "plan": "Plan",
+            "usage": "Uso",
+            "top_up": "RECARGAR"
+        },
+        "overview": {
+            "title": "Resumen del Espacio de Trabajo",
+            "subtitle": "Tus analíticas de extracción de un vistazo",
+            "new_extraction": "Nueva Extracción",
+            "documents": "Documentos",
+            "time_saved": "Tiempo Ahorrado",
+            "exports": "Exportaciones",
+            "how_we_estimate": "Basado en un promedio de 15 min de entrada manual por estado de cuenta",
+            "not_stored": "No almacenado",
+            "privacy_title": "Procesamiento centrado en privacidad",
+            "privacy_desc": "No almacenamos los archivos de estado de cuenta subidos. Este historial es un registro de auditoría de lo que procesaste y descargaste.",
+            "processing_history": "Historial de Procesamiento",
+            "history_cols": {
+                "file_name": "Nombre del Archivo",
+                "rows_extracted": "Filas extraídas",
+                "downloads": "Exportaciones descargadas",
+                "processed_at": "Procesado en",
+                "privacy": "Privacidad"
+            },
+            "period": {
+                "all_time": "Todo el tiempo",
+                "last_days": "Últimos {days} días"
+            }
+        }
+    },
+    "SubscriptionManager": {
+        "title": "Gestionar Suscripción",
+        "description": "Ver y gestionar los detalles de tu plan activo.",
+        "loading": "Cargando detalles de suscripción...",
+        "current_plan": "Plan Actual",
+        "per_interval": "/{interval}",
+        "status_active": "Activo",
+        "status_cancels_soon": "Cancela pronto",
+        "renews_on": "Renueva el",
+        "access_ends_on": "Acceso termina el",
+        "expires": "Expira {date}",
+        "cancel_button": "Cancelar Suscripción",
+        "scheduled_button": "Cancelación Programada",
+        "keep_plan": "Mantener Plan",
+        "confirm_cancel": "Confirmar Cancelación",
+        "cancelling": "Cancelando...",
+        "confirm_title": "¿Cancelar Suscripción?",
+        "confirm_desc": "Mantendrás acceso hasta el final de tu ciclo de facturación ({date}). Esta acción no se puede deshacer.",
+        "cancellation_scheduled_desc": "Tu plan permanecerá activo hasta el final del periodo de facturación.",
+        "no_active_sub": "No se encontraron detalles de suscripción activa.",
+        "close": "Cerrar",
+        "error_load": "No se pudieron cargar los detalles de la suscripción",
+        "error_cancel": "Error al cancelar la suscripción",
+        "success_cancel": "Suscripción cancelada. El acceso se mantiene hasta el final del periodo."
+    },
+    "Checkout": {
+        "title": "Mejorar Suscripción",
+        "description": "Introduce tus detalles de pago para actualizar al plan {tier}.",
+        "plan_label": "Plan {tier}",
+        "billed_monthly": "Facturación mensual. Cancela cuando quieras.",
+        "pay_button": "Pagar ${price}",
+        "cancel_button": "Cancelar",
+        "processing": "Procesando...",
+        "initializing": "Iniciando pago seguro...",
+        "success": {
+            "title": "¡Pago Exitoso!",
+            "message": "Tu suscripción ahora está activa."
+        },
+        "secured_by": "Pagos asegurados por Stripe"
+    },
+    "Extraction": {
+        "titles": {
+            "extract_statement": "Extracción de Estado de Cuenta",
+            "extract_check": "Escaneo de Cheques",
+            "desc_statement": "Extrae de forma segura PDFs bancarios a CSV/QBO.",
+            "desc_check": "Sube imágenes de cheques para reconocimiento de escritura."
+        },
+        "dropzone": {
+            "click_to_upload": "Clic para Subir",
+            "subtitle": "Estado de Cuenta PDF o Imagen de Cheque",
+            "ram_only": "Solo RAM",
+            "auto_wipe": "Auto-Borrado",
+            "document_loaded": "Documento cargado"
+        },
+        "processing": {
+            "title": "Procesando...",
+            "encryption_active": "Encriptación Activa",
+            "discarding": "Descartando Archivo",
+            "discarding_desc": "El documento original se está eliminando de forma segura de la memoria del servidor.",
+            "zero_retention": "Política de Retención Cero",
+            "start_extraction": "Iniciar Extracción",
+            "init": "Iniciando motor de extracción...",
+            "steps": {
+                "secure_enclave": "Inicializando enclave seguro...",
+                "layout": "Escaneando diseño y geometría...",
+                "columns": "Detectando columnas dinámicas...",
+                "financial": "Alineando tipos financieros...",
+                "integrity": "Validando integridad...",
+                "export": "Formateando exportaciones...",
+                "finalizing": "Finalizando..."
+            },
+            "error": "Extracción interrumpida",
+            "success": "Extracción Completa",
+            "downloaded": "Descargado {file}"
+        },
+        "results": {
+            "title": "Resultados de Extracción",
+            "subtitle": "Revisa los datos extraídos y descarga las exportaciones.",
+            "upload_another": "Subir otro estado de cuenta",
+            "total_credit": "Crédito Total",
+            "total_debit": "Débito Total",
+            "net_balance": "Balance Neto",
+            "rows_visible": "{count} filas visibles",
+            "no_results": "No se encontraron resultados."
+        },
+        "toolbar": {
+            "search_placeholder": "Buscar transacciones...",
+            "filter_all": "Todo",
+            "filter_debit": "Débito",
+            "filter_credit": "Crédito",
+            "clear_filters": "Limpiar Filtros"
+        },
+        "file_summary": {
+            "status_success": "Exitoso",
+            "status_default": "{status}",
+            "complete": "Extracción completa",
+            "transactions_found": "{count} transacciones encontradas",
+            "download_csv": "Descargar CSV",
+            "download_qbo": "Descargar QBO",
+            "more_actions": "Más acciones",
+            "view_pdf": "Ver PDF original",
+            "reprocess": "Reprocesar",
+            "delete": "Eliminar"
+        }
+    },
+    "Settings": {
+        "title": "Configuración",
+        "subtitle": "Gestiona tus preferencias de cuenta y acceso API.",
+        "tabs": {
+            "general": "General",
+            "billing": "Facturación",
+            "api": "API"
+        },
+        "general": {
+            "profile": {
+                "title": "Información del Perfil",
+                "description": "Actualiza tus datos personales.",
+                "label_name": "Nombre Completo",
+                "label_email": "Correo Electrónico"
+            },
+            "preferences": {
+                "title": "Preferencias",
+                "notifications": "Notificaciones por Correo",
+                "notifications_desc": "Recibe resúmenes de tus extracciones.",
+                "appearance": "Modo de Apariencia",
+                "appearance_desc": "Alterna entre estación de trabajo oscura y temas claros de estudio."
+            },
+            "save": "Guardar Cambios",
+            "saving": "Guardando..."
+        },
+        "billing": {
+            "upgrade_title": "Mejora tu Plan",
+            "upgrade_subtitle": "Elige el plan que mejor se adapte a tus necesidades",
+            "per_month": "por mes",
+            "current_plan": "Plan Actual",
+            "upgrade_to": "Mejorar a {tier}",
+            "current_subscription": "Suscripción Actual",
+            "current_tier": "Nivel {tier}",
+            "renews_on": "Renueva el {date}",
+            "ends_on": "Termina el {date}",
+            "cancels_soon": "Cancela Pronto",
+            "active": "Activo",
+            "credits_used": "Créditos Usados",
+            "credits_info": "1 Documento = 10 Créditos",
+            "manage_subscription": "Gestionar Suscripción",
+            "popular": "Popular",
+            "for_professionals": "Para profesionales",
+            "for_teams": "Para grandes equipos",
+            "perfect_for_trying": "Perfecto para probar",
+            "features": {
+                "credits_500": "500 créditos/mes",
+                "credits_5000": "5,000 créditos/mes",
+                "credits_unlimited": "Créditos ilimitados",
+                "basic_extraction": "Extracción básica",
+                "advanced_extraction": "Extracción avanzada",
+                "csv_qbo": "Exportaciones CSV y QBO",
+                "priority_processing": "Procesamiento prioritario",
+                "api_access": "Acceso API",
+                "email_support": "Soporte por correo",
+                "priority_support": "Soporte prioritario",
+                "all_pro": "Todas las funciones Pro",
+                "dedicated_manager": "Gerente dedicado",
+                "custom_integrations": "Integraciones personalizadas",
+                "phone_support": "Soporte telefónico 24/7"
+            }
+        },
+        "api": {
+            "title": "Acceso API",
+            "description": "Usa esta clave para autenticarte con la API de BankSplitter.",
+            "secret_key": "Clave Secreta",
+            "copy": "Copiar",
+            "warning": "No compartas esta clave con nadie.",
+            "usage_example": "Ejemplo de Uso"
+        },
+        "toasts": {
+            "copied": "Clave API copiada al portapapeles",
+            "saved": "Configuración guardada exitosamente"
+        }
+    },
+    "Common": {
+        "loading": "Cargando...",
+        "plan_free": "Plan Gratuito",
+        "plan_pro": "Plan Pro",
+        "plan_enterprise": "Plan Enterprise"
+    }
+}

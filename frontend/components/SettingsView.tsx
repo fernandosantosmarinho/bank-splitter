@@ -34,6 +34,8 @@ import SubscriptionBadge from "@/components/SubscriptionBadge";
 import SubscriptionManagerModal from "./SubscriptionManagerModal";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { Locale } from "@/i18n/locales";
 
 interface SettingsViewProps {
     user: UserResource;
@@ -54,6 +56,11 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
     const initialTab = searchParams.get('view') || 'general';
     const [activeTab, setActiveTab] = useState(initialTab);
 
+    // Translation Hooks
+    const t = useTranslations('Settings');
+    const tCommon = useTranslations('Common');
+    const locale = useLocale() as Locale;
+
     // Sync state with URL param
     useEffect(() => {
         const view = searchParams.get('view');
@@ -73,7 +80,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
     const handleCopy = () => {
         navigator.clipboard.writeText(apiKey);
         setCopied(true);
-        toast.success("API Key copied to clipboard");
+        toast.success(t('toasts.copied'));
         setTimeout(() => setCopied(false), 2000);
     };
 
@@ -81,7 +88,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
         setIsLoading(true);
         setTimeout(() => {
             setIsLoading(false);
-            toast.success("Settings saved successfully");
+            toast.success(t('toasts.saved'));
         }, 1000);
     };
 
@@ -100,15 +107,15 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
     return (
         <div className="max-w-4xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="mb-8">
-                <h1 className="text-2xl font-bold text-foreground tracking-tight">Settings</h1>
-                <p className="text-muted-foreground mt-1">Manage your account preferences and API access.</p>
+                <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('title')}</h1>
+                <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
             </div>
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                 <TabsList className="grid w-full max-w-md grid-cols-3 bg-muted border border-border h-10 mb-8">
-                    <TabsTrigger value="general" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer">General</TabsTrigger>
-                    <TabsTrigger value="billing" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer">Billing</TabsTrigger>
-                    <TabsTrigger value="api" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer">API</TabsTrigger>
+                    <TabsTrigger value="general" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer">{t('tabs.general')}</TabsTrigger>
+                    <TabsTrigger value="billing" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer">{t('tabs.billing')}</TabsTrigger>
+                    <TabsTrigger value="api" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer">{t('tabs.api')}</TabsTrigger>
                 </TabsList>
 
                 {/* --- GENERAL TAB --- */}
@@ -117,9 +124,9 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                     <Card className="bg-card border-border">
                         <CardHeader>
                             <CardTitle className="text-card-foreground flex items-center gap-2">
-                                <User className="h-5 w-5 text-blue-500" /> Profile Information
+                                <User className="h-5 w-5 text-blue-500" /> {t('general.profile.title')}
                             </CardTitle>
-                            <CardDescription className="text-muted-foreground">Update your personal details.</CardDescription>
+                            <CardDescription className="text-muted-foreground">{t('general.profile.description')}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg border border-border">
@@ -134,11 +141,11 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground">Full Name</Label>
+                                    <Label className="text-muted-foreground">{t('general.profile.label_name')}</Label>
                                     <Input defaultValue={user.fullName || ""} className="bg-background border-border text-foreground" disabled />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground">Email Address</Label>
+                                    <Label className="text-muted-foreground">{t('general.profile.label_email')}</Label>
                                     <Input defaultValue={user.primaryEmailAddress?.emailAddress || ""} className="bg-background border-border text-foreground" disabled />
                                 </div>
                             </div>
@@ -149,14 +156,14 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                     <Card className="bg-card border-border">
                         <CardHeader>
                             <CardTitle className="text-card-foreground flex items-center gap-2">
-                                <Laptop className="h-5 w-5 text-emerald-500" /> Preferences
+                                <Laptop className="h-5 w-5 text-emerald-500" /> {t('general.preferences.title')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="flex items-center justify-between">
                                 <div className="space-y-0.5">
-                                    <Label className="text-foreground">Email Notifications</Label>
-                                    <p className="text-xs text-muted-foreground">Receive summaries of your extractions.</p>
+                                    <Label className="text-foreground">{t('general.preferences.notifications')}</Label>
+                                    <p className="text-xs text-muted-foreground">{t('general.preferences.notifications_desc')}</p>
                                 </div>
                                 <Switch defaultChecked />
                             </div>
@@ -165,9 +172,9 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                 <div className="space-y-0.5">
                                     <div className="flex items-center gap-2">
                                         {theme === 'dark' ? <Moon className="h-4 w-4 text-foreground" /> : <Sun className="h-4 w-4 text-orange-500" />}
-                                        <Label className="text-foreground">Appearance Mode</Label>
+                                        <Label className="text-foreground">{t('general.preferences.appearance')}</Label>
                                     </div>
-                                    <p className="text-xs text-muted-foreground">Switch between dark workstation and light studio themes.</p>
+                                    <p className="text-xs text-muted-foreground">{t('general.preferences.appearance_desc')}</p>
                                 </div>
                                 <Switch
                                     checked={theme === 'dark'}
@@ -179,7 +186,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
 
                     <div className="flex justify-end">
                         <Button onClick={handleSave} disabled={isLoading} className="bg-blue-600 hover:bg-blue-500 text-white min-w-[120px]">
-                            {isLoading ? "Saving..." : <><Save className="mr-2 h-4 w-4" /> Save Changes</>}
+                            {isLoading ? t('general.saving') : <><Save className="mr-2 h-4 w-4" /> {t('general.save')}</>}
                         </Button>
                     </div>
                 </TabsContent>
@@ -190,38 +197,38 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                     {(!stats.subscription_tier || stats.subscription_tier === 'free') && (
                         <>
                             <div className="mb-4">
-                                <h3 className="text-lg font-bold text-foreground mb-2">Upgrade Your Plan</h3>
-                                <p className="text-sm text-muted-foreground">Choose the plan that best fits your needs</p>
+                                <h3 className="text-lg font-bold text-foreground mb-2">{t('billing.upgrade_title')}</h3>
+                                <p className="text-sm text-muted-foreground">{t('billing.upgrade_subtitle')}</p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                                 {/* Free Tier */}
                                 <Card className="bg-card border-border">
                                     <CardHeader>
-                                        <CardTitle className="text-card-foreground">Free</CardTitle>
-                                        <CardDescription className="text-muted-foreground">Perfect for trying out</CardDescription>
+                                        <CardTitle className="text-card-foreground">{tCommon('plan_free')}</CardTitle>
+                                        <CardDescription className="text-muted-foreground">{t('billing.perfect_for_trying')}</CardDescription>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div>
                                             <p className="text-3xl font-bold text-foreground">$0</p>
-                                            <p className="text-xs text-muted-foreground">per month</p>
+                                            <p className="text-xs text-muted-foreground">{t('billing.per_month')}</p>
                                         </div>
                                         <ul className="space-y-2 text-sm text-muted-foreground">
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                500 credits/month
+                                                {t('billing.features.credits_500')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                Basic extraction
+                                                {t('billing.features.basic_extraction')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                CSV & QBO exports
+                                                {t('billing.features.csv_qbo')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                Email support
+                                                {t('billing.features.email_support')}
                                             </li>
                                         </ul>
                                         <Button
@@ -229,7 +236,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                             className="w-full border-border text-muted-foreground"
                                             disabled
                                         >
-                                            Current Plan
+                                            {t('billing.current_plan')}
                                         </Button>
                                     </CardContent>
                                 </Card>
@@ -237,37 +244,37 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                 {/* Pro Tier */}
                                 <Card className="bg-card border-blue-500/30 relative">
                                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                        <Badge className="bg-blue-500 text-white">Popular</Badge>
+                                        <Badge className="bg-blue-500 text-white">{t('billing.popular')}</Badge>
                                     </div>
                                     <CardHeader>
-                                        <CardTitle className="text-card-foreground">Pro</CardTitle>
-                                        <CardDescription className="text-muted-foreground">For professionals</CardDescription>
+                                        <CardTitle className="text-card-foreground">{tCommon('plan_pro')}</CardTitle>
+                                        <CardDescription className="text-muted-foreground">{t('billing.for_professionals')}</CardDescription>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div>
                                             <p className="text-3xl font-bold text-foreground">$29</p>
-                                            <p className="text-xs text-muted-foreground">per month</p>
+                                            <p className="text-xs text-muted-foreground">{t('billing.per_month')}</p>
                                         </div>
                                         <ul className="space-y-2 text-sm text-muted-foreground">
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                5,000 credits/month
+                                                {t('billing.features.credits_5000')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                Advanced extraction
+                                                {t('billing.features.advanced_extraction')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                Priority processing
+                                                {t('billing.features.priority_processing')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                API access
+                                                {t('billing.features.api_access')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                Priority support
+                                                {t('billing.features.priority_support')}
                                             </li>
                                         </ul>
                                         <Button
@@ -276,7 +283,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                             onClick={() => handleUpgrade('pro')}
                                             disabled={isLoading || currentTier === 'pro'}
                                         >
-                                            {currentTier === 'pro' ? 'Current Plan' : (isLoading ? 'Loading...' : 'Upgrade to Pro')}
+                                            {currentTier === 'pro' ? t('billing.current_plan') : (isLoading ? tCommon('loading') : t('billing.upgrade_to', { tier: 'Pro' }))}
                                         </Button>
                                     </CardContent>
                                 </Card>
@@ -284,34 +291,34 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                 {/* Enterprise Tier */}
                                 <Card className="bg-card border-border">
                                     <CardHeader>
-                                        <CardTitle className="text-card-foreground">Enterprise</CardTitle>
-                                        <CardDescription className="text-muted-foreground">For large teams</CardDescription>
+                                        <CardTitle className="text-card-foreground">{tCommon('plan_enterprise')}</CardTitle>
+                                        <CardDescription className="text-muted-foreground">{t('billing.for_teams')}</CardDescription>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         <div>
                                             <p className="text-3xl font-bold text-foreground">$99</p>
-                                            <p className="text-xs text-muted-foreground">per month</p>
+                                            <p className="text-xs text-muted-foreground">{t('billing.per_month')}</p>
                                         </div>
                                         <ul className="space-y-2 text-sm text-muted-foreground">
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                Unlimited credits
+                                                {t('billing.features.credits_unlimited')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                All Pro features
+                                                {t('billing.features.all_pro')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                Dedicated manager
+                                                {t('billing.features.dedicated_manager')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                Custom integrations
+                                                {t('billing.features.custom_integrations')}
                                             </li>
                                             <li className="flex items-center gap-2">
                                                 <Check className="h-4 w-4 text-emerald-500" />
-                                                24/7 phone support
+                                                {t('billing.features.phone_support')}
                                             </li>
                                         </ul>
                                         <Button
@@ -320,7 +327,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                             onClick={() => handleUpgrade('enterprise')}
                                             disabled={isLoading || currentTier === 'enterprise'}
                                         >
-                                            {currentTier === 'enterprise' ? 'Current Plan' : (isLoading ? 'Loading...' : 'Upgrade to Enterprise')}
+                                            {currentTier === 'enterprise' ? t('billing.current_plan') : (isLoading ? tCommon('loading') : t('billing.upgrade_to', { tier: 'Enterprise' }))}
                                         </Button>
                                     </CardContent>
                                 </Card>
@@ -332,21 +339,20 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                     <Card className="bg-card border-border">
                         <CardHeader>
                             <CardTitle className="text-card-foreground flex items-center gap-2">
-                                <CreditCard className="h-5 w-5 text-purple-500" /> Current Subscription
+                                <CreditCard className="h-5 w-5 text-purple-500" /> {t('billing.current_subscription')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-border">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <p className="text-sm text-muted-foreground font-bold uppercase">Current Plan</p>
+                                        <p className="text-sm text-muted-foreground font-bold uppercase">{t('billing.current_plan')}</p>
                                         <h2 className="text-2xl font-bold text-foreground mt-1 capitalize">
-                                            {stats.subscription_tier || 'Free'} Tier
+                                            {t('billing.current_tier', { tier: stats.subscription_tier || 'Free' })}
                                         </h2>
                                         {stats.subscription_current_period_end && (
                                             <p className="text-xs text-muted-foreground mt-2">
-                                                {stats.subscription_cancel_at_period_end ? "Ends on " : "Renews on "}
-                                                {new Date(stats.subscription_current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                                                {stats.subscription_cancel_at_period_end ? t('billing.ends_on', { date: new Date(stats.subscription_current_period_end).toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' }) }) : t('billing.renews_on', { date: new Date(stats.subscription_current_period_end).toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' }) })}
                                             </p>
                                         )}
                                     </div>
@@ -360,9 +366,9 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                                     : "bg-slate-500 text-white hover:bg-slate-600"
                                     }>
                                         {stats.subscription_status === 'active' && stats.subscription_cancel_at_period_end
-                                            ? "Cancels Soon"
+                                            ? t('billing.cancels_soon')
                                             : stats.subscription_status === 'active'
-                                                ? 'Active'
+                                                ? t('billing.active')
                                                 : stats.subscription_status || 'Inactive'}
                                     </Badge>
                                 </div>
@@ -371,7 +377,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                             {/* Usage Stats */}
                             <div className="space-y-2">
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Credits Used</span>
+                                    <span className="text-muted-foreground">{t('billing.credits_used')}</span>
                                     <span className="text-foreground font-mono">
                                         {stats.credits_used} / {stats.credits_total === 999999 ? '∞' : stats.credits_total}
                                     </span>
@@ -382,18 +388,18 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                         style={{ width: `${stats.credits_total === 999999 ? 0 : Math.min((stats.credits_used / stats.credits_total) * 100, 100)}%` }}
                                     />
                                 </div>
-                                <p className="text-xs text-muted-foreground">1 Document = 10 Credits</p>
+                                <p className="text-xs text-muted-foreground">{t('billing.credits_info')}</p>
                             </div>
 
                             {/* Manage Subscription Button */}
-                            {stats.stripe_customer_id && (stats.subscription_status === 'active' || stats.subscription_status === 'past_due' || stats.subscription_cancel_at_period_end) && (
+                            {stats.stripe_customer_id && stats.subscription_tier !== 'free' && (
                                 <Button
                                     variant="outline"
                                     className="w-full border-border text-foreground hover:bg-muted"
                                     onClick={handleManageSubscription}
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? 'Loading...' : 'Manage Subscription'}
+                                    {isLoading ? tCommon('loading') : t('billing.manage_subscription')}
                                 </Button>
                             )}
                         </CardContent>
@@ -405,13 +411,13 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                     <Card className="bg-card border-border">
                         <CardHeader>
                             <CardTitle className="text-card-foreground flex items-center gap-2">
-                                <Key className="h-5 w-5 text-orange-500" /> API Access
+                                <Key className="h-5 w-5 text-orange-500" /> {t('api.title')}
                             </CardTitle>
-                            <CardDescription className="text-muted-foreground">Use this key to authenticate with the BankSplitter API.</CardDescription>
+                            <CardDescription className="text-muted-foreground">{t('api.description')}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="space-y-2">
-                                <Label className="text-muted-foreground">Secret Key</Label>
+                                <Label className="text-muted-foreground">{t('api.secret_key')}</Label>
                                 <div className="flex gap-2">
                                     <Input
                                         value={apiKey}
@@ -420,18 +426,18 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                         className="bg-muted border-border text-foreground font-mono"
                                     />
                                     <Button variant="outline" onClick={handleCopy} className="border-border hover:bg-muted text-muted-foreground min-w-[100px]">
-                                        {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <><Copy className="h-4 w-4 mr-2" /> Copy</>}
+                                        {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <><Copy className="h-4 w-4 mr-2" /> {t('api.copy')}</>}
                                     </Button>
                                 </div>
                                 <p className="text-xs text-red-500/80 flex items-center gap-1 mt-2">
-                                    <Shield className="h-3 w-3" /> Do not share this key with anyone.
+                                    <Shield className="h-3 w-3" /> {t('api.warning')}
                                 </p>
                             </div>
 
                             <Card className="bg-muted border-border shadow-none">
                                 <CardHeader className="py-3 px-4">
                                     <CardTitle className="text-sm text-muted-foreground flex items-center gap-2">
-                                        <FileJson className="h-4 w-4" /> Usage Example
+                                        <FileJson className="h-4 w-4" /> {t('api.usage_example')}
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-4 pt-0 font-mono text-xs text-muted-foreground">

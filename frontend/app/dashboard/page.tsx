@@ -1,38 +1,41 @@
 "use client";
 
-import { useUser, UserButton } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, Suspense, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { supabase, type UserMetrics } from "@/lib/supabase";
+import { type UserMetrics } from "@/lib/supabase";
 import { getMetrics } from "@/app/actions/metrics";
 import {
     FileText,
-    ScanLine,
     Settings,
-    Zap,
-    CheckCircle2,
     Wallet,
-    LayoutGrid,
-    MoreVertical,
     Activity,
     FileSpreadsheet,
     Clock,
-    HelpCircle,
-    Bell,
-    Trash2,
     Loader2,
     ShieldCheck,
     Menu,
-    Info,
     Download
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ExtractionView from "@/components/ExtractionView";
 import SettingsView from "@/components/SettingsView";
 import SubscriptionBadge from "@/components/SubscriptionBadge";
+import { useTranslations } from "next-intl";
+import { HeaderActions } from "@/components/header/HeaderActions";
 
-const MOCK_HISTORY = [
+// ... MOCK_HISTORY interface ...
+interface HistoryItem {
+    name: string;
+    time: string;
+    size: string;
+    downloads: string[];
+    rowsExtracted?: number;
+    timestamp?: number;
+}
+
+const MOCK_HISTORY: HistoryItem[] = [
     { name: "Statement_Jan_2026.pdf", time: "Today, 10:42 AM", size: "1.2 MB", downloads: ["CSV", "QBO"], rowsExtracted: 237, timestamp: Date.now() - 2 * 60 * 60 * 1000 },
     { name: "Amex_Dec_2025_Final.pdf", time: "Yesterday, 4:15 PM", size: "2.4 MB", downloads: ["CSV"], rowsExtracted: 189, timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000 },
     { name: "Chase_Check_#1024.jpg", time: "Jan 19, 2:30 PM", size: "0.8 MB", downloads: [], rowsExtracted: 1, timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000 },
@@ -43,40 +46,30 @@ const MOCK_HISTORY = [
     { name: "Payroll_Summary_2025.pdf", time: "Jan 05, 10:00 AM", size: "3.1 MB", downloads: ["CSV", "QBO"], rowsExtracted: 156, timestamp: Date.now() - 19 * 24 * 60 * 60 * 1000 }
 ];
 
-interface HistoryItem {
-    name: string;
-    time: string;
-    size: string;
-    downloads: string[];
-    rowsExtracted?: number;
-    timestamp?: number; // Unix timestamp for filtering
-}
-
 function DashboardContent() {
-    const { user, isLoaded: isUserLoaded } = useUser(); // Renamed isLoaded to isUserLoaded to avoid conflict
+    const { user, isLoaded: isUserLoaded } = useUser();
     const router = useRouter();
     const searchParams = useSearchParams();
     const currentTab = searchParams.get("tab") || "overview";
+    const t = useTranslations('Dashboard');
+    const tCommon = useTranslations('Common');
+    const tExtraction = useTranslations('Extraction');
 
     const [stats, setStats] = useState<UserMetrics | null>(null);
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isDashboardDataLoaded, setIsDashboardDataLoaded] = useState(false);
     const [period, setPeriod] = useState<'7D' | '30D' | '90D' | 'All'>('30D');
 
-    // Load history from localStorage on mount
     useEffect(() => {
         const stored = localStorage.getItem("processing_history");
         if (stored) {
             setHistory(JSON.parse(stored));
         } else {
-            // Seed with mock data if empty
             setHistory(MOCK_HISTORY);
             localStorage.setItem("processing_history", JSON.stringify(MOCK_HISTORY));
         }
     }, []);
 
-    // Save history to localStorage whenever it changes
     useEffect(() => {
         if (history.length > 0) {
             localStorage.setItem("processing_history", JSON.stringify(history));
@@ -91,33 +84,12 @@ function DashboardContent() {
 
     useEffect(() => {
         if (user) {
-            async function fetchMetrics() {
-                console.log("[Dashboard] Fetching metrics via Server Action...");
-                try {
-                    const data = await getMetrics(user!.id);
-                    if (data) {
-                        console.log("[Dashboard] Metrics fetched:", data);
-                        setStats(data);
-                    } else {
-                        console.warn("[Dashboard] No metrics returned.");
-                    }
-                } catch (err) {
-                    console.error("[Dashboard] Server Action Error:", err);
-                }
-            }
-            fetchMetrics();
+            getMetrics(user.id).then(data => data && setStats(data));
         }
     }, [user]);
 
     const handleExtractionSuccess = useCallback((file: File, transactionCount: number) => {
-        // Refresh metrics
-        if (user) {
-            getMetrics(user.id).then(data => {
-                if (data) setStats(prev => ({ ...prev, ...data }));
-            });
-        }
-
-        // Add to history
+        if (user) getMetrics(user.id).then(data => data && setStats(prev => ({ ...prev, ...data })));
         const newItem: HistoryItem = {
             name: file.name,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -126,34 +98,15 @@ function DashboardContent() {
             rowsExtracted: transactionCount,
             timestamp: Date.now()
         };
-
-        setHistory(prev => {
-            const updated = [newItem, ...prev].slice(0, 50); // Limit to 50 items
-            return updated;
-        });
+        setHistory(prev => [newItem, ...prev].slice(0, 50));
     }, [user]);
 
     const handleDownload = useCallback((type: "CSV" | "QBO", fileName: string) => {
-        // Refresh metrics
-        if (user) {
-            getMetrics(user.id).then(data => {
-                if (data) setStats(prev => ({ ...prev, ...data }));
-            });
-        }
-
-        // Mark download in history
+        if (user) getMetrics(user.id).then(data => data && setStats(prev => ({ ...prev, ...data })));
         setHistory(prev => {
-            // Find most recent item matching filename (or just the first one if we assume it's the active one)
-            // Ideally we match by name.
-            // Since filename in history might be original name, and downloaded filename might differ slightly,
-            // we should be careful. `fileName` from ExtractionView is `account_name.csv`.
-            // While `file.name` is original pdf.
-            // Simplified approach: Update the FIRST item in history (the one just processed).
-            // This assumes the user downloads immediately after processing.
             if (prev.length === 0) return prev;
-
             const updated = [...prev];
-            const latest = { ...updated[0] }; // Copy top item
+            const latest = { ...updated[0] };
             if (!latest.downloads.includes(type)) {
                 latest.downloads = [...latest.downloads, type];
                 updated[0] = latest;
@@ -162,7 +115,6 @@ function DashboardContent() {
         });
     }, [user]);
 
-    // Period filtering helper
     const getPeriodMs = (periodKey: '7D' | '30D' | '90D' | 'All') => {
         const day = 24 * 60 * 60 * 1000;
         switch (periodKey) {
@@ -173,43 +125,18 @@ function DashboardContent() {
         }
     };
 
-    // Filter history by selected period
     const filteredHistory = history.filter(item => {
         if (period === 'All' || !item.timestamp) return true;
-        const cutoff = Date.now() - getPeriodMs(period);
-        return item.timestamp >= cutoff;
+        return item.timestamp >= Date.now() - getPeriodMs(period);
     });
 
-    // Compute period-specific stats from filtered history
     const periodStats = {
         documents: filteredHistory.length,
-        timeSaved: filteredHistory.length * 0.25, // 15 min = 0.25 hours per doc
+        timeSaved: filteredHistory.length * 0.25,
         csvExports: filteredHistory.reduce((sum, item) => sum + (item.downloads.includes('CSV') ? 1 : 0), 0),
         qboExports: filteredHistory.reduce((sum, item) => sum + (item.downloads.includes('QBO') ? 1 : 0), 0),
     };
 
-    // Calculate delta vs previous period
-    const getPreviousPeriodStats = () => {
-        if (period === 'All') return null;
-        const periodMs = getPeriodMs(period);
-        const previousCutoff = Date.now() - (2 * periodMs);
-        const currentCutoff = Date.now() - periodMs;
-
-        const previousPeriodHistory = history.filter(item => {
-            if (!item.timestamp) return false;
-            return item.timestamp >= previousCutoff && item.timestamp < currentCutoff;
-        });
-
-        return {
-            documents: previousPeriodHistory.length,
-            timeSaved: previousPeriodHistory.length * 0.25,
-        };
-    };
-
-    const previousStats = getPreviousPeriodStats();
-    const timeSavedDelta = previousStats ? periodStats.timeSaved - previousStats.timeSaved : null;
-
-    // Default Fallback
     const currentStats: UserMetrics = stats || {
         user_id: user?.id || "",
         documents_processed: 0,
@@ -218,376 +145,137 @@ function DashboardContent() {
         credits_total: 5000,
         credits_used: 0,
         csv_exports: 0,
-        qbo_exports: 0
+        qbo_exports: 0,
+        subscription_tier: 'free',
+        subscription_status: 'inactive'
     };
 
-    // Keep the loading screen if User is loading OR initial stats are fetching
-    if (!isUserLoaded || !stats) return <div className="h-screen w-full bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 text-primary animate-spin" /></div>;
-
-    if (!user) {
-        // middleware protects this, but safe fallback
-        return null;
-    }
-
-    // Helpers for Header
-    const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return "Good Morning";
-        if (hour < 18) return "Good Afternoon";
-        return "Good Evening";
-    };
-
-    const todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    if (!isUserLoaded || !stats) return <div className="h-screen w-full bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 text-primary animate-spin" /><span className="ml-2 text-sm text-muted-foreground">{tCommon('loading')}</span></div>;
+    if (!user) return null;
 
     return (
-        <div className="flex h-screen bg-background font-sans text-foreground overflow-hidden">
+        <div className="flex flex-col h-screen bg-background font-sans text-foreground overflow-hidden">
 
-            {/* MOBILE OVERLAY */}
-            {isMobileMenuOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 z-40 md:hidden animate-in fade-in duration-200"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                />
-            )}
+            {/* --- GLOBAL HEADER (Single Row) --- */}
+            <header className="flex flex-col bg-background z-50 shrink-0 border-b border-border/40 relative">
 
-            {/* SIDEBAR */}
-            <aside className={cn(
-                "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 md:translate-x-0 md:static md:flex",
-                isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
-            )}>
-                <div className="p-6 h-16 border-b border-border flex items-center justify-between gap-3">
+                {/* ROW 1: Logo & Actions */}
+                <div className="h-16 flex items-center justify-between px-4 md:px-6">
+                    {/* Left: Logo */}
                     <div className="flex items-center gap-3">
-                        <div className="bg-primary/10 p-1.5 rounded-lg shadow-sm">
-                            <Wallet className="h-4 w-4 text-primary" />
+                        <div className="md:hidden">
+                            <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)}>
+                                <Menu className="h-5 w-5" />
+                            </Button>
                         </div>
-                        <span className="text-lg font-bold tracking-tight text-foreground">BankSplitter</span>
-                    </div>
-                </div>
-
-                <div className="px-6 py-4">
-                    <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 tracking-wider">Navigation</p>
-                    <nav className="space-y-1">
-                        <Button variant={currentTab === "overview" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "overview" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/50")} onClick={() => { router.push("/dashboard?tab=overview"); setIsMobileMenuOpen(false); }}>
-                            <Activity className="h-4 w-4" /> Overview
-                        </Button>
-                        <Button variant={currentTab === "statements" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "statements" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/50")} onClick={() => { router.push("/dashboard?tab=statements"); setIsMobileMenuOpen(false); }}>
-                            <FileSpreadsheet className="h-4 w-4" /> Extract Statement
-                        </Button>
-                        <Button variant={currentTab === "checks" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "checks" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/50")} onClick={() => { router.push("/dashboard?tab=checks"); setIsMobileMenuOpen(false); }}>
-                            <ShieldCheck className="h-4 w-4" /> Extract Check
-                        </Button>
-                    </nav>
-                </div>
-
-                <div className="px-6 py-2">
-                    <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 tracking-wider">Account</p>
-                    <nav className="space-y-1">
-                        <Button variant={currentTab === "settings" ? "secondary" : "ghost"} className={cn("w-full justify-start gap-3", currentTab === "settings" ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/50")} onClick={() => { router.push("/dashboard?tab=settings"); setIsMobileMenuOpen(false); }}>
-                            <Settings className="h-4 w-4" /> Settings
-                        </Button>
-                    </nav>
-                </div>
-
-                <div className="mt-auto p-4 border-t border-border">
-                    {/* Compact User Profile */}
-                    <div
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer"
-                        onClick={(e) => {
-                            const btn = e.currentTarget.querySelector('button');
-                            if (btn && e.target !== btn && !btn.contains(e.target as Node)) {
-                                btn.click();
-                            }
-                        }}
-                    >
-                        <UserButton afterSignOutUrl="/" appearance={{
-                            elements: {
-                                avatarBox: "h-8 w-8"
-                            }
-                        }} />
-                        <div className="flex flex-col overflow-hidden">
-                            <span className="text-sm font-medium text-foreground truncate">{user.fullName || user.firstName}</span>
-                            <span className="text-xs text-muted-foreground truncate capitalize">{currentStats.subscription_tier || 'Free'} Plan</span>
+                        <div className="flex items-center gap-2 select-none cursor-pointer" onClick={() => router.push('/dashboard')}>
+                            <div className="bg-primary/10 p-1.5 rounded-lg shadow-sm border border-primary/10">
+                                <Wallet className="h-5 w-5 text-primary" />
+                            </div>
+                            <span className="text-lg font-bold tracking-tight text-foreground hidden md:inline-block">BankSplitter</span>
                         </div>
                     </div>
+
+                    {/* Right: Consolidated Actions */}
+                    <HeaderActions userMetrics={currentStats} />
                 </div>
-            </aside>
+            </header>
 
-            {/* MAIN CONTENT */}
-            <main className="flex-1 flex flex-col relative z-10 overflow-hidden bg-background">
+            {/* --- BODY (Sidebar + Content) --- */}
+            <div className="flex flex-1 overflow-hidden relative">
 
-                {/* NEW WORKSTATION HEADER */}
-                <header className="h-16 border-b border-border bg-background flex items-center justify-between px-4 md:px-8">
-                    {/* Left: Hamburger & Greeting */}
-                    <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" className="md:hidden -ml-2 text-muted-foreground" onClick={() => setIsMobileMenuOpen(true)}>
-                            <Menu className="h-6 w-6" />
-                        </Button>
+                {isMobileMenuOpen && (
+                    <div className="fixed inset-0 bg-black/50 z-40 md:hidden animate-in fade-in duration-200" onClick={() => setIsMobileMenuOpen(false)} />
+                )}
+
+                <aside className={cn("absolute inset-y-0 left-0 z-50 w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 md:static", isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0")}>
+                    <div className="p-6 h-16 border-b border-border flex items-center justify-between md:hidden">
+                        <span className="text-lg font-bold tracking-tight">Menu</span>
+                        <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}><Menu className="h-5 w-5" /></Button>
+                    </div>
+                    <div className="px-4 py-6 space-y-6 flex-1 overflow-y-auto">
                         <div>
-                            <h2 className="text-sm font-bold text-foreground tracking-tight">
-                                {getGreeting()}, {user.firstName}
-                            </h2>
-                            <p className="text-xs text-muted-foreground font-medium">
-                                {todayDate}
-                            </p>
+                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 px-2 tracking-wider">Navigation</p>
+                            <nav className="space-y-1">
+                                <SidebarItem icon={<Activity className="h-4 w-4" />} label={t('nav.overview')} active={currentTab === "overview"} onClick={() => { router.push("/dashboard?tab=overview"); setIsMobileMenuOpen(false); }} />
+                                <SidebarItem icon={<FileSpreadsheet className="h-4 w-4" />} label={t('nav.extract_statement')} active={currentTab === "statements"} onClick={() => { router.push("/dashboard?tab=statements"); setIsMobileMenuOpen(false); }} />
+                                <SidebarItem icon={<ShieldCheck className="h-4 w-4" />} label={t('nav.extract_check')} active={currentTab === "checks"} onClick={() => { router.push("/dashboard?tab=checks"); setIsMobileMenuOpen(false); }} />
+                            </nav>
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 px-2 tracking-wider">Account</p>
+                            <nav className="space-y-1">
+                                <SidebarItem icon={<Settings className="h-4 w-4" />} label={t('nav.settings')} active={currentTab === "settings"} onClick={() => { router.push("/dashboard?tab=settings"); setIsMobileMenuOpen(false); }} />
+                            </nav>
                         </div>
                     </div>
+                </aside>
 
-                    {/* Right: Credits, Plan & Top Up */}
-                    <div className="flex items-center gap-4">
-                        {/* Plan & Credits Container */}
-                        <div className="hidden md:flex items-center gap-3 bg-card/50 backdrop-blur-xl border border-border rounded-full px-4 py-1.5 shadow-sm">
-                            {/* Plan Pill */}
-                            <div className="flex items-center gap-2 pr-3 border-r border-border">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Plan</span>
-                                <SubscriptionBadge
-                                    tier={currentStats.subscription_tier}
-                                    className={cn(
-                                        "h-5 px-2 border-0 shadow-sm",
-                                        currentStats.subscription_tier === 'pro' ? "bg-blue-500/10 text-blue-500" :
-                                            currentStats.subscription_tier === 'enterprise' ? "bg-purple-500/10 text-purple-500" :
-                                                "bg-slate-500/10 text-muted-foreground"
-                                    )}
-                                />
-                            </div>
-
-                            {/* Credits Widget */}
-                            <div className="flex flex-col gap-0.5">
-                                <div className="flex items-center justify-between gap-4">
-                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Usage</span>
-                                    <span className="text-[11px] font-bold text-foreground font-mono leading-none">
-                                        {currentStats.credits_used.toLocaleString()}
-                                        <span className="text-muted-foreground mx-1">/</span>
-                                        {currentStats.credits_total === 999999 ? '∞' : currentStats.credits_total.toLocaleString()}
-                                    </span>
-                                </div>
-                                <div className="h-1.5 w-32 bg-muted rounded-full overflow-hidden border border-border">
-                                    <div
-                                        className={cn(
-                                            "h-full rounded-full transition-all duration-700 ease-out",
-                                            currentStats.credits_used > currentStats.credits_total * 0.9
-                                                ? "bg-gradient-to-r from-red-600 to-orange-500"
-                                                : "bg-gradient-to-r from-blue-600 to-indigo-400"
-                                        )}
-                                        style={{ width: `${currentStats.credits_total === 999999 ? 0 : Math.min((currentStats.credits_used / currentStats.credits_total) * 100, 100)}%` }}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Top Up Button */}
-                        <Button
-                            size="sm"
-                            onClick={() => router.push("/dashboard?tab=settings&view=billing")}
-                            className="h-9 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-[11px] font-black tracking-widest px-5 shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center gap-2 group border border-border"
-                        >
-                            <Zap className="h-3.5 w-3.5 fill-current group-hover:scale-110 transition-transform" />
-                            TOP UP
-                        </Button>
-                    </div>
-                </header>
-
-                {/* CONTENT AREA */}
-                <div className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-6 relative">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 relative bg-secondary/5">
                     {currentTab === "overview" && (
-                        <div className="h-full flex flex-col gap-6 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-
-                            {/* OVERVIEW HEADER CARD */}
+                        <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                             <div className="bg-card border border-border rounded-xl p-6 shrink-0">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 md:mb-8 gap-4">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                                     <div className="flex items-center gap-4">
                                         <div className="h-12 w-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
                                             <Wallet className="h-6 w-6 text-primary" />
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2 mb-1">
-                                                <h1 className="text-xl font-bold text-card-foreground">Workspace Overview</h1>
+                                                <h1 className="text-xl font-bold text-card-foreground">{t('overview.title')}</h1>
                                                 <SubscriptionBadge tier={currentStats.subscription_tier} />
                                             </div>
-                                            <p className="text-xs text-muted-foreground">Your extraction analytics at a glance</p>
+                                            <p className="text-xs text-muted-foreground">{t('overview.subtitle')}</p>
                                         </div>
                                     </div>
-                                    <Button
-                                        size="sm"
-                                        className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transition-all duration-200"
-                                        onClick={() => router.push("/dashboard?tab=statements")}
-                                    >
-                                        <FileText className="h-4 w-4 mr-2" />
-                                        New Extraction
+                                    <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transition-all duration-200" onClick={() => router.push("/dashboard?tab=statements")}>
+                                        <FileText className="h-4 w-4 mr-2" /> {t('overview.new_extraction')}
                                     </Button>
                                 </div>
-
-                                {/* Period Toggle */}
                                 <div className="flex items-center justify-end mb-4">
                                     <div className="inline-flex items-center gap-1 p-1 bg-muted rounded-lg border border-border">
                                         {(['7D', '30D', '90D', 'All'] as const).map((p) => (
-                                            <button
-                                                key={p}
-                                                onClick={() => setPeriod(p)}
-                                                className={cn(
-                                                    "px-3 py-1.5 text-xs font-bold rounded transition-all",
-                                                    period === p
-                                                        ? "bg-background text-foreground shadow-sm"
-                                                        : "text-muted-foreground hover:text-foreground"
-                                                )}
-                                            >
-                                                {p}
-                                            </button>
+                                            <button key={p} onClick={() => setPeriod(p)} className={cn("px-3 py-1.5 text-xs font-bold rounded transition-all", period === p ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}>{p}</button>
                                         ))}
                                     </div>
                                 </div>
-
-                                {/* STATS GRID - 3 Columns */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    {/* Documents Processed */}
                                     <div className="bg-muted/50 rounded-lg p-5 border border-border">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
-                                                <FileText className="h-3 w-3" /> Documents
-                                            </p>
-                                            <div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center">
-                                                <FileText className="h-4 w-4 text-blue-500" />
-                                            </div>
-                                        </div>
+                                        <div className="flex items-center justify-between mb-3"><p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1"><FileText className="h-3 w-3" /> {t('overview.documents')}</p><div className="h-8 w-8 rounded-full bg-blue-500/10 flex items-center justify-center"><FileText className="h-4 w-4 text-blue-500" /></div></div>
                                         <p className="text-3xl font-bold text-foreground tracking-tight mb-1">{periodStats.documents.toLocaleString()}</p>
-                                        <p className="text-xs text-muted-foreground">{period === 'All' ? 'All time' : `Last ${period.replace('D', ' days')}`}</p>
+                                        <p className="text-xs text-muted-foreground">{period === 'All' ? t('overview.period.all_time') : t('overview.period.last_days', { days: period.replace('D', '') })}</p>
                                     </div>
-
-                                    {/* Time Saved */}
                                     <div className="bg-muted/50 rounded-lg p-5 border border-border">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="flex items-center gap-1.5">
-                                                <p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
-                                                    <Clock className="h-3 w-3" /> Time Saved
-                                                </p>
-                                                <div className="group relative">
-                                                    <Info className="h-3 w-3 text-muted-foreground cursor-help" />
-                                                    <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 p-2 bg-popover border border-border rounded-md shadow-lg text-xs text-popover-foreground z-10">
-                                                        <p className="font-semibold mb-1">How we estimate</p>
-                                                        <p className="text-muted-foreground">Based on 15 min avg manual entry per statement</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                                                <Clock className="h-4 w-4 text-emerald-500" />
-                                            </div>
-                                        </div>
-                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">
-                                            {Math.floor(periodStats.timeSaved)}h {Math.round((periodStats.timeSaved % 1) * 60)}m
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">{period === 'All' ? 'All time' : `Last ${period.replace('D', ' days')}`}</p>
+                                        <div className="flex items-center justify-between mb-3"><div className="flex items-center gap-1.5"><p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1"><Clock className="h-3 w-3" /> {t('overview.time_saved')}</p></div><div className="h-8 w-8 rounded-full bg-emerald-500/10 flex items-center justify-center"><Clock className="h-4 w-4 text-emerald-500" /></div></div>
+                                        <p className="text-3xl font-bold text-foreground tracking-tight mb-1">{Math.floor(periodStats.timeSaved)}h {Math.round((periodStats.timeSaved % 1) * 60)}m</p>
+                                        <p className="text-xs text-muted-foreground">{period === 'All' ? t('overview.period.all_time') : t('overview.period.last_days', { days: period.replace('D', '') })}</p>
                                     </div>
-
-                                    {/* Exports Generated */}
                                     <div className="bg-muted/50 rounded-lg p-5 border border-border">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
-                                                <Download className="h-3 w-3" /> Exports
-                                            </p>
-                                            <div className="h-8 w-8 rounded-full bg-purple-500/10 flex items-center justify-center">
-                                                <Download className="h-4 w-4 text-purple-500" />
-                                            </div>
-                                        </div>
+                                        <div className="flex items-center justify-between mb-3"><p className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1"><Download className="h-3 w-3" /> {t('overview.exports')}</p><div className="h-8 w-8 rounded-full bg-purple-500/10 flex items-center justify-center"><Download className="h-4 w-4 text-purple-500" /></div></div>
                                         <p className="text-3xl font-bold text-foreground tracking-tight mb-1">{(periodStats.csvExports + periodStats.qboExports).toLocaleString()}</p>
-                                        <div className="flex items-center gap-2 text-xs">
-                                            <span className="text-muted-foreground">{period === 'All' ? 'All time' : `Last ${period.replace('D', ' days')}`}</span>
-                                            <span className="text-muted-foreground">·</span>
-                                            <span className="text-emerald-500 font-semibold">CSV {periodStats.csvExports}</span>
-                                            <span className="text-muted-foreground">·</span>
-                                            <span className="text-blue-500 font-semibold">QBO {periodStats.qboExports}</span>
-                                        </div>
+                                        <div className="flex items-center gap-2 text-xs"><span className="text-muted-foreground">{period === 'All' ? t('overview.period.all_time') : t('overview.period.last_days', { days: period.replace('D', '') })}</span><span className="text-muted-foreground">·</span><span className="text-emerald-500 font-semibold">CSV {periodStats.csvExports}</span><span className="text-muted-foreground">·</span><span className="text-blue-500 font-semibold">QBO {periodStats.qboExports}</span></div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* PROCESSING HISTORY (PRIVACY LOG) */}
-                            <div className="flex flex-col min-h-[400px] flex-1">
-                                <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2 shrink-0">
-                                    <div className="h-5 w-5 rounded-full bg-muted flex items-center justify-center"><Clock className="h-3 w-3 text-muted-foreground" /></div>
-                                    Processing History
-                                </h3>
-
-                                {/* Privacy Banner */}
-                                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 mb-4 flex gap-3">
+                            <div className="bg-card border border-border rounded-xl flex flex-col min-h-[400px]">
+                                <div className="p-4 border-b border-border font-bold flex items-center gap-2"><Clock className="h-4 w-4" /> {t('overview.processing_history')}</div>
+                                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 m-4 mb-0 flex gap-3">
                                     <ShieldCheck className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
-                                    <div>
-                                        <h4 className="text-sm font-semibold text-foreground mb-1">Privacy-first processing</h4>
-                                        <p className="text-xs text-muted-foreground">We don't store uploaded statement files. This history is an audit log of what you processed and what exports you downloaded at the time.</p>
-                                    </div>
+                                    <div><h4 className="text-sm font-semibold text-foreground mb-1">{t('overview.privacy_title')}</h4><p className="text-xs text-muted-foreground">{t('overview.privacy_desc')}</p></div>
                                 </div>
-
-                                <div className="bg-card border border-border rounded-xl overflow-hidden flex flex-col flex-1 min-h-0 relative">
-                                    {/* Sticky Header */}
-                                    <div className="grid grid-cols-[minmax(180px,2fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)_100px] min-w-[900px] gap-4 px-6 py-3 border-b border-border bg-muted/30 text-[10px] uppercase font-bold text-muted-foreground tracking-wider sticky top-0 z-10">
-                                        <span>File Name</span>
-                                        <span className="flex items-center gap-1" title="Displayed when extraction results were generated successfully">
-                                            Rows extracted
-                                            <Info className="h-3 w-3 cursor-help" />
-                                        </span>
-                                        <span>Downloaded exports</span>
-                                        <span>Processed At</span>
-                                        <span className="text-right">Privacy</span>
-                                    </div>
-                                    {/* Scrollable Content */}
-                                    <div className="overflow-x-auto overflow-y-auto flex-1">
-                                        {/* SCROLLABLE LIST CONTAINER */}
-                                        <div className="min-w-[900px]">
-                                            {history.map((item, i) => (
-                                                <div key={i} className="grid grid-cols-[minmax(180px,2fr)_minmax(120px,1fr)_minmax(100px,1fr)_minmax(120px,1fr)_100px] gap-4 px-6 py-4 border-b border-border last:border-0 hover:bg-muted/50 transition-colors items-center group">
-                                                    <div className="flex items-center gap-3 min-w-0 overflow-hidden">
-                                                        <div className="p-2 bg-background rounded-lg border border-border text-muted-foreground group-hover:text-primary transition-colors shrink-0">
-                                                            <FileText className="h-4 w-4" />
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">{item.name}</p>
-                                                            <p className="text-[10px] text-muted-foreground">{item.size}</p>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* ROWS EXTRACTED COLUMN */}
-                                                    <div className="text-sm font-mono font-semibold text-foreground">
-                                                        {item.rowsExtracted !== undefined ? item.rowsExtracted.toLocaleString() : <span className="text-muted-foreground">—</span>}
-                                                    </div>
-
-                                                    {/* DOWNLOADED EXPORTS COLUMN */}
-                                                    <div className="flex items-center gap-1 flex-wrap">
-                                                        {item.downloads.length > 0 ? (
-                                                            item.downloads.map((type) => (
-                                                                <span
-                                                                    key={type}
-                                                                    className={cn(
-                                                                        "text-[10px] font-bold px-1.5 py-0.5 rounded border cursor-default",
-                                                                        type === "CSV"
-                                                                            ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-                                                                            : "bg-blue-600/10 text-blue-500 border-blue-600/20"
-                                                                    )}
-                                                                    title={`Downloaded ${type} at extraction time`}
-                                                                >
-                                                                    {type}
-                                                                </span>
-                                                            ))
-                                                        ) : (
-                                                            <span className="text-[10px] text-muted-foreground" title="No exports downloaded">—</span>
-                                                        )}
-                                                    </div>
-
-                                                    <div className="text-xs text-muted-foreground font-mono truncate">
-                                                        {item.time}
-                                                    </div>
-                                                    <div className="flex justify-end">
-                                                        <div
-                                                            className="flex items-center gap-1.5 px-2 py-1 bg-emerald-500/10 rounded text-[10px] font-bold text-emerald-600 border border-emerald-500/20 whitespace-nowrap"
-                                                            title="For security, uploaded statements are automatically deleted after extraction"
-                                                        >
-                                                            <ShieldCheck className="h-3 w-3" /> Not stored
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                <div className="flex-1 overflow-auto p-4">
+                                    {history.map((item, i) => (
+                                        <div key={i} className="p-4 border-b border-border last:border-0 flex justify-between items-center hover:bg-muted/50 transition-colors">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-background rounded border border-border"><FileText className="h-4 w-4 text-muted-foreground" /></div>
+                                                <div><p className="text-sm font-medium">{item.name}</p><p className="text-[10px] text-muted-foreground">{item.size} • {item.time}</p></div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {item.downloads.map(d => <span key={d} className="text-[10px] px-1.5 py-0.5 bg-secondary rounded border border-border">{d}</span>)}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="px-6 py-3 bg-muted/30 text-center text-[10px] text-muted-foreground border-t border-border shrink-0">
-                                        System automatically wipes all files from memory after extraction.
-                                    </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -596,8 +284,8 @@ function DashboardContent() {
                     {(currentTab === "statements" || currentTab === "checks") && (
                         <ExtractionView
                             key={currentTab}
-                            title={currentTab === "statements" ? "Bank Statement Extraction" : "Check Scanning"}
-                            description={currentTab === "statements" ? "Upload PDF statements to extract transaction data." : "Upload check images for handwriting recognition."}
+                            title={currentTab === "statements" ? tExtraction('titles.extract_statement') : tExtraction('titles.extract_check')}
+                            description={currentTab === "statements" ? tExtraction('titles.desc_statement') : tExtraction('titles.desc_check')}
                             mode={currentTab === "statements" ? "pdf" : "image"}
                             onSuccess={handleExtractionSuccess}
                             onDownload={handleDownload}
@@ -605,26 +293,16 @@ function DashboardContent() {
                     )}
 
                     {currentTab === "settings" && <SettingsView user={user} stats={currentStats} />}
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     );
 }
 
 function SidebarItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void }) {
     return (
-        <button
-            onClick={onClick}
-            className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer group mb-1",
-                active
-                    ? "bg-accent text-accent-foreground border border-border shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-            )}
-        >
-            <div className={cn("transition-colors", active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
-                {icon}
-            </div>
+        <button onClick={onClick} className={cn("w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer group mb-1", active ? "bg-accent text-accent-foreground border border-border shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-accent/50")}>
+            <div className={cn("transition-colors", active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>{icon}</div>
             <span>{label}</span>
         </button>
     );

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "@/i18n/get-locale.server";
+import { getMessages } from "next-intl/server";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -14,20 +17,25 @@ export const metadata: Metadata = {
   description: "Convert & Split Bank Statements Automatically",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body
         suppressHydrationWarning
         className={`${dmSans.className} antialiased bg-background text-foreground transition-colors duration-500`}
       >
-        <Providers>
-          {children}
-        </Providers>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <Providers locale={locale}>
+            {children}
+          </Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

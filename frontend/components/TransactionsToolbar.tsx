@@ -1,15 +1,8 @@
-import { Search, X, Filter, ListFilter } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuCheckboxItem,
-    DropdownMenuTrigger,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+import { useTranslations } from "next-intl";
 
 interface Chip {
     key: string;
@@ -35,13 +28,15 @@ export function TransactionsToolbar({
     onRemoveChip,
     onClearAll,
 }: TransactionsToolbarProps) {
+    const t = useTranslations('Extraction.toolbar');
+
     return (
         <div className="space-y-3">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="relative flex-1 max-w-sm">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                        placeholder="Search description..."
+                        placeholder={t('search_placeholder')}
                         value={search}
                         onChange={(e) => onSearchChange(e.target.value)}
                         className="pl-9 h-9"
@@ -56,7 +51,7 @@ export function TransactionsToolbar({
                             onClick={() => onTypeFilterChange('all')}
                             className="h-7 px-3 text-xs"
                         >
-                            All
+                            {t('filter_all')}
                         </Button>
                         <Button
                             variant={typeFilter === 'debit' ? 'secondary' : 'ghost'}
@@ -64,7 +59,7 @@ export function TransactionsToolbar({
                             onClick={() => onTypeFilterChange('debit')}
                             className="h-7 px-3 text-xs"
                         >
-                            Debit
+                            {t('filter_debit')}
                         </Button>
                         <Button
                             variant={typeFilter === 'credit' ? 'secondary' : 'ghost'}
@@ -72,7 +67,7 @@ export function TransactionsToolbar({
                             onClick={() => onTypeFilterChange('credit')}
                             className="h-7 px-3 text-xs"
                         >
-                            Credit
+                            {t('filter_credit')}
                         </Button>
                     </div>
                     {/* Optional: Add Export logic here if needed, but per instructions we keep it in the summary card */}

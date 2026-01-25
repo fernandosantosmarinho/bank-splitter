@@ -3,11 +3,11 @@ import SubscriptionBadge from "@/components/SubscriptionBadge";
 import { useTranslations } from "next-intl";
 
 interface PlanBadgeProps {
-    tier: 'free' | 'pro' | 'enterprise';
+    tier?: 'free' | 'pro' | 'enterprise';
     className?: string;
 }
 
-export function PlanBadge({ tier, className }: PlanBadgeProps) {
+export function PlanBadge({ tier = 'free', className }: PlanBadgeProps) {
     const t = useTranslations('Dashboard.header');
 
     return (

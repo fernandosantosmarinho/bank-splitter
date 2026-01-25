@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { UserResource } from "@clerk/types";
 import { UserMetrics } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,13 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import {
@@ -26,16 +33,19 @@ import {
     Check,
     FileJson,
     Save,
-    Zap
+    Zap,
+    Globe
 } from "lucide-react";
 import CheckoutModal from "./CheckoutModal";
 import { SubscriptionTier } from "@/lib/stripe";
 import SubscriptionBadge from "@/components/SubscriptionBadge";
 import SubscriptionManagerModal from "./SubscriptionManagerModal";
+import LanguageSelector from "./LanguageSelector";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Locale } from "@/i18n/locales";
+import { Locale, locales } from "@/i18n/locales";
+import { setUserLocale } from '@/app/actions/set-locale';
 
 interface SettingsViewProps {
     user: UserResource;
@@ -84,13 +94,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const handleSave = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-            toast.success(t('toasts.saved'));
-        }, 1000);
-    };
+
 
     const handleUpgrade = (tier: 'pro' | 'enterprise') => {
         setCheckoutTier(tier);
@@ -161,11 +165,14 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                         </CardHeader>
                         <CardContent className="space-y-6">
                             <div className="flex items-center justify-between">
-                                <div className="space-y-0.5">
-                                    <Label className="text-foreground">{t('general.preferences.notifications')}</Label>
-                                    <p className="text-xs text-muted-foreground">{t('general.preferences.notifications_desc')}</p>
+                                <div className="space-y-0.5 flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <Globe className="h-4 w-4" />
+                                        <Label className="text-foreground">{t('general.preferences.language')}</Label>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{t('general.preferences.language_desc')}</p>
                                 </div>
-                                <Switch defaultChecked />
+                                <LanguageSelector />
                             </div>
                             <div className="h-[1px] bg-border" />
                             <div className="flex items-center justify-between">
@@ -184,11 +191,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                         </CardContent>
                     </Card>
 
-                    <div className="flex justify-end">
-                        <Button onClick={handleSave} disabled={isLoading} className="bg-blue-600 hover:bg-blue-500 text-white min-w-[120px]">
-                            {isLoading ? t('general.saving') : <><Save className="mr-2 h-4 w-4" /> {t('general.save')}</>}
-                        </Button>
-                    </div>
+
                 </TabsContent>
 
                 {/* --- BILLING TAB --- */}

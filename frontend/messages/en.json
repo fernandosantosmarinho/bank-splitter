@@ -1,6 +1,8 @@
 {
     "Dashboard": {
         "nav": {
+            "navigation_title": "Navigation",
+            "account_title": "Account",
             "overview": "Overview",
             "extract_statement": "Extract Statement",
             "extract_check": "Extract Check",
@@ -12,7 +14,12 @@
             "greeting_evening": "Good Evening",
             "plan": "Plan",
             "usage": "Usage",
-            "top_up": "TOP UP"
+            "top_up": "TOP UP",
+            "menu": {
+                "language": "Language",
+                "manage_account": "Manage Account",
+                "sign_out": "Sign out"
+            }
         },
         "overview": {
             "title": "Workspace Overview",
@@ -161,6 +168,8 @@
             },
             "preferences": {
                 "title": "Preferences",
+                "language": "Language",
+                "language_desc": "Choose your preferred language for the interface",
                 "notifications": "Email Notifications",
                 "notifications_desc": "Receive summaries of your extractions.",
                 "appearance": "Appearance Mode",

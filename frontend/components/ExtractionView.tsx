@@ -129,8 +129,11 @@ export default function ExtractionView({
         let count = 0;
 
         accounts.forEach(acc => {
+            // Use total extracted rows for the count to match the table display
+            count += acc.preview_rows.length;
+
             acc.transactions.forEach(tx => {
-                count++;
+                // Keep financial totals based on actual parsed transactions
                 if (tx.amount > 0) totalCredit += tx.amount;
                 else totalDebit += tx.amount;
             });
@@ -279,8 +282,8 @@ export default function ExtractionView({
 
                                 if (onSuccess && file) {
                                     console.log("[ExtractionView] Calling onSuccess...");
-                                    // Calculate total transaction count
-                                    const transactionCount = payload.accounts.reduce((sum: number, acc: AccountData) => sum + acc.transactions.length, 0);
+                                    // Calculate total transaction count (using total rows to match UI display)
+                                    const transactionCount = payload.accounts.reduce((sum: number, acc: AccountData) => sum + acc.preview_rows.length, 0);
                                     onSuccess(file, transactionCount);
                                 }
                             }
@@ -445,7 +448,7 @@ export default function ExtractionView({
     const handleNetClick = () => setTypeFilter('all');
 
     return (
-        <div className="w-full pb-20">
+        <div className="w-full h-full flex flex-col overflow-hidden">
             {/* UPLOAD VIEW (Empty State) */}
             {accounts.length === 0 && (
                 <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
@@ -613,7 +616,7 @@ export default function ExtractionView({
 
             {/* RESULTS VIEW */}
             {accounts.length > 0 && (
-                <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 space-y-4 sm:space-y-6 pt-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 space-y-4 sm:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 min-h-0 flex flex-col overflow-hidden pb-4">
 
                     {/* 1. Task Header with Primary CTA */}
                     <TaskHeader
@@ -707,49 +710,35 @@ export default function ExtractionView({
 
                     {/* 5. filtered Table */}
                     {filteredAccounts.map((acc, idx) => (
-                        <Card key={idx} className="bg-card border-border overflow-hidden flex flex-col max-h-[600px]">
+                        <Card key={idx} className="bg-card border-border overflow-hidden flex flex-col flex-1 min-h-0 shadow-sm mt-2">
+                            {/* Detached Grid Header */}
+                            <div className="bg-muted border-b border-border shrink-0 z-10 grid items-center"
+                                style={{ gridTemplateColumns: `repeat(${acc.preview_headers.length}, minmax(150px, 1fr))` }}>
+                                {acc.preview_headers.map((header, i) => (
+                                    <div key={i} className="px-6 py-3 text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap truncate border-r border-border/50 last:border-0">
+                                        {header}
+                                    </div>
+                                ))}
+                            </div>
 
-                            <CardHeader className="bg-muted/50 border-b border-border py-3 px-6 flex flex-row items-center justify-between shrink-0">
-                                <div className="flex items-center gap-2">
-                                    <Building className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm font-bold text-foreground">{acc.account_name}</span>
-                                </div>
-                                <div className="text-xs text-muted-foreground">
-                                    {t('results.rows_visible', { count: acc.preview_rows.length })}
-                                </div>
-                            </CardHeader>
-
+                            {/* Scrollable Grid Body */}
                             <div className="flex-1 overflow-auto bg-background [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted [&::-webkit-scrollbar-thumb]:rounded-full">
-                                <table className="w-full caption-bottom text-sm text-muted-foreground">
-                                    <TableHeader className="sticky top-0 bg-muted z-10 border-b border-border">
-                                        <TableRow className="border-border hover:bg-transparent">
-                                            {acc.preview_headers.map((header, i) => (
-                                                <TableHead key={i} className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap px-6 h-10">
-                                                    {header}
-                                                </TableHead>
+                                {acc.preview_rows.length > 0 ? (
+                                    acc.preview_rows.map((row, i) => (
+                                        <div key={i} className="group hover:bg-muted/50 transition-colors border-b border-border last:border-0 grid items-center"
+                                            style={{ gridTemplateColumns: `repeat(${acc.preview_headers.length}, minmax(150px, 1fr))` }}>
+                                            {acc.preview_headers.map((header, j) => (
+                                                <div key={j} className="px-6 py-3 text-xs font-mono text-muted-foreground group-hover:text-foreground truncate border-r border-border/50 last:border-0">
+                                                    {row[header]}
+                                                </div>
                                             ))}
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {acc.preview_rows.length > 0 ? (
-                                            acc.preview_rows.map((row, i) => (
-                                                <TableRow key={i} className="group hover:bg-muted/50 transition-colors border-b border-border last:border-0">
-                                                    {acc.preview_headers.map((header, j) => (
-                                                        <TableCell key={j} className="font-mono text-xs px-6 py-3 whitespace-nowrap text-muted-foreground group-hover:text-foreground">
-                                                            {row[header]}
-                                                        </TableCell>
-                                                    ))}
-                                                </TableRow>
-                                            ))
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell colSpan={acc.preview_headers.length} className="h-24 text-center">
-                                                    {t('results.no_results')}
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </table>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="h-24 flex items-center justify-center text-sm text-muted-foreground">
+                                        {t('results.no_results')}
+                                    </div>
+                                )}
                             </div>
                         </Card>
                     ))}

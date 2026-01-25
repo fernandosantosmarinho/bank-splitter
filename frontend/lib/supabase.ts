@@ -28,6 +28,7 @@ export interface UserMetrics {
     stripe_subscription_id?: string;
     subscription_current_period_end?: string;
     subscription_cancel_at_period_end?: boolean;
+    locale?: string;
 }
 
 // incrementMetric moved to app/actions/metrics.ts to run on server-side

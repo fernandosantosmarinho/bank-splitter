@@ -1,6 +1,8 @@
 {
     "Dashboard": {
         "nav": {
+            "navigation_title": "Navigation",
+            "account_title": "Compte",
             "overview": "Aperçu",
             "extract_statement": "Extraire Relevé",
             "extract_check": "Extraire Chèque",
@@ -12,7 +14,12 @@
             "greeting_evening": "Bonsoir",
             "plan": "Plan",
             "usage": "Utilisation",
-            "top_up": "RECHARGER"
+            "top_up": "RECHARGER",
+            "menu": {
+                "language": "Langue",
+                "manage_account": "Gérer le compte",
+                "sign_out": "Se déconnecter"
+            }
         },
         "overview": {
             "title": "Aperçu de l'espace de travail",
@@ -161,6 +168,8 @@
             },
             "preferences": {
                 "title": "Préférences",
+                "language": "Langue",
+                "language_desc": "Choisissez votre langue préférée pour l'interface",
                 "notifications": "Notifications par email",
                 "notifications_desc": "Recevez des résumés de vos extractions.",
                 "appearance": "Mode d'apparence",

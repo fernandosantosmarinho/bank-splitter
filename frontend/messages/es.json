@@ -1,6 +1,8 @@
 {
     "Dashboard": {
         "nav": {
+            "navigation_title": "Navegación",
+            "account_title": "Cuenta",
             "overview": "Resumen",
             "extract_statement": "Extraer Estado de Cuenta",
             "extract_check": "Extraer Cheque",
@@ -12,7 +14,12 @@
             "greeting_evening": "Buenas Noches",
             "plan": "Plan",
             "usage": "Uso",
-            "top_up": "RECARGAR"
+            "top_up": "RECARGAR",
+            "menu": {
+                "language": "Idioma",
+                "manage_account": "Gestionar Cuenta",
+                "sign_out": "Cerrar Sesión"
+            }
         },
         "overview": {
             "title": "Resumen del Espacio de Trabajo",
@@ -161,6 +168,8 @@
             },
             "preferences": {
                 "title": "Preferencias",
+                "language": "Idioma",
+                "language_desc": "Elige tu idioma preferido para la interfaz",
                 "notifications": "Notificaciones por Correo",
                 "notifications_desc": "Recibe resúmenes de tus extracciones.",
                 "appearance": "Modo de Apariencia",

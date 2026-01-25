@@ -1,6 +1,8 @@
 {
     "Dashboard": {
         "nav": {
+            "navigation_title": "Navigation",
+            "account_title": "Konto",
             "overview": "Übersicht",
             "extract_statement": "Auszug Extrahieren",
             "extract_check": "Scheck Extrahieren",
@@ -12,7 +14,12 @@
             "greeting_evening": "Guten Abend",
             "plan": "Plan",
             "usage": "Nutzung",
-            "top_up": "AUFLADEN"
+            "top_up": "AUFLADEN",
+            "menu": {
+                "language": "Sprache",
+                "manage_account": "Konto verwalten",
+                "sign_out": "Abmelden"
+            }
         },
         "overview": {
             "title": "Arbeitsbereich Übersicht",
@@ -161,6 +168,8 @@
             },
             "preferences": {
                 "title": "Präferenzen",
+                "language": "Sprache",
+                "language_desc": "Wählen Sie Ihre bevorzugte Sprache für die Benutzeroberfläche",
                 "notifications": "E-Mail-Benachrichtigungen",
                 "notifications_desc": "Erhalten Sie Zusammenfassungen Ihrer Extraktionen.",
                 "appearance": "Erscheinungsbild",

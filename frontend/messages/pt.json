@@ -1,6 +1,8 @@
 {
     "Dashboard": {
         "nav": {
+            "navigation_title": "Navegação",
+            "account_title": "Conta",
             "overview": "Visão Geral",
             "extract_statement": "Extrair Extrato",
             "extract_check": "Extrair Cheque",
@@ -12,7 +14,12 @@
             "greeting_evening": "Boa Noite",
             "plan": "Plano",
             "usage": "Uso",
-            "top_up": "RECARREGAR"
+            "top_up": "RECARREGAR",
+            "menu": {
+                "language": "Idioma",
+                "manage_account": "Gerenciar Conta",
+                "sign_out": "Sair"
+            }
         },
         "overview": {
             "title": "Visão Geral",
@@ -37,6 +44,82 @@
                 "all_time": "Todo o período",
                 "last_days": "Últimos {days} dias"
             }
+        }
+    },
+    "Settings": {
+        "title": "Configurações",
+        "subtitle": "Gerencie suas preferências de conta e acesso à API.",
+        "tabs": {
+            "general": "Geral",
+            "billing": "Cobrança",
+            "api": "API"
+        },
+        "general": {
+            "profile": {
+                "title": "Informações do Perfil",
+                "description": "Atualize seus dados pessoais.",
+                "label_name": "Nome Completo",
+                "label_email": "Endereço de E-mail"
+            },
+            "preferences": {
+                "title": "Preferências",
+                "language": "Idioma",
+                "language_desc": "Escolha seu idioma preferido para a interface",
+                "notifications": "Notificações por E-mail",
+                "notifications_desc": "Receba resumos de suas extrações.",
+                "appearance": "Modo de Aparência",
+                "appearance_desc": "Alterne entre temas escuro e claro."
+            },
+            "save": "Salvar Alterações",
+            "saving": "Salvando..."
+        },
+        "billing": {
+            "upgrade_title": "Melhore seu Plano",
+            "upgrade_subtitle": "Escolha o plano que melhor se adapta às suas necessidades",
+            "per_month": "por mês",
+            "current_plan": "Plano Atual",
+            "upgrade_to": "Assinar {tier}",
+            "current_subscription": "Assinatura Atual",
+            "current_tier": "Nível {tier}",
+            "renews_on": "Renova em {date}",
+            "ends_on": "Termina em {date}",
+            "cancels_soon": "Cancela em breve",
+            "active": "Ativo",
+            "credits_used": "Créditos Usados",
+            "credits_info": "1 Documento = 10 Créditos",
+            "manage_subscription": "Gerenciar Assinatura",
+            "popular": "Popular",
+            "for_professionals": "Para profissionais",
+            "for_teams": "Para grandes equipes",
+            "perfect_for_trying": "Perfeito para testar",
+            "features": {
+                "credits_500": "500 créditos/mês",
+                "credits_5000": "5.000 créditos/mês",
+                "credits_unlimited": "Créditos ilimitados",
+                "basic_extraction": "Extração básica",
+                "advanced_extraction": "Extração avançada",
+                "csv_qbo": "Exportação CSV e QBO",
+                "priority_processing": "Processamento prioritário",
+                "api_access": "Acesso à API",
+                "email_support": "Suporte por e-mail",
+                "priority_support": "Suporte prioritário",
+                "all_pro": "Todos os recursos Pro",
+                "dedicated_manager": "Gerente dedicado",
+                "custom_integrations": "Integrações customizadas",
+                "phone_support": "Suporte por telefone 24/7"
+            }
+        },
+        "api": {
+            "title": "Acesso à API",
+            "description": "Use esta chave para autenticar na API BankSplitter.",
+            "secret_key": "Chave Secreta",
+            "copy": "Copiar",
+            "warning": "Não compartilhe esta chave com ninguém.",
+            "usage_example": "Exemplo de Uso"
+        },
+        "toasts": {
+            "copied": "Chave API copiada",
+            "saved": "Configurações salvas com sucesso"
         }
     },
     "Common": {

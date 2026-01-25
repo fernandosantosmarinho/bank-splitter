@@ -188,14 +188,14 @@ function DashboardContent() {
                     <div className="fixed inset-0 bg-black/50 z-40 md:hidden animate-in fade-in duration-200" onClick={() => setIsMobileMenuOpen(false)} />
                 )}
 
-                <aside className={cn("absolute inset-y-0 left-0 z-50 w-64 bg-card border-r border-border flex flex-col transition-transform duration-300 md:static", isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0")}>
-                    <div className="p-6 h-16 border-b border-border flex items-center justify-between md:hidden">
+                <aside className={cn("absolute top-0 left-0 z-50 w-64 bg-transparent flex flex-col transition-transform duration-300 md:static pt-4 md:pt-8 pb-4 md:pb-6", isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0")}>
+                    <div className="p-6 h-16 border-b border-border flex items-center justify-between md:hidden bg-card">
                         <span className="text-lg font-bold tracking-tight">Menu</span>
                         <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}><Menu className="h-5 w-5" /></Button>
                     </div>
-                    <div className="px-4 py-6 space-y-6 flex-1 overflow-y-auto">
+                    <div className="mx-4 md:mx-0 md:ml-4 bg-card border border-border rounded-xl p-6 overflow-y-auto space-y-6 h-auto">
                         <div>
-                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 px-2 tracking-wider">Navigation</p>
+                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 px-2 tracking-wider">{t('nav.navigation_title')}</p>
                             <nav className="space-y-1">
                                 <SidebarItem icon={<Activity className="h-4 w-4" />} label={t('nav.overview')} active={currentTab === "overview"} onClick={() => { router.push("/dashboard?tab=overview"); setIsMobileMenuOpen(false); }} />
                                 <SidebarItem icon={<FileSpreadsheet className="h-4 w-4" />} label={t('nav.extract_statement')} active={currentTab === "statements"} onClick={() => { router.push("/dashboard?tab=statements"); setIsMobileMenuOpen(false); }} />
@@ -203,7 +203,7 @@ function DashboardContent() {
                             </nav>
                         </div>
                         <div>
-                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 px-2 tracking-wider">Account</p>
+                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 px-2 tracking-wider">{t('nav.account_title')}</p>
                             <nav className="space-y-1">
                                 <SidebarItem icon={<Settings className="h-4 w-4" />} label={t('nav.settings')} active={currentTab === "settings"} onClick={() => { router.push("/dashboard?tab=settings"); setIsMobileMenuOpen(false); }} />
                             </nav>
@@ -211,9 +211,9 @@ function DashboardContent() {
                     </div>
                 </aside>
 
-                <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8 relative bg-secondary/5">
+                <main className={cn("flex-1 overflow-x-hidden relative bg-secondary/5 p-4 md:p-8", ["overview", "statements", "checks"].includes(currentTab) ? "overflow-y-hidden flex flex-col" : "overflow-y-auto")}>
                     {currentTab === "overview" && (
-                        <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300 w-full flex-1 flex flex-col min-h-0">
                             <div className="bg-card border border-border rounded-xl p-6 shrink-0">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                                     <div className="flex items-center gap-4">
@@ -258,21 +258,63 @@ function DashboardContent() {
                                 </div>
                             </div>
 
-                            <div className="bg-card border border-border rounded-xl flex flex-col min-h-[400px]">
+                            <div className="bg-card border border-border rounded-xl flex flex-col flex-1 min-h-0 overflow-hidden shadow-sm">
                                 <div className="p-4 border-b border-border font-bold flex items-center gap-2"><Clock className="h-4 w-4" /> {t('overview.processing_history')}</div>
-                                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 m-4 mb-0 flex gap-3">
+                                <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 m-4 mb-0 flex gap-3 shrink-0">
                                     <ShieldCheck className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
                                     <div><h4 className="text-sm font-semibold text-foreground mb-1">{t('overview.privacy_title')}</h4><p className="text-xs text-muted-foreground">{t('overview.privacy_desc')}</p></div>
                                 </div>
-                                <div className="flex-1 overflow-auto p-4">
+
+                                {/* Table Header */}
+                                <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-border bg-muted/30 text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-4 shrink-0">
+                                    <div className="col-span-4">{t('overview.history_cols.file_name')}</div>
+                                    <div className="col-span-2 text-center">{t('overview.history_cols.rows_extracted')}</div>
+                                    <div className="col-span-2 text-center">{t('overview.history_cols.downloads')}</div>
+                                    <div className="col-span-2 text-center">{t('overview.history_cols.processed_at')}</div>
+                                    <div className="col-span-2 text-right">{t('overview.history_cols.privacy')}</div>
+                                </div>
+
+                                <div className="flex-1 overflow-auto">
                                     {history.map((item, i) => (
-                                        <div key={i} className="p-4 border-b border-border last:border-0 flex justify-between items-center hover:bg-muted/50 transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-background rounded border border-border"><FileText className="h-4 w-4 text-muted-foreground" /></div>
-                                                <div><p className="text-sm font-medium">{item.name}</p><p className="text-[10px] text-muted-foreground">{item.size} • {item.time}</p></div>
+                                        <div key={i} className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-border last:border-0 hover:bg-muted/40 transition-colors items-center">
+                                            {/* Col 1: File Info */}
+                                            <div className="col-span-4 flex items-center gap-3 overflow-hidden">
+                                                <div className="p-2 bg-background rounded border border-border shrink-0"><FileText className="h-4 w-4 text-muted-foreground" /></div>
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-medium truncate text-foreground">{item.name}</p>
+                                                    <p className="text-[10px] text-muted-foreground">{item.size}</p>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                {item.downloads.map(d => <span key={d} className="text-[10px] px-1.5 py-0.5 bg-secondary rounded border border-border">{d}</span>)}
+
+                                            {/* Col 2: Rows */}
+                                            <div className="col-span-2 text-center">
+                                                <span className="text-xs font-medium bg-muted/50 px-2 py-1 rounded text-foreground">{item.rowsExtracted ? item.rowsExtracted.toLocaleString() : '-'}</span>
+                                            </div>
+
+                                            {/* Col 3: Downloads */}
+                                            <div className="col-span-2 flex items-center justify-center gap-2">
+                                                {item.downloads.length > 0 ? (
+                                                    item.downloads.map((d) => (
+                                                        <span key={d} className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded border", d === 'CSV' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-blue-500/10 text-blue-600 border-blue-500/20")}>
+                                                            {d}
+                                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-[10px] text-muted-foreground">-</span>
+                                                )}
+                                            </div>
+
+                                            {/* Col 4: Processed At */}
+                                            <div className="col-span-2 text-xs text-muted-foreground font-medium text-center">
+                                                {item.time}
+                                            </div>
+
+                                            {/* Col 5: Privacy */}
+                                            <div className="col-span-2 flex justify-end">
+                                                <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded-full border border-border/50">
+                                                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                    <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">{t('overview.not_stored')}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     ))}

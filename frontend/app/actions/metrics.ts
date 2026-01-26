@@ -63,9 +63,15 @@ export async function incrementMetric(userId: string | undefined | null, column:
         if (column === 'documents_processed') {
             row.credits_used = (row.credits_used || 0) + 10;
             row.time_saved_hours = (row.time_saved_hours || 0) + 0.5;
+
+            // Increment Free Tier Counter automatically
+            if (!row.subscription_tier || row.subscription_tier === 'free') {
+                row.free_documents_processed = (row.free_documents_processed || 0) + amount;
+            }
         }
 
         // 4. Sanitize Payload
+        // 4. Sanitize Payload (Include new fields)
         const payload = {
             user_id: row.user_id,
             documents_processed: row.documents_processed,
@@ -75,13 +81,18 @@ export async function incrementMetric(userId: string | undefined | null, column:
             credits_used: row.credits_used,
             csv_exports: row.csv_exports,
             qbo_exports: row.qbo_exports,
-            // Preserve subscription data during metrics update
             subscription_tier: (row as any).subscription_tier,
             subscription_status: (row as any).subscription_status,
             stripe_customer_id: (row as any).stripe_customer_id,
             stripe_subscription_id: (row as any).stripe_subscription_id,
             subscription_current_period_end: (row as any).subscription_current_period_end,
             subscription_cancel_at_period_end: (row as any).subscription_cancel_at_period_end,
+
+            // New Fields
+            free_documents_processed: (row as any).free_documents_processed,
+            welcome_offer_used: (row as any).welcome_offer_used,
+            welcome_offer_expires_at: (row as any).welcome_offer_expires_at,
+            account_created_at: (row as any).account_created_at
         };
 
         // 5. Upsert
@@ -98,8 +109,6 @@ export async function incrementMetric(userId: string | undefined | null, column:
 
     } catch (err: any) {
         console.error("[Metrics] Exception:", err.message);
-        // We re-throw so the UI knows something went wrong, or swallow if we want it to be potential non-blocking
-        // For debugging, re-throwing is better
         throw err;
     }
 }
@@ -114,16 +123,40 @@ export async function getMetrics(userId: string | undefined | null): Promise<Use
 
         const { data, error } = await supabase
             .from('user_metrics')
-            .select('user_id, documents_processed, time_saved_hours, success_rate, credits_total, credits_used, csv_exports, qbo_exports, subscription_tier, subscription_status, stripe_customer_id, stripe_subscription_id, subscription_current_period_end, subscription_cancel_at_period_end')
+            .select('*') // Select all columns to include new fields automatically
             .eq('user_id', userId)
             .single();
 
         if (error) {
+            // Auto-create metrics if not found (First login)
+            if (error.code === 'PGRST116') {
+                console.log("[Metrics] User not found, creating default.");
+                const now = new Date();
+                const expires = new Date(now.getTime() + 48 * 60 * 60 * 1000); // +48h
+
+                const defaultMetrics: UserMetrics = {
+                    user_id: userId,
+                    documents_processed: 0,
+                    time_saved_hours: 0,
+                    success_rate: 99.9,
+                    credits_total: 5000, // Or 5 for free tier? Adjust as needed
+                    credits_used: 0,
+                    csv_exports: 0,
+                    qbo_exports: 0,
+                    subscription_tier: 'free',
+                    free_documents_processed: 0,
+                    welcome_offer_used: false,
+                    welcome_offer_expires_at: expires.toISOString(),
+                    account_created_at: now.toISOString()
+                };
+
+                await supabase.from('user_metrics').insert(defaultMetrics);
+                return defaultMetrics;
+            }
             console.error("[Metrics] Error fetching:", error.message);
             return null;
         }
 
-        console.log("[Metrics] Data returned:", JSON.stringify(data));
         return data as UserMetrics;
     } catch (e) {
         console.error("[Metrics] Fetch Exception:", e);

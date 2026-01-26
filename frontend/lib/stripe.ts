@@ -12,43 +12,36 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 // Subscription tier configurations
 export const SUBSCRIPTION_TIERS = {
     free: {
-        name: 'Free',
-        credits: 500,
+        name: 'Free Tier',
+        credits: 5, // Documents
         price: 0,
-        priceId: null, // No Stripe price for free tier
+        priceId: null,
         features: [
-            '500 credits per month',
-            'Basic extraction features',
-            'CSV & QBO exports',
-            'Email support'
+            '5 documents per month',
+            'Basic extraction',
+            'CSV exports'
+        ]
+    },
+    starter: {
+        name: 'Starter',
+        credits: 50,
+        price: 15, // Base price
+        priceId: 'price_starter_monthly',
+        features: [
+            '50 documents per month',
+            'Advanced extraction',
+            'CSV & Excel exports'
         ]
     },
     pro: {
         name: 'Pro',
-        credits: 5000,
-        price: 29,
-        priceId: process.env.STRIPE_PRO_PRICE_ID, // Set in Stripe dashboard
+        credits: 500,
+        price: 49,
+        priceId: 'price_pro_monthly',
         features: [
-            '5,000 credits per month',
-            'Advanced extraction features',
+            '500 documents per month',
             'Priority processing',
-            'CSV & QBO exports',
-            'Priority email support',
-            'API access'
-        ]
-    },
-    enterprise: {
-        name: 'Enterprise',
-        credits: -1, // -1 means unlimited
-        price: 99,
-        priceId: process.env.STRIPE_ENTERPRISE_PRICE_ID, // Set in Stripe dashboard
-        features: [
-            'Unlimited credits',
-            'All Pro features',
-            'Dedicated account manager',
-            'Custom integrations',
-            '24/7 phone support',
-            'SLA guarantee'
+            'QuickBooks integration'
         ]
     }
 } as const;

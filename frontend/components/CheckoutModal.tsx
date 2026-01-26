@@ -124,21 +124,18 @@ interface CheckoutModalProps {
     isOpen: boolean;
     onClose: () => void;
     tier: SubscriptionTier;
+    billingPeriod: 'monthly' | 'yearly';
+    isPromoActive: boolean;
+    price: number;
     email?: string;
 }
 
-export default function CheckoutModal({ isOpen, onClose, tier, email }: CheckoutModalProps) {
+export default function CheckoutModal({ isOpen, onClose, tier, billingPeriod, isPromoActive, price, email }: CheckoutModalProps) {
     const { theme } = useTheme();
     const t = useTranslations('Checkout');
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [isLoadingSecret, setIsLoadingSecret] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
-
-    const prices = {
-        free: 0,
-        pro: 29,
-        enterprise: 99
-    };
 
     useEffect(() => {
         if (isOpen && tier !== 'free') {
@@ -148,7 +145,11 @@ export default function CheckoutModal({ isOpen, onClose, tier, email }: Checkout
                     const response = await fetch("/api/stripe/create-subscription", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ tier }),
+                        body: JSON.stringify({
+                            tier,
+                            billingPeriod,
+                            isPromoActive
+                        }),
                     });
 
                     const data = await response.json();
@@ -170,7 +171,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, email }: Checkout
 
             fetchClientSecret();
         }
-    }, [isOpen, tier, onClose]);
+    }, [isOpen, tier, billingPeriod, isPromoActive, onClose]);
 
     const handleSuccess = () => {
         setIsSuccess(true);
@@ -227,7 +228,7 @@ export default function CheckoutModal({ isOpen, onClose, tier, email }: Checkout
                                     >
                                         <CheckoutForm
                                             tier={tier}
-                                            price={prices[tier] || 0}
+                                            price={price} // Use prop price
                                             onSuccess={handleSuccess}
                                             onCancel={onClose}
                                             email={email}

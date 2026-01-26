@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect } from "react";
 import { UserResource } from "@clerk/types";
 import { UserMetrics } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -8,44 +8,37 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import {
     User,
-    Mail,
     Shield,
-    CreditCard,
-    Bell,
-    Moon,
-    Sun,
-    Laptop,
     Key,
     Copy,
     Check,
     FileJson,
-    Save,
-    Zap,
-    Globe
+    Laptop,
+    Globe,
+    Moon,
+    Sun
 } from "lucide-react";
 import CheckoutModal from "./CheckoutModal";
 import { SubscriptionTier } from "@/lib/stripe";
-import SubscriptionBadge from "@/components/SubscriptionBadge";
 import SubscriptionManagerModal from "./SubscriptionManagerModal";
 import LanguageSelector from "./LanguageSelector";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Locale, locales } from "@/i18n/locales";
-import { setUserLocale } from '@/app/actions/set-locale';
+import { Locale } from "@/i18n/locales";
+import SubscriptionBadge from "@/components/SubscriptionBadge";
+import { useWelcomeOffer } from "@/hooks/useWelcomeOffer";
+
+// New Billing Components
+import BillingHeader from "./billing/BillingHeader";
+import PricingToggle from "./billing/PricingToggle";
+import PricingCard from "./billing/PricingCard";
+import CurrentSubscriptionCard from "./billing/CurrentSubscriptionCard";
+import DocumentLimitModal from "./billing/DocumentLimitModal";
 
 interface SettingsViewProps {
     user: UserResource;
@@ -57,12 +50,17 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
     const [apiKey, setApiKey] = useState("sk_live_51M..." + Math.random().toString(36).substring(7));
     const [copied, setCopied] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    // Checkout & Modals
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [isSubscriptionManagerOpen, setIsSubscriptionManagerOpen] = useState(false);
     const [checkoutTier, setCheckoutTier] = useState<SubscriptionTier>('pro');
 
+    // Billing State
+    const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+
     const searchParams = useSearchParams();
-    const router = useRouter(); // Import useRouter
+    const router = useRouter();
     const initialTab = searchParams.get('view') || 'general';
     const [activeTab, setActiveTab] = useState(initialTab);
 
@@ -70,6 +68,12 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
     const t = useTranslations('Settings');
     const tCommon = useTranslations('Common');
     const locale = useLocale() as Locale;
+
+    // Use centralized hook for offer state
+    const offer = useWelcomeOffer(
+        stats?.account_created_at,
+        stats?.welcome_offer_used
+    );
 
     // Sync state with URL param
     useEffect(() => {
@@ -81,7 +85,6 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
 
     const handleTabChange = (val: string) => {
         setActiveTab(val);
-        // Update URL without full reload
         const newUrl = new URL(window.location.href);
         newUrl.searchParams.set('view', val);
         window.history.pushState({}, '', newUrl.toString());
@@ -94,10 +97,10 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
         setTimeout(() => setCopied(false), 2000);
     };
 
-
-
-    const handleUpgrade = (tier: 'pro' | 'enterprise') => {
-        setCheckoutTier(tier);
+    const handleUpgrade = (tier: string) => {
+        // Logic to prepare checkout with correct Price ID based on promo & period
+        // For now, we reuse the existing modal mechanism but pass the tier
+        setCheckoutTier(tier as SubscriptionTier);
         setIsCheckoutOpen(true);
     };
 
@@ -106,24 +109,41 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
     };
 
     // Helper to get current tier
-    const currentTier = (stats.subscription_tier || 'free') as 'free' | 'pro' | 'enterprise';
+    const currentTier = (stats.subscription_tier || 'free') as string;
 
     return (
-        <div className="max-w-4xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="max-w-6xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('title')}</h1>
                 <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
             </div>
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <TabsList className="grid w-full max-w-md grid-cols-3 bg-muted border border-border h-10 mb-8">
-                    <TabsTrigger value="general" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer">{t('tabs.general')}</TabsTrigger>
-                    <TabsTrigger value="billing" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer">{t('tabs.billing')}</TabsTrigger>
-                    <TabsTrigger value="api" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground text-muted-foreground cursor-pointer">{t('tabs.api')}</TabsTrigger>
-                </TabsList>
+                <div className="border-b border-border w-full mb-6">
+                    <TabsList className="flex w-full max-w-none bg-transparent h-12 p-0 justify-start gap-8">
+                        <TabsTrigger
+                            value="general"
+                            className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 text-muted-foreground data-[state=active]:text-foreground font-medium transition-all"
+                        >
+                            {t('tabs.general')}
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="billing"
+                            className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 text-muted-foreground data-[state=active]:text-foreground font-medium transition-all"
+                        >
+                            {t('tabs.billing')}
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="api"
+                            className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 text-muted-foreground data-[state=active]:text-foreground font-medium transition-all"
+                        >
+                            {t('tabs.api')}
+                        </TabsTrigger>
+                    </TabsList>
+                </div>
 
                 {/* --- GENERAL TAB --- */}
-                <TabsContent value="general" className="space-y-6">
+                <TabsContent value="general" className="space-y-6 max-w-4xl">
                     {/* Profile Card */}
                     <Card className="bg-card border-border">
                         <CardHeader>
@@ -190,227 +210,68 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                             </div>
                         </CardContent>
                     </Card>
-
-
                 </TabsContent>
 
-                {/* --- BILLING TAB --- */}
-                <TabsContent value="billing" className="space-y-6">
-                    {/* Pricing Tiers */}
-                    {(!stats.subscription_tier || stats.subscription_tier === 'free') && (
-                        <>
+                {/* --- BILLING TAB (REFECTORED) --- */}
+                {/* --- BILLING TAB (REFECTORED) --- */}
+                <TabsContent value="billing" className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+
+                    {/* Welcome Offer Banner - Slim & Integrated */}
+                    <BillingHeader userMetrics={stats} />
+
+                    {/* Pricing Section */}
+                    <div id="pricing-section" className="space-y-4">
+                        <div className="text-center mb-4">
+                            <h2 className="text-2xl font-bold text-foreground">Escolha o plano ideal para você</h2>
+                        </div>
+
+                        {(!stats.subscription_tier || stats.subscription_tier === 'free') && (
                             <div className="mb-4">
-                                <h3 className="text-lg font-bold text-foreground mb-2">{t('billing.upgrade_title')}</h3>
-                                <p className="text-sm text-muted-foreground">{t('billing.upgrade_subtitle')}</p>
+                                <PricingToggle
+                                    billingPeriod={billingPeriod}
+                                    onToggle={setBillingPeriod}
+                                />
                             </div>
+                        )}
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                                {/* Free Tier */}
-                                <Card className="bg-card border-border">
-                                    <CardHeader>
-                                        <CardTitle className="text-card-foreground">{tCommon('plan_free')}</CardTitle>
-                                        <CardDescription className="text-muted-foreground">{t('billing.perfect_for_trying')}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div>
-                                            <p className="text-3xl font-bold text-foreground">$0</p>
-                                            <p className="text-xs text-muted-foreground">{t('billing.per_month')}</p>
-                                        </div>
-                                        <ul className="space-y-2 text-sm text-muted-foreground">
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.credits_500')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.basic_extraction')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.csv_qbo')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.email_support')}
-                                            </li>
-                                        </ul>
-                                        <Button
-                                            variant="outline"
-                                            className="w-full border-border text-muted-foreground"
-                                            disabled
-                                        >
-                                            {t('billing.current_plan')}
-                                        </Button>
-                                    </CardContent>
-                                </Card>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 scroll-mt-20">
+                            <PricingCard
+                                plan="free"
+                                billingPeriod={billingPeriod}
+                                userMetrics={stats}
+                                currentPlan={currentTier}
+                                isLoading={isLoading}
+                                onUpgrade={handleUpgrade}
+                            />
+                            <PricingCard
+                                plan="starter"
+                                billingPeriod={billingPeriod}
+                                userMetrics={stats}
+                                currentPlan={currentTier}
+                                isLoading={isLoading}
+                                onUpgrade={handleUpgrade}
+                            />
+                            <PricingCard
+                                plan="pro"
+                                billingPeriod={billingPeriod}
+                                userMetrics={stats}
+                                currentPlan={currentTier}
+                                isLoading={isLoading}
+                                onUpgrade={handleUpgrade}
+                            />
+                        </div>
+                    </div>
 
-                                {/* Pro Tier */}
-                                <Card className="bg-card border-blue-500/30 relative">
-                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                        <Badge className="bg-blue-500 text-white">{t('billing.popular')}</Badge>
-                                    </div>
-                                    <CardHeader>
-                                        <CardTitle className="text-card-foreground">{tCommon('plan_pro')}</CardTitle>
-                                        <CardDescription className="text-muted-foreground">{t('billing.for_professionals')}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div>
-                                            <p className="text-3xl font-bold text-foreground">$29</p>
-                                            <p className="text-xs text-muted-foreground">{t('billing.per_month')}</p>
-                                        </div>
-                                        <ul className="space-y-2 text-sm text-muted-foreground">
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.credits_5000')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.advanced_extraction')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.priority_processing')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.api_access')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.priority_support')}
-                                            </li>
-                                        </ul>
-                                        <Button
-                                            variant={currentTier === 'pro' ? 'outline' : 'default'}
-                                            className={currentTier === 'pro' ? 'w-full border-border text-muted-foreground' : 'w-full bg-blue-600 hover:bg-blue-500 text-white'}
-                                            onClick={() => handleUpgrade('pro')}
-                                            disabled={isLoading || currentTier === 'pro'}
-                                        >
-                                            {currentTier === 'pro' ? t('billing.current_plan') : (isLoading ? tCommon('loading') : t('billing.upgrade_to', { tier: 'Pro' }))}
-                                        </Button>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Enterprise Tier */}
-                                <Card className="bg-card border-border">
-                                    <CardHeader>
-                                        <CardTitle className="text-card-foreground">{tCommon('plan_enterprise')}</CardTitle>
-                                        <CardDescription className="text-muted-foreground">{t('billing.for_teams')}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        <div>
-                                            <p className="text-3xl font-bold text-foreground">$99</p>
-                                            <p className="text-xs text-muted-foreground">{t('billing.per_month')}</p>
-                                        </div>
-                                        <ul className="space-y-2 text-sm text-muted-foreground">
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.credits_unlimited')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.all_pro')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.dedicated_manager')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.custom_integrations')}
-                                            </li>
-                                            <li className="flex items-center gap-2">
-                                                <Check className="h-4 w-4 text-emerald-500" />
-                                                {t('billing.features.phone_support')}
-                                            </li>
-                                        </ul>
-                                        <Button
-                                            variant={currentTier === 'enterprise' ? 'outline' : 'default'}
-                                            className={currentTier === 'enterprise' ? 'w-full border-border text-muted-foreground' : 'w-full bg-purple-600 hover:bg-purple-500 text-white'}
-                                            onClick={() => handleUpgrade('enterprise')}
-                                            disabled={isLoading || currentTier === 'enterprise'}
-                                        >
-                                            {currentTier === 'enterprise' ? t('billing.current_plan') : (isLoading ? tCommon('loading') : t('billing.upgrade_to', { tier: 'Enterprise' }))}
-                                        </Button>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        </>
-                    )}
-
-                    {/* Current Subscription Status */}
-                    <Card className="bg-card border-border">
-                        <CardHeader>
-                            <CardTitle className="text-card-foreground flex items-center gap-2">
-                                <CreditCard className="h-5 w-5 text-purple-500" /> {t('billing.current_subscription')}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-border">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground font-bold uppercase">{t('billing.current_plan')}</p>
-                                        <h2 className="text-2xl font-bold text-foreground mt-1 capitalize">
-                                            {t('billing.current_tier', { tier: stats.subscription_tier || 'Free' })}
-                                        </h2>
-                                        {stats.subscription_current_period_end && (
-                                            <p className="text-xs text-muted-foreground mt-2">
-                                                {stats.subscription_cancel_at_period_end ? t('billing.ends_on', { date: new Date(stats.subscription_current_period_end).toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' }) }) : t('billing.renews_on', { date: new Date(stats.subscription_current_period_end).toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' }) })}
-                                            </p>
-                                        )}
-                                    </div>
-                                    <Badge className={
-                                        stats.subscription_status === 'active' && !stats.subscription_cancel_at_period_end
-                                            ? "bg-emerald-500 text-white hover:bg-emerald-600"
-                                            : stats.subscription_status === 'active' && stats.subscription_cancel_at_period_end
-                                                ? "bg-amber-500 text-white hover:bg-amber-600"
-                                                : stats.subscription_status === 'past_due'
-                                                    ? "bg-red-500 text-white hover:bg-red-600"
-                                                    : "bg-slate-500 text-white hover:bg-slate-600"
-                                    }>
-                                        {stats.subscription_status === 'active' && stats.subscription_cancel_at_period_end
-                                            ? t('billing.cancels_soon')
-                                            : stats.subscription_status === 'active'
-                                                ? t('billing.active')
-                                                : stats.subscription_status || 'Inactive'}
-                                    </Badge>
-                                </div>
-                            </div>
-
-                            {/* Usage Stats */}
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">{t('billing.credits_used')}</span>
-                                    <span className="text-foreground font-mono">
-                                        {stats.credits_used} / {stats.credits_total === 999999 ? '∞' : stats.credits_total}
-                                    </span>
-                                </div>
-                                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full bg-yellow-500"
-                                        style={{ width: `${stats.credits_total === 999999 ? 0 : Math.min((stats.credits_used / stats.credits_total) * 100, 100)}%` }}
-                                    />
-                                </div>
-                                <p className="text-xs text-muted-foreground">{t('billing.credits_info')}</p>
-                            </div>
-
-                            {/* Manage Subscription Button */}
-                            {stats.stripe_customer_id && stats.subscription_tier !== 'free' && (
-                                <Button
-                                    variant="outline"
-                                    className="w-full border-border text-foreground hover:bg-muted"
-                                    onClick={handleManageSubscription}
-                                    disabled={isLoading}
-                                >
-                                    {isLoading ? tCommon('loading') : t('billing.manage_subscription')}
-                                </Button>
-                            )}
-                        </CardContent>
-                    </Card>
+                    {/* Current Subscription Status & Usage */}
+                    <CurrentSubscriptionCard
+                        userMetrics={stats}
+                        onManage={handleManageSubscription}
+                        isLoading={isLoading}
+                    />
                 </TabsContent>
 
                 {/* --- API TAB --- */}
-                <TabsContent value="api" className="space-y-6">
+                <TabsContent value="api" className="space-y-6 max-w-4xl">
                     <Card className="bg-card border-border">
                         <CardHeader>
                             <CardTitle className="text-card-foreground flex items-center gap-2">
@@ -452,13 +313,32 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                         </CardContent>
                     </Card>
                 </TabsContent>
-
             </Tabs>
 
             <CheckoutModal
                 isOpen={isCheckoutOpen}
                 onClose={() => setIsCheckoutOpen(false)}
                 tier={checkoutTier}
+                billingPeriod={billingPeriod}
+                isPromoActive={offer.isActive}
+                price={(function () {
+                    if (checkoutTier === 'free') return 0;
+                    const basePrices = {
+                        starter: { monthly: 15, yearly: 144 },
+                        pro: { monthly: 49, yearly: 468 },
+                        business: { monthly: 149, yearly: 1428 }
+                    };
+                    const promoPrices = {
+                        starter: { monthly: 9, yearly: 86.40 },
+                        pro: { monthly: 29, yearly: 276 },
+                        business: { monthly: 79, yearly: 756 }
+                    };
+                    const usePromo = offer.isActive;
+                    const prices = usePromo ? promoPrices : basePrices;
+                    // @ts-ignore
+                    const p = prices[checkoutTier];
+                    return p ? p[billingPeriod] : 0;
+                })()}
                 email={user.primaryEmailAddress?.emailAddress}
             />
 

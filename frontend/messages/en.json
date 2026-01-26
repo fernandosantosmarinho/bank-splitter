@@ -230,7 +230,84 @@
     "Common": {
         "loading": "Loading...",
         "plan_free": "Free Plan",
+        "plan_starter": "Starter Plan",
         "plan_pro": "Pro Plan",
+        "plan_business": "Business Plan",
         "plan_enterprise": "Enterprise Plan"
+    },
+    "BillingNew": {
+        "header": {
+            "welcome_offer_title": "Welcome Offer",
+            "welcome_offer_desc": "Permanent discount on any plan if you subscribe now.",
+            "welcome_offer_desc_prefix": "Subscribe to any plan in the next",
+            "welcome_offer_desc_suffix": "and get 40% off permanently.",
+            "view_plans": "View Plans"
+        },
+        "toggle": {
+            "monthly": "Monthly",
+            "yearly": "Yearly",
+            "save_40": "-40%"
+        },
+        "cards": {
+            "plan_free_desc": "For testing and small volumes",
+            "plan_starter_desc": "For freelancers and solopreneurs",
+            "plan_pro_desc": "For accountants and small businesses",
+            "plan_business_desc": "For large volumes",
+            "feature_5_docs": "5 documents/month",
+            "feature_50_docs": "50 documents/month",
+            "feature_500_docs": "500 documents/month",
+            "feature_unlimited": "Unlimited documents",
+            "feature_basic_extraction": "Basic extraction",
+            "feature_advanced_extraction": "Advanced extraction",
+            "feature_csv_export": "CSV export",
+            "feature_csv_excel_export": "CSV & Excel exports",
+            "feature_quickbooks": "QuickBooks integration",
+            "feature_priority_proc": "Priority processing",
+            "feature_priority_supp": "Priority support",
+            "feature_api_access": "API Access",
+            "feature_dedicated_manager": "Dedicated manager",
+            "subscribe": "Subscribe {plan}",
+            "current_plan": "Current Plan",
+            "processing": "Processing...",
+            "billed_yearly_save": "Billed yearly (Savings applied)",
+            "billed_yearly_val": "Billed yearly (€{amount} total)",
+            "per_month": "/month",
+            "popular": "Popular",
+            "off": "OFF",
+            "welcome_offer_badge": "Welcome Offer"
+        },
+        "current_sub": {
+            "title": "Current Subscription",
+            "plan_label": "Plan",
+            "renews_in": "Renews on:",
+            "cancels_in": "Cancels on:",
+            "free_tier_label": "Free Plan",
+            "active": "Active",
+            "past_due": "Past Due",
+            "free_docs_label": "Free Documents",
+            "usage_credits_label": "Usage Credits",
+            "free_tier_desc": "You have 5 free tests to validate the tool.",
+            "paid_tier_desc": "Credits renew at the start of each billing cycle.",
+            "manage_stripe": "Manage Subscription (Stripe)"
+        },
+        "limit_modal": {
+            "title": "You have completed the 5 free tests",
+            "desc": "To continue processing documents, choose a plan.",
+            "offer_active_label": "Welcome Offer (40% OFF forever)",
+            "offer_expires_label": "Ends in:",
+            "offer_expired_label": "Welcome offer expired",
+            "offer_expired_msg": "You can still subscribe to continue processing documents.",
+            "starter_plan": "Starter Plan",
+            "price_comparison": "€15 → €9/mo",
+            "price_normal": "€15/mo",
+            "savings": "You save €72/year",
+            "feature_more_docs": "More documents per month",
+            "feature_export": "CSV & Excel Export",
+            "feature_priority": "Priority processing (Pro)",
+            "cta_claim_offer": "Claim 40% OFF now",
+            "cta_subscribe": "View plans and subscribe",
+            "cta_view_plans": "View all plans",
+            "close": "Close"
+        }
     }
 }

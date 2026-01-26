@@ -77,8 +77,29 @@ export function HeaderActions({ userMetrics, className }: HeaderActionsProps) {
 }
 
 function UsageIndicator({ metrics }: { metrics: UserMetrics }) {
-    const percent = metrics.credits_total === 999999 ? 0 : Math.min((metrics.credits_used / metrics.credits_total) * 100, 100);
-    const usageLabel = `${metrics.credits_used.toLocaleString()} / ${metrics.credits_total === 999999 ? '∞' : metrics.credits_total.toLocaleString()}`;
+    const isFree = !metrics.subscription_tier || metrics.subscription_tier === 'free';
+
+    // Define usage and total based on plan
+    const used = isFree ? (metrics.free_documents_processed || 0) : metrics.credits_used;
+    const total = isFree ? 5 : metrics.credits_total;
+
+    const percent = total === 999999 ? 0 : Math.min((used / total) * 100, 100);
+
+    const usageLabel = isFree
+        ? `${used} / ${total} docs`
+        : `${used.toLocaleString()} / ${total === 999999 ? '∞' : total.toLocaleString()}`;
+
+    // Dynamic Color Logic
+    let colorClass = "bg-emerald-500";
+    if (percent <= 10) colorClass = "bg-slate-300 dark:bg-slate-600";
+    else if (percent <= 50) colorClass = "bg-emerald-500";
+    else if (percent <= 80) colorClass = "bg-amber-500";
+    else colorClass = "bg-red-500";
+
+    // Display string
+    const displayString = isFree
+        ? `${used} / ${total} docs`
+        : `${used} / ${total === 999999 ? '∞' : (total / 1000).toFixed(0) + 'k'}`;
 
     return (
         <TooltipProvider delayDuration={300}>
@@ -90,25 +111,23 @@ function UsageIndicator({ metrics }: { metrics: UserMetrics }) {
                         aria-valuenow={percent}
                         aria-valuemin={0}
                         aria-valuemax={100}
-                        aria-label={`Credit usage: ${usageLabel}`}
+                        aria-label={`Usage: ${usageLabel}`}
                     >
                         <div className="flex flex-col gap-0.5 min-w-[60px]">
                             <div className="h-1.5 w-16 bg-muted/80 rounded-full overflow-hidden border border-border/20">
                                 <div
-                                    className={cn("h-full rounded-full transition-all duration-500", percent > 90 ? "bg-red-500" : "bg-emerald-500")}
+                                    className={cn("h-full rounded-full transition-all duration-500", colorClass)}
                                     style={{ width: `${percent}%` }}
                                 />
                             </div>
                         </div>
-                        <span className="text-[10px] font-mono font-medium text-muted-foreground">
-                            {metrics.credits_used}
-                            <span className="text-muted-foreground/40 mx-0.5">/</span>
-                            {metrics.credits_total === 999999 ? '∞' : (metrics.credits_total / 1000).toFixed(0) + 'k'}
+                        <span className="text-[10px] font-mono font-medium text-muted-foreground whitespace-nowrap">
+                            {displayString}
                         </span>
                     </div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="text-xs">
-                    Credits used / Credits available
+                    {isFree ? "Free documents processed" : "Credits used / Credits available"}
                 </TooltipContent>
             </Tooltip>
         </TooltipProvider>

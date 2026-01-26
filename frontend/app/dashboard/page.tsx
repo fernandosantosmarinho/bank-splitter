@@ -331,6 +331,7 @@ function DashboardContent() {
                             mode={currentTab === "statements" ? "pdf" : "image"}
                             onSuccess={handleExtractionSuccess}
                             onDownload={handleDownload}
+                            userMetrics={currentStats}
                         />
                     )}
 

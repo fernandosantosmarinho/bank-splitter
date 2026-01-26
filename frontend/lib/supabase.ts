@@ -29,6 +29,12 @@ export interface UserMetrics {
     subscription_current_period_end?: string;
     subscription_cancel_at_period_end?: boolean;
     locale?: string;
+
+    // New fields for Welcome Offer & Billing Refactor
+    free_documents_processed?: number;
+    account_created_at?: string;
+    welcome_offer_used?: boolean;
+    welcome_offer_expires_at?: string;
 }
 
 // incrementMetric moved to app/actions/metrics.ts to run on server-side

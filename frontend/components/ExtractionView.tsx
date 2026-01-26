@@ -13,6 +13,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import { Locale } from "@/i18n/locales";
+import { UserMetrics } from "@/lib/supabase";
+import DocumentLimitModal from "@/components/billing/DocumentLimitModal";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { TaskHeader } from "@/components/TaskHeader";
@@ -58,6 +61,7 @@ interface ExtractionViewProps {
     mode?: "pdf" | "image" | "mixed";
     onSuccess?: (file: File, transactionCount: number) => void;
     onDownload?: (type: "CSV" | "QBO", fileName: string) => void;
+    userMetrics?: UserMetrics;
 }
 
 const normalizeCurrencyCode = (raw: string): string => {
@@ -98,11 +102,16 @@ export default function ExtractionView({
     description = "Securely extract bank PDFs or check images.",
     mode = "mixed",
     onSuccess,
-    onDownload
+    onDownload,
+    userMetrics
 }: ExtractionViewProps) {
     const { user } = useUser();
+    const router = useRouter();
     const t = useTranslations('Extraction');
     const locale = useLocale() as Locale;
+
+    // Limit Modal State
+    const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
 
     // Default fallback if props are missing (should generally be passed from parent though)
     const viewTitle = title || t('titles.extract_statement');
@@ -218,6 +227,15 @@ export default function ExtractionView({
 
     const handleExtract = async () => {
         if (!file) return;
+
+        // Check for Free Tier Limits
+        if (userMetrics && (!userMetrics.subscription_tier || userMetrics.subscription_tier === 'free')) {
+            if ((userMetrics.free_documents_processed || 0) >= 5) {
+                setIsLimitModalOpen(true);
+                return;
+            }
+        }
+
         setIsLoading(true);
         setStatus(t('processing.init'));
         setAccounts([]);
@@ -451,7 +469,7 @@ export default function ExtractionView({
         <div className="w-full h-full flex flex-col overflow-hidden">
             {/* UPLOAD VIEW (Empty State) */}
             {accounts.length === 0 && (
-                <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
+                <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 h-full flex flex-col">
                     {/* Header */}
                     <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div>
@@ -468,7 +486,7 @@ export default function ExtractionView({
                         </div>
                     </div>
 
-                    <div className="w-full max-w-3xl mx-auto">
+                    <div className="w-full max-w-3xl mx-auto flex-1 flex flex-col justify-center pb-40">
                         <Card className="border border-border bg-card shadow-none overflow-hidden">
                             <CardContent className="p-0">
                                 {!isLoading ? (
@@ -744,6 +762,34 @@ export default function ExtractionView({
                     ))}
                 </div>
             )}
+
+            <DocumentLimitModal
+                isOpen={isLimitModalOpen}
+                onClose={() => setIsLimitModalOpen(false)}
+                onSubscribe={() => {
+                    setIsLimitModalOpen(false);
+
+                    // Navigate to Settings tab with Billing view
+                    router.push("/dashboard?tab=settings&view=billing");
+
+                    // Scroll to Starter plan and highlight it
+                    setTimeout(() => {
+                        const starterCard = document.getElementById('starter-plan-card');
+                        if (starterCard) {
+                            starterCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            // Add highlight animation
+                            starterCard.classList.add('highlight-pulse');
+                            setTimeout(() => starterCard.classList.remove('highlight-pulse'), 2000);
+                        }
+                    }, 500); // Increased timeout to ensure tab switch completes
+                }}
+                onViewPlans={() => {
+                    setIsLimitModalOpen(false);
+                    router.push("/dashboard?tab=settings&view=billing");
+                }}
+                accountCreatedAt={userMetrics?.account_created_at}
+                welcomeOfferUsed={userMetrics?.welcome_offer_used}
+            />
         </div>
     );
 }

@@ -1,131 +1,313 @@
 {
     "Dashboard": {
         "nav": {
-            "navigation_title": "Navegação",
-            "account_title": "Conta",
-            "overview": "Visão Geral",
-            "extract_statement": "Extrair Extrato",
-            "extract_check": "Extrair Cheque",
-            "settings": "Configurações"
+            "navigation_title": "Navigation",
+            "account_title": "Account",
+            "overview": "Overview",
+            "extract_statement": "Extract Statement",
+            "extract_check": "Extract Check",
+            "settings": "Settings"
         },
         "header": {
-            "greeting_morning": "Bom Dia",
-            "greeting_afternoon": "Boa Tarde",
-            "greeting_evening": "Boa Noite",
-            "plan": "Plano",
-            "usage": "Uso",
-            "top_up": "RECARREGAR",
+            "greeting_morning": "Good Morning",
+            "greeting_afternoon": "Good Afternoon",
+            "greeting_evening": "Good Evening",
+            "plan": "Plan",
+            "usage": "Usage",
+            "top_up": "TOP UP",
             "menu": {
-                "language": "Idioma",
-                "manage_account": "Gerenciar Conta",
-                "sign_out": "Sair"
+                "language": "Language",
+                "manage_account": "Manage Account",
+                "sign_out": "Sign out"
             }
         },
         "overview": {
-            "title": "Visão Geral",
-            "subtitle": "Suas estatísticas de extração",
-            "new_extraction": "Nova Extração",
-            "documents": "Documentos",
-            "time_saved": "Tempo Salvo",
-            "exports": "Exportações",
-            "how_we_estimate": "Baseado em 15 min de entrada manual por extrato",
-            "not_stored": "Não armazenado",
-            "privacy_title": "Processamento focado em privacidade",
-            "privacy_desc": "Não armazenamos extratos enviados. Este histórico é apenas um registro de auditoria do que você processou e baixou.",
-            "processing_history": "Histórico de Processamento",
+            "title": "Workspace Overview",
+            "subtitle": "Your extraction analytics at a glance",
+            "new_extraction": "New Extraction",
+            "documents": "Documents",
+            "time_saved": "Time Saved",
+            "exports": "Exports",
+            "how_we_estimate": "Based on 15 min avg manual entry per statement",
+            "not_stored": "Not stored",
+            "privacy_title": "Privacy-first processing",
+            "privacy_desc": "We don't store uploaded statement files. This history is an audit log of what you processed and what exports you downloaded at the time.",
+            "processing_history": "Processing History",
             "history_cols": {
-                "file_name": "Nome do Arquivo",
-                "rows_extracted": "Linhas extraídas",
-                "downloads": "Downloads",
-                "processed_at": "Processado em",
-                "privacy": "Privacidade"
+                "file_name": "File Name",
+                "rows_extracted": "Rows extracted",
+                "downloads": "Downloaded exports",
+                "processed_at": "Processed At",
+                "privacy": "Privacy"
             },
             "period": {
-                "all_time": "Todo o período",
-                "last_days": "Últimos {days} dias"
+                "all_time": "All time",
+                "last_days": "Last {days} days"
             }
         }
     },
+    "SubscriptionManager": {
+        "title": "Manage Subscription",
+        "description": "View and manage your active plan details.",
+        "loading": "Loading subscription details...",
+        "current_plan": "Current Plan",
+        "per_interval": "/{interval}",
+        "status_active": "Active",
+        "status_cancels_soon": "Cancels soon",
+        "renews_on": "Renews on",
+        "access_ends_on": "Access ends on",
+        "expires": "Expires {date}",
+        "cancel_button": "Cancel Subscription",
+        "scheduled_button": "Cancellation Scheduled",
+        "keep_plan": "Keep Plan",
+        "confirm_cancel": "Confirm Cancel",
+        "cancelling": "Cancelling...",
+        "confirm_title": "Cancel Subscription?",
+        "confirm_desc": "You will retain access until the end of your billing cycle ({date}). This action cannot be undone.",
+        "cancellation_scheduled_desc": "Your plan will remain active until the end of the billing period.",
+        "no_active_sub": "No active subscription details found.",
+        "close": "Close",
+        "error_load": "Could not load subscription details",
+        "error_cancel": "Failed to cancel subscription",
+        "success_cancel": "Subscription canceled. Access remains until the billing period ends."
+    },
+    "Checkout": {
+        "title": "Upgrade Subscription",
+        "description": "Enter your payment details to upgrade to the {tier} plan.",
+        "plan_label": "{tier} Plan",
+        "billed_monthly": "Billed monthly. Cancel anytime.",
+        "pay_button": "Pay ${price}",
+        "cancel_button": "Cancel",
+        "processing": "Processing...",
+        "initializing": "Initializing secure checkout...",
+        "success": {
+            "title": "Payment Successful!",
+            "message": "Your subscription is now active."
+        },
+        "secured_by": "Payments secured by Stripe"
+    },
+    "Extraction": {
+        "titles": {
+            "extract_statement": "Bank Statement Extraction",
+            "extract_check": "Check Scanning",
+            "desc_statement": "Securely extract bank PDFs to CSV/QBO.",
+            "desc_check": "Upload check images for handwriting recognition."
+        },
+        "dropzone": {
+            "click_to_upload": "Click to Upload",
+            "subtitle": "PDF Statement or Check Image",
+            "ram_only": "RAM-Only",
+            "auto_wipe": "Auto-Wipe",
+            "document_loaded": "Document loaded"
+        },
+        "processing": {
+            "title": "Processing...",
+            "encryption_active": "Encryption Active",
+            "discarding": "Discarding File",
+            "discarding_desc": "Original document is being securely removed from server memory.",
+            "zero_retention": "Zero-Retention Policy",
+            "start_extraction": "Start Extraction",
+            "init": "Initializing extraction engine...",
+            "steps": {
+                "secure_enclave": "Initializing secure enclave...",
+                "layout": "Scanning layout & geometry...",
+                "columns": "Detecting dynamic columns...",
+                "financial": "Aligning financial types...",
+                "integrity": "Validating integrity...",
+                "export": "Formatting exports...",
+                "finalizing": "Finalizing..."
+            },
+            "error": "Extraction interrupted",
+            "success": "Extraction Complete",
+            "downloaded": "Downloaded {file}"
+        },
+        "results": {
+            "title": "Extraction Results",
+            "subtitle": "Review extracted data and download exports.",
+            "upload_another": "Upload another statement",
+            "total_credit": "Total Credit",
+            "total_debit": "Total Debit",
+            "net_balance": "Net Balance",
+            "rows_visible": "{count} rows visible",
+            "no_results": "No results found."
+        },
+        "toolbar": {
+            "search_placeholder": "Search transactions...",
+            "filter_all": "All",
+            "filter_debit": "Debit",
+            "filter_credit": "Credit",
+            "clear_filters": "Clear Filters"
+        },
+        "file_summary": {
+            "status_success": "Success",
+            "status_default": "{status}",
+            "complete": "Extraction complete",
+            "transactions_found": "{count} transactions found",
+            "download_csv": "Download CSV",
+            "download_qbo": "Download QBO",
+            "more_actions": "More actions",
+            "view_pdf": "View original PDF",
+            "reprocess": "Reprocess",
+            "delete": "Delete"
+        }
+    },
     "Settings": {
-        "title": "Configurações",
-        "subtitle": "Gerencie suas preferências de conta e acesso à API.",
+        "title": "Settings",
+        "subtitle": "Manage your account preferences and API access.",
         "tabs": {
-            "general": "Geral",
-            "billing": "Cobrança",
+            "general": "General",
+            "billing": "Billing",
             "api": "API"
         },
         "general": {
             "profile": {
-                "title": "Informações do Perfil",
-                "description": "Atualize seus dados pessoais.",
-                "label_name": "Nome Completo",
-                "label_email": "Endereço de E-mail"
+                "title": "Profile Information",
+                "description": "Update your personal details.",
+                "label_name": "Full Name",
+                "label_email": "Email Address"
             },
             "preferences": {
-                "title": "Preferências",
-                "language": "Idioma",
-                "language_desc": "Escolha seu idioma preferido para a interface",
-                "notifications": "Notificações por E-mail",
-                "notifications_desc": "Receba resumos de suas extrações.",
-                "appearance": "Modo de Aparência",
-                "appearance_desc": "Alterne entre temas escuro e claro."
+                "title": "Preferences",
+                "language": "Language",
+                "language_desc": "Choose your preferred language for the interface",
+                "notifications": "Email Notifications",
+                "notifications_desc": "Receive summaries of your extractions.",
+                "appearance": "Appearance Mode",
+                "appearance_desc": "Switch between dark workstation and light studio themes."
             },
-            "save": "Salvar Alterações",
-            "saving": "Salvando..."
+            "save": "Save Changes",
+            "saving": "Saving..."
         },
         "billing": {
-            "upgrade_title": "Melhore seu Plano",
-            "upgrade_subtitle": "Escolha o plano que melhor se adapta às suas necessidades",
-            "per_month": "por mês",
-            "current_plan": "Plano Atual",
-            "upgrade_to": "Assinar {tier}",
-            "current_subscription": "Assinatura Atual",
-            "current_tier": "Nível {tier}",
-            "renews_on": "Renova em {date}",
-            "ends_on": "Termina em {date}",
-            "cancels_soon": "Cancela em breve",
-            "active": "Ativo",
-            "credits_used": "Créditos Usados",
-            "credits_info": "1 Documento = 10 Créditos",
-            "manage_subscription": "Gerenciar Assinatura",
+            "upgrade_title": "Upgrade Your Plan",
+            "upgrade_subtitle": "Choose the plan that best fits your needs",
+            "per_month": "per month",
+            "current_plan": "Current Plan",
+            "upgrade_to": "Upgrade to {tier}",
+            "current_subscription": "Current Subscription",
+            "current_tier": "{tier} Tier",
+            "renews_on": "Renews on {date}",
+            "ends_on": "Ends on {date}",
+            "cancels_soon": "Cancels Soon",
+            "active": "Active",
+            "credits_used": "Credits Used",
+            "credits_info": "1 Document = 10 Credits",
+            "manage_subscription": "Manage Subscription",
             "popular": "Popular",
-            "for_professionals": "Para profissionais",
-            "for_teams": "Para grandes equipes",
-            "perfect_for_trying": "Perfeito para testar",
+            "for_professionals": "For professionals",
+            "for_teams": "For large teams",
+            "perfect_for_trying": "Perfect for trying out",
             "features": {
-                "credits_500": "500 créditos/mês",
-                "credits_5000": "5.000 créditos/mês",
-                "credits_unlimited": "Créditos ilimitados",
-                "basic_extraction": "Extração básica",
-                "advanced_extraction": "Extração avançada",
-                "csv_qbo": "Exportação CSV e QBO",
-                "priority_processing": "Processamento prioritário",
-                "api_access": "Acesso à API",
-                "email_support": "Suporte por e-mail",
-                "priority_support": "Suporte prioritário",
-                "all_pro": "Todos os recursos Pro",
-                "dedicated_manager": "Gerente dedicado",
-                "custom_integrations": "Integrações customizadas",
-                "phone_support": "Suporte por telefone 24/7"
+                "credits_500": "500 credits/month",
+                "credits_5000": "5,000 credits/month",
+                "credits_unlimited": "Unlimited credits",
+                "basic_extraction": "Basic extraction",
+                "advanced_extraction": "Advanced extraction",
+                "csv_qbo": "CSV & QBO exports",
+                "priority_processing": "Priority processing",
+                "api_access": "API access",
+                "email_support": "Email support",
+                "priority_support": "Priority support",
+                "all_pro": "All Pro features",
+                "dedicated_manager": "Dedicated manager",
+                "custom_integrations": "Custom integrations",
+                "phone_support": "24/7 phone support"
             }
         },
         "api": {
-            "title": "Acesso à API",
-            "description": "Use esta chave para autenticar na API BankSplitter.",
-            "secret_key": "Chave Secreta",
-            "copy": "Copiar",
-            "warning": "Não compartilhe esta chave com ninguém.",
-            "usage_example": "Exemplo de Uso"
+            "title": "API Access",
+            "description": "Use this key to authenticate with the BankSplitter API.",
+            "secret_key": "Secret Key",
+            "copy": "Copy",
+            "warning": "Do not share this key with anyone.",
+            "usage_example": "Usage Example"
         },
         "toasts": {
-            "copied": "Chave API copiada",
-            "saved": "Configurações salvas com sucesso"
+            "copied": "API Key copied to clipboard",
+            "saved": "Settings saved successfully"
         }
     },
     "Common": {
-        "loading": "Carregando...",
-        "plan_free": "Plano Grátis",
+        "loading": "Loading...",
+        "plan_free": "Free Plan",
+        "plan_starter": "Plano Starter",
         "plan_pro": "Plano Pro",
+        "plan_business": "Plano Business",
         "plan_enterprise": "Plano Enterprise"
+    },
+    "BillingNew": {
+        "header": {
+            "welcome_offer_title": "Oferta de Boas-Vindas",
+            "welcome_offer_desc": "Desconto permanente em qualquer plano se assinar agora.",
+            "welcome_offer_desc_prefix": "Assine qualquer plano nas próximas",
+            "welcome_offer_desc_suffix": "e ganhe 40% de desconto permanente.",
+            "view_plans": "Ver Planos"
+        },
+        "toggle": {
+            "monthly": "Mensal",
+            "yearly": "Anual",
+            "save_40": "-40%"
+        },
+        "cards": {
+            "plan_free_desc": "Para testes e pequenos volumes",
+            "plan_starter_desc": "Para freelancers e autônomos",
+            "plan_pro_desc": "Para contadores e pequenas empresas",
+            "plan_business_desc": "Para grandes volumes",
+            "feature_5_docs": "5 documentos/mês",
+            "feature_50_docs": "50 documentos/mês",
+            "feature_500_docs": "500 documentos/mês",
+            "feature_unlimited": "Documentos Ilimitados",
+            "feature_basic_extraction": "Extração básica",
+            "feature_advanced_extraction": "Extração avançada",
+            "feature_csv_export": "Exportação CSV",
+            "feature_csv_excel_export": "Exportação CSV & Excel",
+            "feature_quickbooks": "Integração QuickBooks",
+            "feature_priority_proc": "Processamento prioritário",
+            "feature_priority_supp": "Suporte prioritário",
+            "feature_api_access": "Acesso à API",
+            "feature_dedicated_manager": "Gerente Dedicado",
+            "subscribe": "Assinar Plano {plan}",
+            "current_plan": "Plano Atual",
+            "processing": "Processando...",
+            "billed_yearly_save": "Faturado anualmente (Economia aplicada)",
+            "billed_yearly_val": "Cobrado anualmente (€{amount} total)",
+            "per_month": "/mês",
+            "popular": "Popular",
+            "off": "OFF",
+            "welcome_offer_badge": "Welcome Offer"
+        },
+        "current_sub": {
+            "title": "Assinatura Atual",
+            "plan_label": "Plano",
+            "renews_in": "Renova em:",
+            "cancels_in": "Cancela em:",
+            "free_tier_label": "Free Plan",
+            "active": "Ativo",
+            "past_due": "Atrasado",
+            "free_docs_label": "Documentos Gratuitos",
+            "usage_credits_label": "Créditos de Uso",
+            "free_tier_desc": "Você tem 5 testes gratuitos para validar a ferramenta.",
+            "paid_tier_desc": "Créditos renovam no início de cada ciclo de faturamento.",
+            "manage_stripe": "Gerenciar Assinatura"
+        },
+        "limit_modal": {
+            "title": "Você concluiu os 5 testes gratuitos",
+            "desc": "Para continuar processando documentos, escolha um plano.",
+            "offer_active_label": "Oferta de Boas‑Vindas (40% OFF permanente)",
+            "offer_expires_label": "Termina em:",
+            "offer_expired_label": "Oferta de boas‑vindas expirada",
+            "offer_expired_msg": "Ainda assim, você pode assinar para continuar processando documentos.",
+            "starter_plan": "Plano Starter",
+            "price_comparison": "€15 → €9/mês",
+            "price_normal": "€15/mês",
+            "savings": "Você economiza €72/ano",
+            "feature_more_docs": "Mais documentos por mês",
+            "feature_export": "Exportação CSV & Excel",
+            "feature_priority": "Processamento prioritário (Pro)",
+            "cta_claim_offer": "Garantir 40% OFF agora",
+            "cta_subscribe": "Ver planos e assinar",
+            "cta_view_plans": "Ver todos os planos",
+            "close": "Fechar"
+        }
     }
 }

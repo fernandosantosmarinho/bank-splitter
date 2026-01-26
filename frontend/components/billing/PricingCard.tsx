@@ -67,8 +67,8 @@ export default function PricingCard({
     const isCurrent = currentPlan === plan || (plan === 'free' && (!currentPlan || currentPlan === 'free'));
 
     // Dynamic Price Calculation
-    const getPrice = () => {
-        if (plan === 'free') return { monthly: 0, yearly: 0 };
+    const getPrice = (): { display: number | string; original: number | string; yearlyTotal: number | string } => {
+        if (plan === 'free') return { display: 0, original: 0, yearlyTotal: 0 };
 
         const basePrices = {
             starter: { monthly: 15, yearly: 144 },
@@ -100,6 +100,7 @@ export default function PricingCard({
             displayPrice = price;
             // @ts-ignore
             originalPrice = basePrices[plan].monthly;
+            yearlyTotal = 0; // Explicitly set to 0 for monthly
         }
 
         return {
@@ -153,7 +154,7 @@ export default function PricingCard({
                                     </span>
                                     <span className="text-muted-foreground text-sm">{t('per_month')}</span>
                                 </div>
-                                {billingPeriod === 'yearly' && (
+                                {billingPeriod === 'yearly' && Number(priceData.yearlyTotal) > 0 && (
                                     <p className="text-xs text-gray-400 mt-1">
                                         {t('billed_yearly_val', { amount: priceData.yearlyTotal })}
                                     </p>

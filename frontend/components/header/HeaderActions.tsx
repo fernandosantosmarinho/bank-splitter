@@ -91,10 +91,10 @@ function UsageIndicator({ metrics }: { metrics: UserMetrics }) {
 
     // Dynamic Color Logic
     let colorClass = "bg-emerald-500";
-    if (percent <= 10) colorClass = "bg-slate-300 dark:bg-slate-600";
-    else if (percent <= 50) colorClass = "bg-emerald-500";
-    else if (percent <= 80) colorClass = "bg-amber-500";
-    else colorClass = "bg-red-500";
+
+    if (percent < 60) colorClass = "bg-emerald-500";
+    else if (percent < 90) colorClass = "bg-amber-500"; // Orange
+    else colorClass = "bg-red-500"; // Red
 
     // Display string
     const displayString = isFree
@@ -253,7 +253,7 @@ function HeaderUserMenu({ user }: { user: any }) {
 
                     <div className="h-[1px] bg-border/50 my-2 mx-2" />
 
-                    <DropdownMenuItem onClick={() => signOut(() => router.push('/'))} className="p-3 cursor-pointer rounded-xl hover:bg-red-500/10 focus:bg-red-500/10 text-red-500 focus:text-red-500 group mt-1">
+                    <DropdownMenuItem onClick={() => signOut({ redirectUrl: process.env.NEXT_PUBLIC_APP_URL || '/' })} className="p-3 cursor-pointer rounded-xl hover:bg-red-500/10 focus:bg-red-500/10 text-red-500 focus:text-red-500 group mt-1">
                         <LogOut className="mr-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                         <span className="font-medium">{t('sign_out')}</span>
                     </DropdownMenuItem>

@@ -1,16 +1,28 @@
+// frontend/app/api/stripe/create-subscription/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
-import { stripe, getPriceIdForTier, SubscriptionTier } from '@/lib/stripe';
+import { stripe } from '@/lib/stripe'; // TODO: prefer '@/lib/stripe-server'
 import { createClient } from '@supabase/supabase-js';
+import { getStripePriceId } from '@/lib/stripe-prices';
+import Stripe from 'stripe';
 
-// Use service role key to bypass RLS for critical administrative updates
+// 🛡️ Use service role key to check user metrics safely
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+function safeEmail(user: any) {
+    return (
+        user.emailAddresses.find((e: any) => e.id === user.primaryEmailAddressId)?.emailAddress ||
+        user.emailAddresses[0]?.emailAddress
+    );
+}
+
 export async function POST(req: NextRequest) {
     try {
+        // 1) Auth
         const { userId } = await auth();
         const user = await currentUser();
 
@@ -18,155 +30,205 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const email = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress || user.emailAddresses[0]?.emailAddress;
+        const email = safeEmail(user);
 
-        const { tier } = await req.json() as { tier: SubscriptionTier };
+        // 2) Idempotency key
+        const idempotencyKey = req.headers.get('X-Idempotency-Key');
+        console.log('[Create Sub] Idempotency Key:', idempotencyKey);
 
-        if (!tier || !['pro', 'enterprise'].includes(tier)) {
-            return NextResponse.json({ error: 'Invalid subscription tier' }, { status: 400 });
-        }
+        // 3) Body
+        const { plan, billingPeriod } = (await req.json()) as {
+            plan: 'starter' | 'pro';
+            billingPeriod: 'monthly' | 'yearly';
+        };
 
-        const priceId = getPriceIdForTier(tier);
-
-        if (!priceId) {
-            return NextResponse.json({ error: 'Price ID not configured for this tier' }, { status: 500 });
-        }
-
-        // Get or create customer
-        // Use supabaseAdmin to ensure we can read/write regardless of RLS
-        const { data: userData } = await supabaseAdmin
+        // 4) Load metrics
+        const { data: userMetrics } = await supabaseAdmin
             .from('user_metrics')
-            .select('stripe_customer_id')
+            .select('*')
             .eq('user_id', userId)
             .single();
 
-        let customerId = userData?.stripe_customer_id;
+        if (!userMetrics) {
+            return NextResponse.json({ error: 'User metrics not found' }, { status: 404 });
+        }
+
+        // 5) Promo eligibility
+        const isOfferActive = (() => {
+            if (userMetrics.welcome_offer_used) return false;
+            if (!userMetrics.account_created_at) return false;
+
+            const createdAt = new Date(userMetrics.account_created_at).getTime();
+            const now = Date.now();
+            const fortyEightHours = 48 * 60 * 60 * 1000;
+
+            return now - createdAt < fortyEightHours;
+        })();
+
+        console.log(
+            `[Create Sub] User: ${userId}, Plan: ${plan}, Period: ${billingPeriod}, Promo: ${isOfferActive}`
+        );
+
+        // 6) Price
+        const priceId = getStripePriceId(plan, billingPeriod, isOfferActive);
+
+        // 7) Customer
+        let customerId = (userMetrics.stripe_customer_id as string | null) ?? null;
 
         if (!customerId) {
-            console.log(`Creating new Stripe customer for user ${userId}...`);
+            console.log(`[Create Sub] Creating new customer for ${userId}`);
             const customer = await stripe.customers.create({
-                email: email,
-                metadata: {
-                    userId: userId,
-                },
+                email,
+                metadata: { userId },
             });
-
             customerId = customer.id;
-            console.log(`Created Stripe customer ${customerId}. Saving to database...`);
 
-            // Save to Supabase IMMEDIATELY and wait
-            const { error: updateError } = await supabaseAdmin
+            await supabaseAdmin
                 .from('user_metrics')
                 .update({
                     stripe_customer_id: customerId,
-                    updated_at: new Date().toISOString()
+                    updated_at: new Date().toISOString(),
                 })
                 .eq('user_id', userId);
-
-            if (updateError) {
-                console.error("CRITICAL: Failed to save stripe_customer_id:", updateError);
-                return NextResponse.json({ error: 'Database synchronization failed' }, { status: 500 });
-            }
-            console.log("Database updated with stripe_customer_id.");
-        } else if (email) {
-            // Ensure email is up to date for existing customers
-            await stripe.customers.update(customerId, {
-                email: email,
-            }).catch(err => console.error("Error updating customer email:", err));
         }
 
-        // Create subscription
+        // 8) Check for existing incomplete subscription (idempotency)
+        if (idempotencyKey) {
+            const existingSubscriptions = await stripe.subscriptions.list({
+                customer: customerId,
+                status: 'incomplete',
+                limit: 5,
+            });
+
+            const matchingSub = existingSubscriptions.data.find(
+                (sub) => sub.metadata?.idempotencyKey === idempotencyKey
+            );
+
+            if (matchingSub) {
+                console.log('[Create Sub] Found existing subscription with same idempotency key:', matchingSub.id);
+
+                // Re-fetch with expansions
+                const sub2 = (await stripe.subscriptions.retrieve(matchingSub.id, {
+                    expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
+                })) as any;
+
+                const latestInvoice = sub2.latest_invoice as Stripe.Invoice | string | null;
+                const invoicePI = typeof latestInvoice === 'string' ? null : (latestInvoice as any)?.payment_intent ?? null;
+                const invoicePIClientSecret: string | null = invoicePI?.client_secret ?? null;
+                const setupClientSecret: string | null = sub2?.pending_setup_intent?.client_secret ?? null;
+
+                const clientSecret: string | null = invoicePIClientSecret || setupClientSecret;
+                const intentType: 'payment' | 'setup' = invoicePIClientSecret ? 'payment' : 'setup';
+
+                if (clientSecret) {
+                    return NextResponse.json({
+                        subscriptionId: matchingSub.id,
+                        clientSecret,
+                        customerId,
+                        intentType,
+                    });
+                }
+
+                // Still no secret, return polling response
+                return NextResponse.json({
+                    subscriptionId: matchingSub.id,
+                    clientSecret: null,
+                    intentType: null,
+                    customerId,
+                    needsPolling: true,
+                });
+            }
+        }
+
+        // 9) Create subscription
+        console.log('[Create Sub] Creating new subscription');
         const subscription = await stripe.subscriptions.create({
             customer: customerId,
-            items: [{
-                price: priceId,
-            }],
+            items: [{ price: priceId }],
+            collection_method: 'charge_automatically',
             payment_behavior: 'default_incomplete',
             payment_settings: {
                 save_default_payment_method: 'on_subscription',
-                payment_method_types: ['card', 'paypal']
             },
-            expand: ['latest_invoice.payment_intent'],
+            expand: ['latest_invoice'],
             metadata: {
-                userId: userId,
-                tier: tier,
+                userId,
+                plan,
+                billingPeriod,
+                offerApplied: isOfferActive ? 'true' : 'false',
+                ...(idempotencyKey && { idempotencyKey }),
             },
         });
 
-        // Extract client secret
-        const invoice = subscription.latest_invoice as any;
+        // Re-fetch subscription with the expansions we actually need (more reliable than create response)
+        const sub2 = (await stripe.subscriptions.retrieve(subscription.id, {
+            expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
+        })) as any;
 
-        if (!invoice) {
-            console.error('Subscription created but no invoice generated');
-            return NextResponse.json({ error: 'No invoice generated' }, { status: 500 });
-        }
+        const latestInvoice = sub2.latest_invoice as Stripe.Invoice | string | null;
+        const invoiceId =
+            typeof latestInvoice === 'string' ? latestInvoice : latestInvoice?.id ?? null;
 
-        let clientSecret = invoice.payment_intent?.client_secret;
+        const invoicePI = typeof latestInvoice === 'string' ? null : (latestInvoice as any)?.payment_intent ?? null;
+        const invoicePIClientSecret: string | null = invoicePI?.client_secret ?? null;
 
-        // If payment_intent is not expanded or missing, try to retrieve the invoice properly expanded
-        if (!clientSecret) {
-            try {
-                console.log('Retrieving invoice to expand payment_intent...');
-                const retrievedInvoice = await stripe.invoices.retrieve(invoice.id, {
-                    expand: ['payment_intent']
-                });
+        const setupClientSecret: string | null = sub2?.pending_setup_intent?.client_secret ?? null;
 
-                if ((retrievedInvoice as any).payment_intent) {
-                    const pi = (retrievedInvoice as any).payment_intent;
-                    clientSecret = pi.client_secret;
-                }
-            } catch (e) {
-                console.error('Error retrieving invoice:', e);
+        let clientSecret: string | null = invoicePIClientSecret || setupClientSecret;
+        let intentType: 'payment' | 'setup' = invoicePIClientSecret ? 'payment' : 'setup';
+
+        // If still missing, do ONE deterministic invoice fetch (no finalize/pay)
+        if (!clientSecret && invoiceId) {
+            console.log(`[Create Sub] client_secret missing; retrieving invoice ${invoiceId} w/ expand...`);
+            const fullInvoice = (await stripe.invoices.retrieve(invoiceId, {
+                expand: ['payment_intent'],
+            })) as any;
+
+            console.log('[Create Sub] Invoice debug', {
+                invoiceId: fullInvoice.id,
+                status: fullInvoice.status,
+                amount_due: fullInvoice.amount_due,
+                amount_paid: fullInvoice.amount_paid,
+                collection_method: fullInvoice.collection_method,
+                payment_intent_id: fullInvoice.payment_intent?.id ?? null,
+                payment_intent_type: typeof fullInvoice.payment_intent,
+            });
+
+            const cs = fullInvoice?.payment_intent?.client_secret ?? null;
+            if (cs) {
+                clientSecret = cs;
+                intentType = 'payment';
             }
         }
 
+        console.log('[Create Sub] Final response', {
+            subscriptionId: subscription.id,
+            status: sub2.status,
+            invoiceId,
+            hasClientSecret: Boolean(clientSecret),
+            intentType,
+            needsPolling: !clientSecret,
+        });
+
+        // CRITICAL: Always return 200 with proper structure
         if (!clientSecret) {
-            console.error('Could not find client_secret in subscription invoice', invoice);
-            return NextResponse.json({ error: 'Failed to initialize payment' }, { status: 500 });
-        }
-
-        // Proactive update to Supabase to handle potential webhook delays/missing local delivery
-        const sub = subscription as any;
-
-        // Get the end date from Stripe (Unix timestamp in seconds, convert to milliseconds)
-        let finalEndDate: Date;
-
-        if (sub.current_period_end) {
-            finalEndDate = new Date(sub.current_period_end * 1000);
-            console.log(`[Create Subscription] Using Stripe's period end: ${finalEndDate.toISOString()}`);
-        } else {
-            // Fallback only if Stripe didn't provide a date (very rare)
-            console.warn("[Create Subscription] WARNING: No current_period_end from Stripe, using fallback +31 days");
-            finalEndDate = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
-        }
-
-        console.log(`[Create Subscription] Saving to DB: subscription_id=${subscription.id}, user=${userId}, tier=${tier}, status=active, expires=${finalEndDate.toISOString()}`);
-
-        const { error: finalUpdateError } = await supabaseAdmin
-            .from('user_metrics')
-            .update({
-                stripe_subscription_id: subscription.id,
-                subscription_tier: tier,
-                subscription_status: 'active', // Immediate activation for better local/dev experience
-                subscription_current_period_end: finalEndDate.toISOString(),
-                updated_at: new Date().toISOString()
-            })
-            .eq('user_id', userId);
-
-        if (finalUpdateError) {
-            console.error("[Create Subscription] Error during proactive DB update:", finalUpdateError);
+            return NextResponse.json({
+                subscriptionId: subscription.id,
+                clientSecret: null,
+                intentType: null,
+                customerId,
+                needsPolling: true,
+            });
         }
 
         return NextResponse.json({
             subscriptionId: subscription.id,
-            clientSecret: clientSecret
+            clientSecret,
+            customerId,
+            intentType,
         });
-
-    } catch (error) {
-        console.error('Error creating subscription:', error);
-        return NextResponse.json(
-            { error: 'Failed to create subscription' },
-            { status: 500 }
-        );
+    } catch (error: any) {
+        console.error('[Create Sub] Error:', error?.message, error?.stack);
+        return NextResponse.json({ error: 'Failed to create subscription' }, { status: 500 });
     }
 }

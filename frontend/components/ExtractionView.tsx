@@ -229,8 +229,23 @@ export default function ExtractionView({
         if (!file) return;
 
         // Check for Free Tier Limits
-        if (userMetrics && (!userMetrics.subscription_tier || userMetrics.subscription_tier === 'free')) {
-            if ((userMetrics.free_documents_processed || 0) >= 5) {
+        const isFree = !userMetrics || !userMetrics.subscription_tier || userMetrics.subscription_tier === 'free';
+
+        // Check for Free Tier Limits
+        if (isFree) {
+            if ((userMetrics?.free_documents_processed || 0) >= 5) {
+                setIsLimitModalOpen(true);
+                return;
+            }
+        } else {
+            // Check Paid Tier Limit (Starter/Pro)
+            const creditsUsed = userMetrics?.credits_used || 0;
+            const creditsTotal = userMetrics?.credits_total || 0;
+
+            // If limited (not -1) and exhausted
+            if (creditsTotal !== -1 && creditsUsed >= creditsTotal) {
+                // Show limit modal (reuse similar modal or custom)
+                // For now reusing DocumentLimitModal which redirects to billing
                 setIsLimitModalOpen(true);
                 return;
             }

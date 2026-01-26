@@ -61,7 +61,7 @@ export async function incrementMetric(userId: string | undefined | null, column:
 
         // Side Effects
         if (column === 'documents_processed') {
-            row.credits_used = (row.credits_used || 0) + 10;
+            row.credits_used = (row.credits_used || 0) + 1;
             row.time_saved_hours = (row.time_saved_hours || 0) + 0.5;
 
             // Increment Free Tier Counter automatically

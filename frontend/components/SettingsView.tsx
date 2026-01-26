@@ -83,6 +83,24 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
         }
     }, [searchParams]);
 
+    // Handle Stripe Checkout success/cancel callbacks
+    useEffect(() => {
+        const success = searchParams.get('success');
+        const canceled = searchParams.get('canceled');
+
+        if (success === 'true') {
+            toast.success('Subscription upgrade successful! Your new plan is now active.');
+            // Reload metrics to reflect new subscription
+            if (user?.id) {
+                window.location.href = '/dashboard?tab=settings&view=billing'; // Clean URL
+            }
+        } else if (canceled === 'true') {
+            toast.info('Checkout canceled. You can upgrade anytime from the Billing tab.');
+            // Clean URL
+            window.history.replaceState({}, '', '/dashboard?tab=settings&view=billing');
+        }
+    }, [searchParams, user]);
+
     const handleTabChange = (val: string) => {
         setActiveTab(val);
         const newUrl = new URL(window.location.href);
@@ -98,8 +116,9 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
     };
 
     const handleUpgrade = (tier: string) => {
-        // Logic to prepare checkout with correct Price ID based on promo & period
-        // For now, we reuse the existing modal mechanism but pass the tier
+        if (tier === 'free') return; // Can't "upgrade" to free
+
+        // Open the embedded checkout modal
         setCheckoutTier(tier as SubscriptionTier);
         setIsCheckoutOpen(true);
     };

@@ -3,6 +3,12 @@ import { auth } from '@clerk/nextjs/server';
 import { stripe } from '@/lib/stripe';
 import { createClient } from '@supabase/supabase-js';
 
+function toIsoFromUnixSeconds(value: unknown): string | null {
+    const n = typeof value === 'number' ? value : Number(value);
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return new Date(n * 1000).toISOString();
+}
+
 export async function GET(req: NextRequest) {
     try {
         const { userId } = await auth();
@@ -47,11 +53,42 @@ export async function GET(req: NextRequest) {
         }
 
         // Fetch Product/Price details for display name
+        if (!subscription.items?.data?.[0]) {
+            console.error('[Subscription Details] Subscription has no items');
+            return NextResponse.json({ error: 'Subscription has no items' }, { status: 500 });
+        }
+
         const price = subscription.items.data[0].price;
-        const product = await stripe.products.retrieve(price.product as string);
+
+        if (!price?.product) {
+            console.error('[Subscription Details] Price has no product');
+            return NextResponse.json({ error: 'Price missing product' }, { status: 500 });
+        }
+
+        const productId = typeof price.product === 'string' ? price.product : price.product.id;
+        const product = await stripe.products.retrieve(productId);
 
         // Cast to any to access properties not in strict type definition
         const sub = subscription as any;
+
+        // Extract current_period_end from root OR first item (fallback logic)
+        // Some subscription configurations put the period on the item level
+        let currentPeriodEndRaw = sub.current_period_end;
+
+        if (!currentPeriodEndRaw && sub.items?.data?.[0]?.current_period_end) {
+            console.log('[Subscription Details] Found current_period_end in items.data[0]');
+            currentPeriodEndRaw = sub.items.data[0].current_period_end;
+        }
+
+        let currentPeriodEnd = toIsoFromUnixSeconds(currentPeriodEndRaw);
+
+        if (!currentPeriodEnd) {
+            console.warn('[Subscription Details] Missing current_period_end even in items, using fallback');
+            // Fallback to now + 30 days if absolutely missing
+            const fallbackDate = new Date();
+            fallbackDate.setDate(fallbackDate.getDate() + 30);
+            currentPeriodEnd = fallbackDate.toISOString();
+        }
 
         return NextResponse.json({
             planName: product.name,
@@ -59,15 +96,15 @@ export async function GET(req: NextRequest) {
             currency: price.currency,
             interval: price.recurring?.interval,
             status: sub.status,
-            currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
+            currentPeriodEnd,
             cancelAtPeriodEnd: sub.cancel_at_period_end,
             paymentMethod: paymentMethodDetails
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching subscription details:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch subscription details' },
+            { error: `Failed to fetch subscription details: ${error?.message || 'Unknown error'}` },
             { status: 500 }
         );
     }

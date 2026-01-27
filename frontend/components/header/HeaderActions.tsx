@@ -99,7 +99,7 @@ function UsageIndicator({ metrics }: { metrics: UserMetrics }) {
     // Display string
     const displayString = isFree
         ? `${used} / ${total} docs`
-        : `${used} / ${total === 999999 ? '∞' : (total / 1000).toFixed(0) + 'k'}`;
+        : `${used} / ${total === 999999 ? '∞' : total}`;
 
     return (
         <TooltipProvider delayDuration={300}>

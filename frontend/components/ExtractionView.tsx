@@ -802,8 +802,20 @@ export default function ExtractionView({
                     setIsLimitModalOpen(false);
                     router.push("/dashboard?tab=settings&view=billing");
                 }}
-                accountCreatedAt={userMetrics?.account_created_at}
+                accountCreatedAt={user?.createdAt?.toString()}
                 welcomeOfferUsed={userMetrics?.welcome_offer_used}
+                plan={(userMetrics?.subscription_tier as any) || 'free'}
+                used={
+                    (!userMetrics || !userMetrics.subscription_tier || userMetrics.subscription_tier === 'free')
+                        ? (userMetrics?.free_documents_processed || 0)
+                        : (userMetrics?.credits_used || 0)
+                }
+                limit={
+                    (!userMetrics || !userMetrics.subscription_tier || userMetrics.subscription_tier === 'free')
+                        ? 5
+                        : (userMetrics?.credits_total || 0)
+                }
+                resetsAt={userMetrics?.subscription_current_period_end || undefined}
             />
         </div>
     );

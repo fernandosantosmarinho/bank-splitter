@@ -49,7 +49,7 @@ export async function incrementMetric(userId: string | undefined | null, column:
                 documents_processed: 0,
                 time_saved_hours: 0,
                 success_rate: 99.9,
-                credits_total: 5000,
+                credits_total: 500,
                 credits_used: 0,
                 csv_exports: 0,
                 qbo_exports: 0
@@ -139,7 +139,7 @@ export async function getMetrics(userId: string | undefined | null): Promise<Use
                     documents_processed: 0,
                     time_saved_hours: 0,
                     success_rate: 99.9,
-                    credits_total: 5000, // Or 5 for free tier? Adjust as needed
+                    credits_total: 500, // Or 5 for free tier? Adjust as needed
                     credits_used: 0,
                     csv_exports: 0,
                     qbo_exports: 0,

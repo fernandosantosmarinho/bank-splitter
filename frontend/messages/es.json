@@ -72,19 +72,22 @@
         "success_cancel": "Subscription canceled. Access remains until the billing period ends."
     },
     "Checkout": {
-        "title": "Upgrade Subscription",
-        "description": "Enter your payment details to upgrade to the {tier} plan.",
-        "plan_label": "{tier} Plan",
-        "billed_monthly": "Billed monthly. Cancel anytime.",
-        "pay_button": "Pay ${price}",
-        "cancel_button": "Cancel",
-        "processing": "Processing...",
-        "initializing": "Initializing secure checkout...",
+        "title": "Actualizar Suscripción",
+        "description": "Ingrese sus datos de pago para actualizar al plan {tier}.",
+        "plan_label": "Plan {tier}",
+        "billed_monthly": "Facturado mensualmente. Cancele en cualquier momento.",
+        "billed_yearly": "Facturado anualmente por €{price}",
+        "pay_button": "Pagar €{price}",
+        "cancel_button": "Cancelar",
+        "processing": "Procesando...",
+        "initializing": "Inicializando pago seguro...",
+        "error_timeout": "Tiempo de espera agotado al inicializar el pago. Inténtelo de nuevo.",
+        "error_failed": "Error al inicializar el pago. Inténtelo de nuevo.",
         "success": {
-            "title": "Payment Successful!",
-            "message": "Your subscription is now active."
+            "title": "¡Pago Exitoso!",
+            "message": "Su suscripción ahora está activa."
         },
-        "secured_by": "Payments secured by Stripe"
+        "secured_by": "Pagos seguros vía Stripe"
     },
     "Extraction": {
         "titles": {
@@ -198,8 +201,8 @@
             "for_teams": "For large teams",
             "perfect_for_trying": "Perfect for trying out",
             "features": {
-                "credits_500": "500 credits/month",
-                "credits_5000": "5,000 credits/month",
+                "credits_500": "500 documentos/mes",
+                "credits_pro": "5,000 documentos/mes",
                 "credits_unlimited": "Unlimited credits",
                 "basic_extraction": "Basic extraction",
                 "advanced_extraction": "Advanced extraction",
@@ -291,12 +294,36 @@
             "manage_stripe": "Administrar Suscripción (Stripe)"
         },
         "limit_modal": {
-            "title": "Límite de Prueba Alcanzado",
-            "desc": "¡Has procesado tus 5 documentos gratuitos con éxito! Suscríbete ahora para continuar automatizando tu contabilidad.",
-            "offer_expires": "Oferta de 40% OFF expira en:",
-            "expired": "Oferta expirada",
-            "cta_subscribe": "Ver Planes y Suscribirse",
-            "cta_cancel": "Ahora no, solo ver"
+            "title": "Has completado las 5 pruebas gratuitas",
+            "title_limit_reached": "Límite mensual alcanzado",
+            "desc": "Para continuar procesando documentos, elige un plan.",
+            "desc_starter": "Actualiza a Pro para seguir procesando documentos.",
+            "desc_pro": "Has alcanzado el límite mensual Pro. Se renueva el {date}.",
+            "offer_active_label": "Oferta de Bienvenida (40% OFF permanente)",
+            "offer_expires_label": "Termina en:",
+            "offer_expired_label": "Oferta de bienvenida expirada",
+            "offer_expired_msg": "Aún puedes suscribirte para continuar procesando documentos.",
+            "starter_plan": "Plan Starter",
+            "price_comparison": "€15 → €9/mes",
+            "price_normal": "€15/mes",
+            "savings": "Ahorras €72/año",
+            "feature_more_docs": "Más documentos por mes",
+            "feature_export": "Exportación CSV y Excel",
+            "feature_priority": "Procesamiento prioritario (Pro)",
+            "upgrade_to_pro_title": "Actualizar a Pro",
+            "upgrade_feature_1": "500 documentos/mes",
+            "upgrade_feature_2": "Procesamiento prioritario",
+            "upgrade_feature_3": "Integración QuickBooks",
+            "pro_status_title": "Límite del plan Pro alcanzado",
+            "pro_status_msg": "Has usado {used} de {limit} documentos. Se renueva el {date}.",
+            "documents_used": "Documentos utilizados",
+            "renews": "Se renueva el {date}",
+            "cta_claim_offer": "Reclamar 40% OFF ahora",
+            "cta_subscribe": "Ver planes y suscribirse",
+            "cta_upgrade": "Actualizar a Pro",
+            "cta_view_plans": "Ver todos los planes",
+            "close": "Cerrar",
+            "current_plan_label": "Plan actual: {plan}"
         }
     }
 }

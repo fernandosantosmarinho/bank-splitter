@@ -14,7 +14,7 @@ import { AlertCircle, CheckCircle2, Loader2, Lock, Sparkles } from "lucide-react
 import { toast } from "sonner";
 import { SubscriptionTier } from "@/lib/stripe";
 import { useTheme } from "next-themes";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
@@ -94,7 +94,7 @@ function CheckoutForm({
             <div className="bg-muted/50 p-4 rounded-lg border border-border mb-4">
                 <div className="flex justify-between items-center mb-2">
                     <span className="text-foreground font-medium capitalize flex items-center gap-2">
-                        {tier} Plan
+                        {t('plan_label', { tier })}
                         {isPromoActive && (
                             <span className="inline-flex items-center gap-1 text-xs bg-purple-500/10 text-purple-500 px-2 py-0.5 rounded-full border border-purple-500/20">
                                 <Sparkles className="h-3 w-3" />
@@ -109,8 +109,8 @@ function CheckoutForm({
                 </div>
                 <p className="text-xs text-muted-foreground">
                     {billingPeriod === 'yearly'
-                        ? `Billed annually at €${price.toFixed(2)}`
-                        : 'Billed monthly'}
+                        ? t('billed_yearly', { price: price.toFixed(2) })
+                        : t('billed_monthly')}
                 </p>
             </div>
 
@@ -136,7 +136,7 @@ function CheckoutForm({
                     className="flex-1 border-border text-foreground hover:bg-muted"
                     disabled={isLoading}
                 >
-                    Cancel
+                    {t('cancel_button')}
                 </Button>
                 <Button
                     type="submit"
@@ -144,15 +144,15 @@ function CheckoutForm({
                     className="flex-1 bg-blue-600 hover:bg-blue-500 text-white"
                 >
                     {isLoading ? (
-                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing</>
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('processing')}</>
                     ) : (
-                        <><Lock className="mr-2 h-3 w-3" /> Pay €{displayPrice}</>
+                        <><Lock className="mr-2 h-3 w-3" /> {t('pay_button', { price: displayPrice })}</>
                     )}
                 </Button>
             </div>
 
             <p className="text-center text-[10px] text-muted-foreground flex items-center justify-center gap-1">
-                <Lock className="h-3 w-3" /> Secured by Stripe
+                <Lock className="h-3 w-3" /> {t('secured_by')}
             </p>
         </form>
     );
@@ -179,6 +179,7 @@ export default function CheckoutModal({
 }: CheckoutModalProps) {
     const { theme } = useTheme();
     const t = useTranslations('Checkout');
+    const locale = useLocale();
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [isLoadingSecret, setIsLoadingSecret] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -318,13 +319,13 @@ export default function CheckoutModal({
                     }
 
                     console.error('[CheckoutModal] Poll timeout');
-                    toast.error("Timeout ao iniciar o pagamento. Tente novamente.");
+                    toast.error(t('error_timeout'));
                     onClose();
                     return;
                 }
 
                 console.error('[CheckoutModal] Unexpected response format');
-                toast.error("Falha ao iniciar pagamento. Tente novamente.");
+                toast.error(t('error_failed'));
                 onClose();
             } catch (err: any) {
                 if (err.name === 'AbortError') {
@@ -375,15 +376,15 @@ export default function CheckoutModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md bg-card border border-border text-foreground p-0 overflow-hidden">
-                <DialogHeader className="px-6 pt-6 pb-2">
+            <DialogContent className="sm:max-w-md bg-card border border-border text-foreground p-0 flex flex-col max-h-[90vh]">
+                <DialogHeader className="px-6 pt-6 pb-2 shrink-0">
                     <DialogTitle>{t('title')}</DialogTitle>
                     <DialogDescription className="text-muted-foreground">
                         {t('description', { tier })}
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="px-6 pb-6">
+                <div className="px-6 pb-6 overflow-y-auto">
                     {isSuccess ? (
                         <div className="py-12 flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in zoom-in duration-300">
                             <div className="h-16 w-16 bg-emerald-500/10 rounded-full flex items-center justify-center border border-emerald-500/20">
@@ -407,6 +408,7 @@ export default function CheckoutModal({
                                         stripe={stripePromise}
                                         options={{
                                             clientSecret,
+                                            locale: locale as any,
                                             appearance: {
                                                 theme: theme === 'dark' ? 'night' : 'stripe',
                                                 variables: {

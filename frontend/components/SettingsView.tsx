@@ -38,7 +38,7 @@ import BillingHeader from "./billing/BillingHeader";
 import PricingToggle from "./billing/PricingToggle";
 import PricingCard from "./billing/PricingCard";
 import CurrentSubscriptionCard from "./billing/CurrentSubscriptionCard";
-import DocumentLimitModal from "./billing/DocumentLimitModal";
+
 
 interface SettingsViewProps {
     user: UserResource;
@@ -67,6 +67,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
     // Translation Hooks
     const t = useTranslations('Settings');
     const tCommon = useTranslations('Common');
+    const tBilling = useTranslations('BillingNew');
     const locale = useLocale() as Locale;
 
     // Use centralized hook for offer state
@@ -132,29 +133,28 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
 
     return (
         <div className="max-w-6xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="mb-8">
+            <div className="mb-6">
                 <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('title')}</h1>
-                <p className="text-muted-foreground mt-1">{t('subtitle')}</p>
             </div>
 
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <div className="border-b border-border w-full mb-6">
-                    <TabsList className="flex w-full max-w-none bg-transparent h-12 p-0 justify-start gap-8">
+                <div className="border-b border-border w-full mb-4">
+                    <TabsList className="flex w-full max-w-none bg-transparent h-12 p-0 justify-between items-center">
                         <TabsTrigger
                             value="general"
-                            className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 text-muted-foreground data-[state=active]:text-foreground font-medium transition-all"
+                            className="flex-1 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 text-muted-foreground data-[state=active]:text-foreground font-medium transition-all"
                         >
                             {t('tabs.general')}
                         </TabsTrigger>
                         <TabsTrigger
                             value="billing"
-                            className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 text-muted-foreground data-[state=active]:text-foreground font-medium transition-all"
+                            className="flex-1 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 text-muted-foreground data-[state=active]:text-foreground font-medium transition-all"
                         >
                             {t('tabs.billing')}
                         </TabsTrigger>
                         <TabsTrigger
                             value="api"
-                            className="bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 text-muted-foreground data-[state=active]:text-foreground font-medium transition-all"
+                            className="flex-1 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-4 text-muted-foreground data-[state=active]:text-foreground font-medium transition-all"
                         >
                             {t('tabs.api')}
                         </TabsTrigger>
@@ -162,7 +162,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                 </div>
 
                 {/* --- GENERAL TAB --- */}
-                <TabsContent value="general" className="space-y-6 max-w-4xl">
+                <TabsContent value="general" className="space-y-6 w-full">
                     {/* Profile Card */}
                     <Card className="bg-card border-border">
                         <CardHeader>
@@ -233,19 +233,16 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
 
                 {/* --- BILLING TAB (REFECTORED) --- */}
                 {/* --- BILLING TAB (REFECTORED) --- */}
-                <TabsContent value="billing" className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <TabsContent value="billing" className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
 
                     {/* Welcome Offer Banner - Slim & Integrated */}
                     <BillingHeader userMetrics={stats} />
 
                     {/* Pricing Section */}
-                    <div id="pricing-section" className="space-y-4">
-                        <div className="text-center mb-4">
-                            <h2 className="text-2xl font-bold text-foreground">Escolha o plano ideal para você</h2>
-                        </div>
+                    <div id="pricing-section" className="space-y-2">
 
                         {(!stats.subscription_tier || stats.subscription_tier === 'free') && (
-                            <div className="mb-4">
+                            <div className="mb-4 mt-6">
                                 <PricingToggle
                                     billingPeriod={billingPeriod}
                                     onToggle={setBillingPeriod}
@@ -290,7 +287,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                 </TabsContent>
 
                 {/* --- API TAB --- */}
-                <TabsContent value="api" className="space-y-6 max-w-4xl">
+                <TabsContent value="api" className="space-y-6 w-full">
                     <Card className="bg-card border-border">
                         <CardHeader>
                             <CardTitle className="text-card-foreground flex items-center gap-2">

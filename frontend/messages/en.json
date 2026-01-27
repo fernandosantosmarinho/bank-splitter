@@ -76,10 +76,13 @@
         "description": "Enter your payment details to upgrade to the {tier} plan.",
         "plan_label": "{tier} Plan",
         "billed_monthly": "Billed monthly. Cancel anytime.",
-        "pay_button": "Pay ${price}",
+        "billed_yearly": "Billed annually at €{price}",
+        "pay_button": "Pay €{price}",
         "cancel_button": "Cancel",
         "processing": "Processing...",
         "initializing": "Initializing secure checkout...",
+        "error_timeout": "Timeout initializing payment. Please try again.",
+        "error_failed": "Failed to initialize payment. Please try again.",
         "success": {
             "title": "Payment Successful!",
             "message": "Your subscription is now active."
@@ -198,8 +201,8 @@
             "for_teams": "For large teams",
             "perfect_for_trying": "Perfect for trying out",
             "features": {
-                "credits_500": "500 credits/month",
-                "credits_5000": "5,000 credits/month",
+                "credits_500": "500 documents/month",
+                "credits_pro": "5,000 documents/month",
                 "credits_unlimited": "Unlimited credits",
                 "basic_extraction": "Basic extraction",
                 "advanced_extraction": "Advanced extraction",
@@ -241,7 +244,8 @@
             "welcome_offer_desc": "Permanent discount on any plan if you subscribe now.",
             "welcome_offer_desc_prefix": "Subscribe to any plan in the next",
             "welcome_offer_desc_suffix": "and get 40% off permanently.",
-            "view_plans": "View Plans"
+            "view_plans": "View Plans",
+            "choose_plan_title": "Choose the perfect plan for you"
         },
         "toggle": {
             "monthly": "Monthly",
@@ -292,7 +296,10 @@
         },
         "limit_modal": {
             "title": "You have completed the 5 free tests",
+            "title_limit_reached": "Monthly limit reached",
             "desc": "To continue processing documents, choose a plan.",
+            "desc_starter": "Upgrade to Pro to keep processing documents.",
+            "desc_pro": "You've reached the Pro monthly limit. Renews on {date}.",
             "offer_active_label": "Welcome Offer (40% OFF forever)",
             "offer_expires_label": "Ends in:",
             "offer_expired_label": "Welcome offer expired",
@@ -304,10 +311,20 @@
             "feature_more_docs": "More documents per month",
             "feature_export": "CSV & Excel Export",
             "feature_priority": "Priority processing (Pro)",
+            "upgrade_to_pro_title": "Upgrade to Pro",
+            "upgrade_feature_1": "500 documents/month",
+            "upgrade_feature_2": "Priority processing",
+            "upgrade_feature_3": "QuickBooks integration",
+            "pro_status_title": "Pro plan limit reached",
+            "pro_status_msg": "You have used {used} of {limit} documents. Renews on {date}.",
+            "documents_used": "Documents used",
+            "renews": "Renews on {date}",
             "cta_claim_offer": "Claim 40% OFF now",
             "cta_subscribe": "View plans and subscribe",
+            "cta_upgrade": "Upgrade to Pro",
             "cta_view_plans": "View all plans",
-            "close": "Close"
+            "close": "Close",
+            "current_plan_label": "Current plan: {plan}"
         }
     }
 }

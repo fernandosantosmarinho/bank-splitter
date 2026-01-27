@@ -22,10 +22,10 @@ export default function BillingHeader({ userMetrics }: BillingHeaderProps) {
     }
 
     return (
-        <div className="w-full mb-6 bg-gradient-to-r from-indigo-600 to-purple-500 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-500">
+        <div className="w-full mb-4 bg-gradient-to-r from-indigo-600 to-purple-500 rounded-lg p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg animate-in fade-in slide-in-from-top-2 duration-500">
             <div className="flex items-center gap-4 w-full justify-center sm:justify-start">
                 <div className="p-2 bg-white/10 rounded-full animate-pulse hidden sm:block">
-                    <Gift className="h-6 w-6 text-yellow-300" />
+                    <Gift className="h-6 w-6 text-white" />
                 </div>
                 <div className="text-center sm:text-left">
                     <h3 className="font-bold text-white text-lg tracking-tight">

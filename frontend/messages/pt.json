@@ -72,19 +72,22 @@
         "success_cancel": "Subscription canceled. Access remains until the billing period ends."
     },
     "Checkout": {
-        "title": "Upgrade Subscription",
-        "description": "Enter your payment details to upgrade to the {tier} plan.",
-        "plan_label": "{tier} Plan",
-        "billed_monthly": "Billed monthly. Cancel anytime.",
-        "pay_button": "Pay ${price}",
-        "cancel_button": "Cancel",
-        "processing": "Processing...",
-        "initializing": "Initializing secure checkout...",
+        "title": "Atualizar Assinatura",
+        "description": "Insira seus dados de pagamento para atualizar para o plano {tier}.",
+        "plan_label": "Plano {tier}",
+        "billed_monthly": "Cobrado mensalmente. Cancele a qualquer momento.",
+        "billed_yearly": "Cobrado anualmente por €{price}",
+        "pay_button": "Pagar €{price}",
+        "cancel_button": "Cancelar",
+        "processing": "Processando...",
+        "initializing": "Inicializando checkout seguro...",
+        "error_timeout": "Tempo esgotado ao inicializar o pagamento. Tente novamente.",
+        "error_failed": "Falha ao inicializar o pagamento. Tente novamente.",
         "success": {
-            "title": "Payment Successful!",
-            "message": "Your subscription is now active."
+            "title": "Pagamento Bem-sucedido!",
+            "message": "Sua assinatura agora está ativa."
         },
-        "secured_by": "Payments secured by Stripe"
+        "secured_by": "Pagamentos seguros via Stripe"
     },
     "Extraction": {
         "titles": {
@@ -198,8 +201,8 @@
             "for_teams": "For large teams",
             "perfect_for_trying": "Perfect for trying out",
             "features": {
-                "credits_500": "500 credits/month",
-                "credits_5000": "5,000 credits/month",
+                "credits_500": "500 documentos/mês",
+                "credits_pro": "5,000 documentos/mês",
                 "credits_unlimited": "Unlimited credits",
                 "basic_extraction": "Basic extraction",
                 "advanced_extraction": "Advanced extraction",
@@ -241,7 +244,8 @@
             "welcome_offer_desc": "Desconto permanente em qualquer plano se assinar agora.",
             "welcome_offer_desc_prefix": "Assine qualquer plano nas próximas",
             "welcome_offer_desc_suffix": "e ganhe 40% de desconto permanente.",
-            "view_plans": "Ver Planos"
+            "view_plans": "Ver Planos",
+            "choose_plan_title": "Escolha o plano ideal para você"
         },
         "toggle": {
             "monthly": "Mensal",
@@ -292,7 +296,10 @@
         },
         "limit_modal": {
             "title": "Você concluiu os 5 testes gratuitos",
+            "title_limit_reached": "Limite mensal atingido",
             "desc": "Para continuar processando documentos, escolha um plano.",
+            "desc_starter": "Faça upgrade para o Pro para continuar processando.",
+            "desc_pro": "Você atingiu o limite mensal do Pro. Renova em {date}.",
             "offer_active_label": "Oferta de Boas‑Vindas (40% OFF permanente)",
             "offer_expires_label": "Termina em:",
             "offer_expired_label": "Oferta de boas‑vindas expirada",
@@ -304,10 +311,20 @@
             "feature_more_docs": "Mais documentos por mês",
             "feature_export": "Exportação CSV & Excel",
             "feature_priority": "Processamento prioritário (Pro)",
+            "upgrade_to_pro_title": "Upgrade para Pro",
+            "upgrade_feature_1": "500 documentos/mês",
+            "upgrade_feature_2": "Processamento prioritário",
+            "upgrade_feature_3": "Integração QuickBooks",
+            "pro_status_title": "Limite do plano Pro atingido",
+            "pro_status_msg": "Você utilizou {used} de {limit} documentos. Renova em {date}.",
+            "documents_used": "Documentos utilizados",
+            "renews": "Renova em {date}",
             "cta_claim_offer": "Garantir 40% OFF agora",
             "cta_subscribe": "Ver planos e assinar",
+            "cta_upgrade": "Upgrade para Pro",
             "cta_view_plans": "Ver todos os planos",
-            "close": "Fechar"
+            "close": "Fechar",
+            "current_plan_label": "Plano atual: {plan}"
         }
     }
 }

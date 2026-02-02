@@ -3,7 +3,7 @@
         "nav": {
             "navigation_title": "Navigation",
             "account_title": "Compte",
-            "overview": "Aperçu",
+            "overview": "Vue d'ensemble",
             "extract_statement": "Extraire Relevé",
             "extract_check": "Extraire Chèque",
             "settings": "Paramètres"
@@ -12,31 +12,31 @@
             "greeting_morning": "Bonjour",
             "greeting_afternoon": "Bon Après-midi",
             "greeting_evening": "Bonsoir",
-            "plan": "Plan",
+            "plan": "Forfait",
             "usage": "Utilisation",
             "top_up": "RECHARGER",
             "menu": {
                 "language": "Langue",
                 "manage_account": "Gérer le compte",
-                "sign_out": "Se déconnecter"
+                "sign_out": "Déconnexion"
             }
         },
         "overview": {
-            "title": "Aperçu de l'espace de travail",
+            "title": "Vue d'ensemble",
             "subtitle": "Vos analyses d'extraction en un coup d'œil",
             "new_extraction": "Nouvelle Extraction",
             "documents": "Documents",
             "time_saved": "Temps Gagné",
             "exports": "Exportations",
-            "how_we_estimate": "Basé sur 15 min de saisie manuelle par relevé",
+            "how_we_estimate": "Basé sur une moyenne de 15 min par relevé manuel",
             "not_stored": "Non stocké",
-            "privacy_title": "Traitement axé sur la confidentialité",
+            "privacy_title": "Traitement respectueux de la vie privée",
             "privacy_desc": "Nous ne stockons pas les fichiers de relevés téléchargés. Cet historique est un journal d'audit de ce que vous avez traité et téléchargé.",
             "processing_history": "Historique de Traitement",
             "history_cols": {
                 "file_name": "Nom du Fichier",
                 "rows_extracted": "Lignes extraites",
-                "downloads": "Exportations",
+                "downloads": "Exportations téléchargées",
                 "processed_at": "Traité le",
                 "privacy": "Confidentialité"
             },
@@ -54,32 +54,35 @@
         "per_interval": "/{interval}",
         "status_active": "Actif",
         "status_cancels_soon": "Annulation imminente",
-        "renews_on": "Renouvellement le",
+        "renews_on": "Renouvelle le",
         "access_ends_on": "L'accès se termine le",
         "expires": "Expire le {date}",
         "cancel_button": "Annuler l'abonnement",
-        "scheduled_button": "Annulation programmée",
+        "scheduled_button": "Annulation Programmée",
         "keep_plan": "Garder le forfait",
         "confirm_cancel": "Confirmer l'annulation",
-        "cancelling": "Annulation...",
+        "cancelling": "Annulation en cours...",
         "confirm_title": "Annuler l'abonnement ?",
         "confirm_desc": "Vous conserverez l'accès jusqu'à la fin de votre cycle de facturation ({date}). Cette action est irréversible.",
         "cancellation_scheduled_desc": "Votre forfait restera actif jusqu'à la fin de la période de facturation.",
-        "no_active_sub": "Aucun détail d'abonnement actif trouvé.",
+        "no_active_sub": "Aucun abonnement actif trouvé.",
         "close": "Fermer",
         "error_load": "Impossible de charger les détails de l'abonnement",
         "error_cancel": "Échec de l'annulation de l'abonnement",
-        "success_cancel": "Abonnement annulé. L'accès reste actif jusqu'à la fin de la période."
+        "success_cancel": "Abonnement annulé. L'accès reste disponible jusqu'à la fin de la période."
     },
     "Checkout": {
-        "title": "Mettre à niveau l'abonnement",
-        "description": "Entrez vos coordonnées bancaires pour passer au plan {tier}.",
-        "plan_label": "Plan {tier}",
-        "billed_monthly": "Facturé mensuellement. Annulable à tout moment.",
-        "pay_button": "Payer ${price}",
+        "title": "Mettre à niveau",
+        "description": "Saisissez vos informations de paiement pour passer au forfait {tier}.",
+        "plan_label": "Forfait {tier}",
+        "billed_monthly": "Facturé mensuellement. Annulez à tout moment.",
+        "billed_yearly": "Facturé annuellement à €{price}",
+        "pay_button": "Payer €{price}",
         "cancel_button": "Annuler",
         "processing": "Traitement...",
         "initializing": "Initialisation du paiement sécurisé...",
+        "error_timeout": "Délai d'attente dépassé. Veuillez réessayer.",
+        "error_failed": "Échec de l'initialisation du paiement. Veuillez réessayer.",
         "success": {
             "title": "Paiement Réussi !",
             "message": "Votre abonnement est maintenant actif."
@@ -89,9 +92,9 @@
     "Extraction": {
         "titles": {
             "extract_statement": "Extraction de Relevé Bancaire",
-            "extract_check": "Numérisation de Chèque",
-            "desc_statement": "Extrayez en toute sécurité des PDF bancaires vers CSV/QBO.",
-            "desc_check": "Téléchargez des images de chèques pour la reconnaissance d'écriture."
+            "extract_check": "Scan de Chèque",
+            "desc_statement": "Extraire en toute sécurité des PDF bancaires vers CSV/QBO.",
+            "desc_check": "Télécharger des images de chèques pour la reconnaissance d'écriture."
         },
         "dropzone": {
             "click_to_upload": "Cliquez pour télécharger",
@@ -104,13 +107,13 @@
             "title": "Traitement...",
             "encryption_active": "Chiffrement Actif",
             "discarding": "Suppression du Fichier",
-            "discarding_desc": "Le document d'origine est supprimé en toute sécurité de la mémoire du serveur.",
+            "discarding_desc": "Le document original est supprimé en toute sécurité de la mémoire du serveur.",
             "zero_retention": "Politique de Zéro Rétention",
-            "start_extraction": "Lancer l'Extraction",
+            "start_extraction": "Démarrer l'extraction",
             "init": "Initialisation du moteur d'extraction...",
             "steps": {
                 "secure_enclave": "Initialisation de l'enclave sécurisée...",
-                "layout": "Analyse de la mise en page et de la géométrie...",
+                "layout": "Analyse de la mise en page...",
                 "columns": "Détection des colonnes dynamiques...",
                 "financial": "Alignement des types financiers...",
                 "integrity": "Validation de l'intégrité...",
@@ -123,7 +126,7 @@
         },
         "results": {
             "title": "Résultats d'Extraction",
-            "subtitle": "Examinez les données extraites et téléchargez les exportations.",
+            "subtitle": "Vérifiez les données extraites et téléchargez les fichiers.",
             "upload_another": "Télécharger un autre relevé",
             "total_credit": "Crédit Total",
             "total_debit": "Débit Total",
@@ -136,7 +139,7 @@
             "filter_all": "Tout",
             "filter_debit": "Débit",
             "filter_credit": "Crédit",
-            "clear_filters": "Effacer les filtres"
+            "clear_filters": "Effacer Filtres"
         },
         "file_summary": {
             "status_success": "Succès",
@@ -146,7 +149,7 @@
             "download_csv": "Télécharger CSV",
             "download_qbo": "Télécharger QBO",
             "more_actions": "Plus d'actions",
-            "view_pdf": "Voir le PDF original",
+            "view_pdf": "Voir PDF original",
             "reprocess": "Retraiter",
             "delete": "Supprimer"
         }
@@ -162,7 +165,7 @@
         "general": {
             "profile": {
                 "title": "Informations du Profil",
-                "description": "Mettez à jour vos données personnelles.",
+                "description": "Mettez à jour vos informations personnelles.",
                 "label_name": "Nom Complet",
                 "label_email": "Adresse Email"
             },
@@ -170,25 +173,25 @@
                 "title": "Préférences",
                 "language": "Langue",
                 "language_desc": "Choisissez votre langue préférée pour l'interface",
-                "notifications": "Notifications par email",
+                "notifications": "Notifications par Email",
                 "notifications_desc": "Recevez des résumés de vos extractions.",
-                "appearance": "Mode d'apparence",
-                "appearance_desc": "Basculer entre le mode sombre et le mode clair."
+                "appearance": "Mode d'Apparence",
+                "appearance_desc": "Basculer entre le thème sombre pro et le thème clair."
             },
-            "save": "Enregistrer",
+            "save": "Enregistrer les modifications",
             "saving": "Enregistrement..."
         },
         "billing": {
-            "upgrade_title": "Améliorez votre Plan",
-            "upgrade_subtitle": "Choisissez le plan qui correspond le mieux à vos besoins",
+            "upgrade_title": "Mettez à niveau votre forfait",
+            "upgrade_subtitle": "Choisissez le forfait qui correspond le mieux à vos besoins",
             "per_month": "par mois",
-            "current_plan": "Plan Actuel",
+            "current_plan": "Forfait Actuel",
             "upgrade_to": "Passer à {tier}",
             "current_subscription": "Abonnement Actuel",
             "current_tier": "Niveau {tier}",
-            "renews_on": "Renouvellement le {date}",
+            "renews_on": "Renouvelle le {date}",
             "ends_on": "Se termine le {date}",
-            "cancels_soon": "Annulation imminente",
+            "cancels_soon": "S'annule bientôt",
             "active": "Actif",
             "credits_used": "Crédits Utilisés",
             "credits_info": "1 Document = 10 Crédits",
@@ -198,17 +201,17 @@
             "for_teams": "Pour les grandes équipes",
             "perfect_for_trying": "Parfait pour essayer",
             "features": {
-                "credits_500": "500 crédits/mois",
-                "credits_5000": "5 000 crédits/mois",
+                "credits_500": "500 documents/mois",
+                "credits_pro": "5,000 documents/mois",
                 "credits_unlimited": "Crédits illimités",
                 "basic_extraction": "Extraction de base",
                 "advanced_extraction": "Extraction avancée",
-                "csv_qbo": "Exports CSV et QBO",
+                "csv_qbo": "Exports CSV & QBO",
                 "priority_processing": "Traitement prioritaire",
                 "api_access": "Accès API",
                 "email_support": "Support par email",
                 "priority_support": "Support prioritaire",
-                "all_pro": "Toutes les fonctionnalités Pro",
+                "all_pro": "Toutes les fonctions Pro",
                 "dedicated_manager": "Gestionnaire dédié",
                 "custom_integrations": "Intégrations personnalisées",
                 "phone_support": "Support téléphonique 24/7"
@@ -229,19 +232,20 @@
     },
     "Common": {
         "loading": "Chargement...",
-        "plan_free": "Plan Gratuit",
-        "plan_starter": "Plan Starter",
-        "plan_pro": "Plan Pro",
-        "plan_enterprise": "Plan Entreprise"
+        "plan_free": "Forfait Gratuit",
+        "plan_starter": "Forfait Starter",
+        "plan_pro": "Forfait Pro",
+        "plan_business": "Forfait Business",
+        "plan_enterprise": "Forfait Enterprise"
     },
     "BillingNew": {
         "header": {
             "welcome_offer_title": "Offre de Bienvenue",
-            "welcome_offer_desc": "Réduction permanente sur tout forfait si vous vous abonnez maintenant.",
-            "welcome_offer_desc_prefix": "Abonnez-vous à n'importe quel plan dans les prochaines",
+            "welcome_offer_desc": "Remise permanente sur tout forfait si vous vous abonnez maintenant.",
+            "welcome_offer_desc_prefix": "Abonnez-vous à n'importe quel forfait dans les prochaines",
             "welcome_offer_desc_suffix": "et obtenez 40% de réduction permanente.",
-            "view_plans": "Voir les Plans",
-            "choose_plan_title": "Choisissez le plan parfait pour vous"
+            "view_plans": "Voir les Forfaits",
+            "choose_plan_title": "Choisissez le forfait idéal pour vous"
         },
         "toggle": {
             "monthly": "Mensuel",
@@ -250,7 +254,7 @@
         },
         "cards": {
             "plan_free_desc": "Pour tester et petits volumes",
-            "plan_starter_desc": "Pour freelances et auto-entrepreneurs",
+            "plan_starter_desc": "Pour freelances et indépendants",
             "plan_pro_desc": "Pour comptables et petites entreprises",
             "plan_business_desc": "Pour grands volumes",
             "feature_5_docs": "5 documents/mois",
@@ -260,47 +264,47 @@
             "feature_basic_extraction": "Extraction de base",
             "feature_advanced_extraction": "Extraction avancée",
             "feature_csv_export": "Export CSV",
-            "feature_csv_excel_export": "Export CSV & Excel",
+            "feature_csv_excel_export": "Exports CSV & Excel",
             "feature_quickbooks": "Intégration QuickBooks",
             "feature_priority_proc": "Traitement prioritaire",
             "feature_priority_supp": "Support prioritaire",
             "feature_api_access": "Accès API",
             "feature_dedicated_manager": "Gestionnaire dédié",
-            "subscribe": "Souscrire {plan}",
-            "current_plan": "Plan Actuel",
+            "subscribe": "S'abonner {plan}",
+            "current_plan": "Forfait Actuel",
             "processing": "Traitement...",
-            "billed_yearly_save": "Facturé annuellement (Économie appliquée)",
+            "billed_yearly_save": "Facturé annuellement (Économies appliquées)",
             "billed_yearly_val": "Facturé annuellement (€{amount} total)",
             "per_month": "/mois",
             "popular": "Populaire",
             "off": "OFF",
-            "welcome_offer_badge": "Offre de Bienvenue"
+            "welcome_offer_badge": "Offre Bienvenue"
         },
         "current_sub": {
             "title": "Abonnement Actuel",
-            "plan_label": "Plan",
-            "renews_in": "Renouvellement le :",
-            "cancels_in": "Annulation le :",
-            "free_tier_label": "Plan Gratuit",
+            "plan_label": "Forfait",
+            "renews_in": "Renouvelle dans :",
+            "cancels_in": "Annule dans :",
+            "free_tier_label": "Forfait Gratuit",
             "active": "Actif",
             "past_due": "En retard",
             "free_docs_label": "Documents Gratuits",
-            "usage_credits_label": "Crédits d'Utilisation",
-            "free_tier_desc": "Vous avez 5 essais gratuits pour valider l'outil.",
+            "usage_credits_label": "Crédits d'utilisation",
+            "free_tier_desc": "Vous avez 5 tests gratuits pour valider l'outil.",
             "paid_tier_desc": "Les crédits se renouvellent au début de chaque cycle.",
-            "manage_stripe": "Gérer l'Abonnement (Stripe)"
+            "manage_stripe": "Gérer l'abonnement (Stripe)"
         },
         "limit_modal": {
-            "title": "Vous avez terminé les 5 essais gratuits",
+            "title": "Vous avez terminé les 5 tests gratuits",
             "title_limit_reached": "Limite mensuelle atteinte",
-            "desc": "Pour continuer à traiter des documents, choisissez un plan.",
+            "desc": "Pour continuer à traiter des documents, choisissez un forfait.",
             "desc_starter": "Passez à Pro pour continuer le traitement.",
-            "desc_pro": "Vous avez atteint la limite mensuelle Pro. Renouvellement le {date}.",
+            "desc_pro": "Vous avez atteint la limite mensuelle Pro. Renouvelle le {date}.",
             "offer_active_label": "Offre de Bienvenue (40% OFF à vie)",
             "offer_expires_label": "Se termine dans :",
-            "offer_expired_label": "Offre de bienvenue expirée",
+            "offer_expired_label": "Offre expirée",
             "offer_expired_msg": "Vous pouvez toujours vous abonner pour traiter des documents.",
-            "starter_plan": "Plan Starter",
+            "starter_plan": "Forfait Starter",
             "price_comparison": "€15 → €9/mois",
             "price_normal": "€15/mois",
             "savings": "Vous économisez €72/an",
@@ -311,16 +315,61 @@
             "upgrade_feature_1": "500 documents/mois",
             "upgrade_feature_2": "Traitement prioritaire",
             "upgrade_feature_3": "Intégration QuickBooks",
-            "pro_status_title": "Limite du plan Pro atteinte",
-            "pro_status_msg": "Vous avez utilisé {used} sur {limit} documents. Renouvellement le {date}.",
+            "pro_status_title": "Limite forfait Pro atteinte",
+            "pro_status_msg": "Vous avez utilisé {used} sur {limit} documents. Renouvelle le {date}.",
             "documents_used": "Documents utilisés",
-            "renews": "Renouvellement le {date}",
+            "renews": "Renouvelle le {date}",
             "cta_claim_offer": "Réclamer 40% OFF maintenant",
-            "cta_subscribe": "Voir les plans et s'abonner",
+            "cta_subscribe": "Voir les forfaits et s'abonner",
             "cta_upgrade": "Passer à Pro",
-            "cta_view_plans": "Voir tous les plans",
+            "cta_view_plans": "Voir tous les forfaits",
             "close": "Fermer",
-            "current_plan_label": "Plan actuel : {plan}"
+            "current_plan_label": "Forfait actuel : {plan}"
+        }
+    },
+    "DeveloperDocs": {
+        "title": "Documentation API",
+        "subtitle": "Guide complet pour intégrer BankToBook dans votre flux de travail.",
+        "sections": {
+            "authentication": "Authentification",
+            "constraints": "Contraintes & Politiques",
+            "endpoints": "Points de terminaison",
+            "errors": "Codes d'erreur"
+        },
+        "auth": {
+            "description": "Tous les points de terminaison (sauf /health) nécessitent une clé API.",
+            "header": "En-tête"
+        },
+        "constraints": {
+            "retention": "1. Politique de Rétention",
+            "retention_input": "Fichiers d'entrée : Supprimés immédiatement après traitement.",
+            "retention_output": "Fichiers de sortie : Disponibles au téléchargement pendant 60 secondes.",
+            "idempotency": "2. Idempotence",
+            "idempotency_desc": "Le endpoint /convert nécessite un en-tête Idempotency-Key.",
+            "concurrency": "3. Concurrence",
+            "concurrency_desc": "Les travaux sont mis en file d'attente et traités de manière asynchrone."
+        },
+        "endpoints": {
+            "health": "1. Vérification de Santé",
+            "usage": "2. Vérifier l'Utilisation",
+            "convert": "3. Convertir PDF",
+            "status": "4. Obtenir le Statut du Travail",
+            "download": "5. Télécharger la Sortie"
+        },
+        "descriptions": {
+            "health_desc": "Renvoie 200 OK si le service est sain.",
+            "usage_desc": "Renvoie l'utilisation actuelle du quota mensuel.",
+            "convert_desc": "Téléchargez un fichier PDF pour lancer le traitement.",
+            "status_desc": "Interrogez ce endpoint pour vérifier la progression.",
+            "download_desc": "Téléchargez le fichier CSV ou QBO généré."
+        },
+        "labels": {
+            "request": "Requête",
+            "response": "Réponse",
+            "headers": "En-têtes",
+            "body": "Corps",
+            "form_data": "Données de Formulaire",
+            "query_params": "Paramètres de Requête"
         }
     }
 }

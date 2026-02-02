@@ -88,8 +88,8 @@ export async function createCheckoutSession(params: {
                 quantity: 1,
             },
         ],
-        success_url: params.successUrl,
-        cancel_url: params.cancelUrl,
+        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?canceled=true`,
         client_reference_id: params.userId,
         metadata: {
             userId: params.userId,

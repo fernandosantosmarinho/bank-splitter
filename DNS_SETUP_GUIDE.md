@@ -264,23 +264,257 @@ A Vercel vai fazer deploy automaticamente.
 
 ## 🔑 PARTE 5: Atualizar Clerk (Autenticação)
 
-### **Passo 1: Atualizar URLs no Clerk Dashboard**
+### **⚠️ IMPORTANTE: Verificar Modo de Desenvolvimento vs. Produção**
+
+Antes de configurar os paths, você precisa verificar se está usando uma instância de **Development** ou **Production**.
+
+#### **Como Identificar o Modo Atual**
 
 1. Acesse: https://dashboard.clerk.com
-2. Selecione seu projeto
-3. Vá em **Paths** ou **URLs**
-4. Atualize:
-   - **Home URL**: `https://banktobook.com`
-   - **Sign-in URL**: `https://banktobook.com/sign-in`
-   - **Sign-up URL**: `https://banktobook.com/sign-up`
-   - **After sign-in**: `https://banktobook.com/dashboard`
-   - **After sign-up**: `https://banktobook.com/dashboard`
+2. Faça login na sua aplicação
+3. No canto inferior esquerdo, procure por:
+   - 🟠 **"Development mode"** = Instância de desenvolvimento
+   - 🟢 **"Production"** ou sem badge = Instância de produção
 
-### **Passo 2: Adicionar Domínio Permitido**
+#### **Por que isso importa?**
 
-Em **Allowed Origins** ou **CORS**, adicione:
-- `https://banktobook.com`
-- `https://www.banktobook.com`
+- **Development mode**: 
+  - ✅ Usa variável `$DEVHOST` (localhost, URLs dinâmicas)
+  - ✅ Ideal para testes locais
+  - ❌ **NÃO deve ser usado em produção**
+  - ❌ Pode ter limitações de segurança
+
+- **Production mode**:
+  - ✅ URLs fixas e seguras
+  - ✅ Configuração adequada para domínio real
+  - ✅ Sem limitações de segurança
+
+---
+
+### **🚀 Passo 0: Migrar de Development para Production (SE NECESSÁRIO)**
+
+Se você está em **Development mode**, siga estes passos para criar uma instância de produção:
+
+#### **Opção A: Criar Nova Instância de Produção (RECOMENDADO)**
+
+1. No dashboard do Clerk, clique no **nome do projeto** no canto superior esquerdo
+2. Clique em **"+ Create application"**
+3. Configure:
+   - **Name**: `BankToBook Production` (ou nome de sua preferência)
+   - **Environment**: Selecione **"Production"**
+   - **Authentication methods**: Marque as mesmas opções que você usa atualmente (ex: Email, Google)
+4. Clique em **"Create application"**
+
+#### **Opção B: Promover Instância Atual (se disponível)**
+
+Alguns planos do Clerk permitem promover uma instância de desenvolvimento para produção:
+
+1. Vá em **Settings** → **General**
+2. Procure por **"Promote to production"** ou similar
+3. Se disponível, clique e confirme
+
+⚠️ **Nota**: Esta opção pode não estar disponível em todos os planos.
+
+#### **Passo 0.1: Copiar Configurações**
+
+Se você criou uma nova instância, copie as configurações importantes da instância antiga:
+
+1. **Provedores OAuth** (Google, etc.):
+   - Settings → Authentication → Social connections
+   - Configure os mesmos provedores
+
+2. **Email templates** (se personalizados):
+   - Settings → Emails
+   - Copie os templates customizados
+
+3. **Webhooks** (se houver):
+   - Settings → Webhooks
+   - Recrie os webhooks
+
+#### **Passo 0.2: Atualizar Chaves na Vercel**
+
+1. Na nova instância de produção, vá em **API Keys**
+2. Copie:
+   - **Publishable key** (começa com `pk_live_...`)
+   - **Secret key** (começa com `sk_live_...`)
+
+3. Atualize na Vercel:
+   - Acesse: https://vercel.com/dashboard
+   - Selecione o projeto `bank-splitter`
+   - Vá em **Settings** → **Environment Variables**
+   - Atualize:
+     ```env
+     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_... (nova chave)
+     CLERK_SECRET_KEY=sk_live_... (nova chave)
+     ```
+
+4. **Importante**: Faça um novo deploy após atualizar as chaves:
+   ```bash
+   git commit --allow-empty -m "chore: update Clerk to production instance"
+   git push origin main
+   ```
+
+---
+
+### **Passo 0.3: Configurar DNS do Clerk no Namecheap**
+
+Agora você precisa adicionar registros CNAME para que o Clerk funcione corretamente com seu domínio.
+
+#### **1. Acessar Namecheap DNS**
+
+1. Acesse: https://www.namecheap.com
+2. Vá em **Domain List** → Clique em **Manage** ao lado de `banktobook.com`
+3. Clique na aba **Advanced DNS**
+
+#### **2. Adicionar Registros CNAME do Clerk**
+
+Adicione os seguintes registros CNAME (clique em "ADD NEW RECORD" para cada um):
+
+| Type | Host | Value | TTL |
+|------|------|-------|-----|
+| `CNAME` | `clerk` | `frontend-api.clerk.services.` | Automatic |
+| `CNAME` | `accounts` | `accounts.clerk.services.` | Automatic |
+| `CNAME` | `clkmail` | `mail.dahao6ne972h.clerk.services.` | Automatic |
+| `CNAME` | `clk._domainkey` | `dkim1.dahao6ne972h.clerk.services.` | Automatic |
+| `CNAME` | `clk2._domainkey` | `dkim2.dahao6ne972h.clerk.services.` | Automatic |
+
+⚠️ **IMPORTANTE**: 
+- Os valores `dahao6ne972h` podem ser diferentes no seu caso. Copie exatamente os valores que aparecem na página **Domains** → **Configure** do Clerk.
+- Não esqueça o ponto final (`.`) no final de cada valor CNAME.
+
+#### **3. Aguardar Propagação**
+
+Após adicionar os registros:
+- Aguarde 5-30 minutos para propagação DNS
+- Volte ao Clerk e clique em **"Verify configuration"** para verificar
+
+#### **4. Verificar no Clerk**
+
+1. Volte para o dashboard do Clerk
+2. Vá em **Developers** → **Domains** → **Configure**
+3. Clique em **"Verify configuration"**
+4. Todos os registros devem aparecer como **"Verified"** (verde)
+
+---
+
+### **Passo 0.4: Configurar Domínios Permitidos (CORS)**
+
+Agora vamos configurar os domínios que podem fazer requisições ao Clerk.
+
+#### **1. Acessar Allowed Subdomains**
+
+1. No dashboard do Clerk, vá em **Developers** → **Domains**
+2. Clique na aba **"Allowed Subdomains"** (terceira aba no topo)
+
+#### **2. Adicionar Domínios**
+
+Adicione os seguintes domínios (um por vez):
+
+1. Clique em **"+ Add domain"** ou similar
+2. Adicione:
+   - `banktobook.com`
+   - `www.banktobook.com`
+   - `localhost:3000` (apenas para desenvolvimento local, opcional)
+
+3. Clique em **"Save"** ou **"Add"**
+
+⚠️ **Nota**: 
+- **NÃO** adicione `https://` ou `http://` antes dos domínios
+- Apenas o domínio puro: `banktobook.com`
+
+#### **3. Verificar Configuração**
+
+Após adicionar, você deve ver os domínios listados como permitidos.
+
+---
+
+### **Passo 1: Acessar Configurações de Paths**
+
+1. Acesse: https://dashboard.clerk.com
+2. Selecione sua **instância de PRODUÇÃO** (verifique se não está em "Development mode")
+3. No menu lateral, clique em **"Paths"**
+
+### **Passo 2: Configurar Development Host (Opcional)**
+
+Na seção **"Development host"**:
+- **Fallback development host**: Deixe em branco ou configure `http://localhost:3000` se você desenvolve localmente
+- Este campo é usado apenas para desenvolvimento local
+
+### **Passo 3: Configurar Application Paths**
+
+Na seção **"Application paths"**:
+
+#### **Home URL**
+1. Localize o campo **"Home URL"**
+2. **REMOVA** a variável `$DEVHOST` se estiver presente
+3. Configure apenas: `https://banktobook.com`
+4. ⚠️ **IMPORTANTE**: O erro "The path must be either relative or an empty string" aparece quando você usa `$DEVHOST` em produção
+5. A URL deve ser **relativa** (começando com `/`) ou **absoluta** (começando com `https://`)
+
+**Configuração correta**:
+```
+https://banktobook.com
+```
+
+#### **Unauthorized sign in URL**
+1. Configure: `https://banktobook.com/sign-in`
+2. Ou deixe em branco para usar o padrão
+
+### **Passo 4: Configurar Component Paths**
+
+Na seção **"Component paths"**, você verá duas opções para cada componente:
+- **Account Portal** (Clerk-hosted)
+- **Development host** (seu domínio)
+
+#### **<SignIn /> - Sign-in page**
+1. Selecione a opção: **"Sign-in page on development host"** (segundo radio button)
+2. Isso garante que o login aconteça no seu domínio `banktobook.com`
+3. A URL será automaticamente: `https://banktobook.com/sign-in`
+
+#### **<SignUp /> - Sign-up page**
+1. Selecione a opção: **"Sign-up page on development host"** (segundo radio button)
+2. Isso garante que o registro aconteça no seu domínio `banktobook.com`
+3. A URL será automaticamente: `https://banktobook.com/sign-up`
+
+#### **Signing Out**
+1. Selecione a opção: **"Page on development host"** (segundo radio button)
+2. Isso garante que após logout, o usuário seja redirecionado para seu domínio
+3. A URL será automaticamente: `https://banktobook.com/sign-in`
+
+### **Passo 5: Salvar Alterações**
+
+1. Clique no botão **"Save"** no canto inferior direito
+2. Aguarde a confirmação de que as mudanças foram salvas
+
+### **Passo 6: Adicionar Domínios Permitidos (CORS)**
+
+1. No menu lateral do Clerk, vá em **"Settings"** ou **"Domains"**
+2. Procure por **"Allowed origins"** ou **"CORS settings"**
+3. Adicione os seguintes domínios:
+   - `https://banktobook.com`
+   - `https://www.banktobook.com`
+   - `http://localhost:3000` (apenas para desenvolvimento local)
+
+### **Passo 7: Verificar Variáveis de Ambiente**
+
+Certifique-se de que as seguintes variáveis estão configuradas na Vercel:
+
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...
+CLERK_SECRET_KEY=sk_live_...
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+```
+
+### **Resumo da Configuração Final**
+
+✅ **Home URL**: `https://banktobook.com`  
+✅ **Sign-in**: Development host (não Account Portal)  
+✅ **Sign-up**: Development host (não Account Portal)  
+✅ **Sign-out**: Development host (não Account Portal)  
+✅ **Allowed origins**: `https://banktobook.com`, `https://www.banktobook.com`
 
 ---
 

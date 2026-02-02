@@ -16,11 +16,13 @@ import {
     Loader2,
     ShieldCheck,
     Menu,
-    Download
+    Download,
+    Terminal
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ExtractionView from "@/components/ExtractionView";
 import SettingsView from "@/components/SettingsView";
+import DeveloperSettingsView from "@/components/DeveloperSettingsView";
 import SubscriptionBadge from "@/components/SubscriptionBadge";
 import { useTranslations } from "next-intl";
 import { HeaderActions } from "@/components/header/HeaderActions";
@@ -34,17 +36,8 @@ interface HistoryItem {
     rowsExtracted?: number;
     timestamp?: number;
 }
+//... MOCK_HISTORY content...
 
-const MOCK_HISTORY: HistoryItem[] = [
-    { name: "Statement_Jan_2026.pdf", time: "Today, 10:42 AM", size: "1.2 MB", downloads: ["CSV", "QBO"], rowsExtracted: 237, timestamp: Date.now() - 2 * 60 * 60 * 1000 },
-    { name: "Amex_Dec_2025_Final.pdf", time: "Yesterday, 4:15 PM", size: "2.4 MB", downloads: ["CSV"], rowsExtracted: 189, timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000 },
-    { name: "Chase_Check_#1024.jpg", time: "Jan 19, 2:30 PM", size: "0.8 MB", downloads: [], rowsExtracted: 1, timestamp: Date.now() - 5 * 24 * 60 * 60 * 1000 },
-    { name: "Invoice_Q4_Consulting.pdf", time: "Jan 18, 9:00 AM", size: "0.5 MB", downloads: ["QBO"], rowsExtracted: 42, timestamp: Date.now() - 6 * 24 * 60 * 60 * 1000 },
-    { name: "Boa_Statement_Nov25.pdf", time: "Jan 15, 11:20 AM", size: "1.8 MB", downloads: ["CSV"], rowsExtracted: 312, timestamp: Date.now() - 9 * 24 * 60 * 60 * 1000 },
-    { name: "Receipt_Uber_Trip.png", time: "Jan 12, 8:45 PM", size: "0.4 MB", downloads: [], rowsExtracted: 1, timestamp: Date.now() - 12 * 24 * 60 * 60 * 1000 },
-    { name: "WellsFargo_Check_99.jpg", time: "Jan 10, 1:15 PM", size: "0.9 MB", downloads: ["CSV"], rowsExtracted: 1, timestamp: Date.now() - 14 * 24 * 60 * 60 * 1000 },
-    { name: "Payroll_Summary_2025.pdf", time: "Jan 05, 10:00 AM", size: "3.1 MB", downloads: ["CSV", "QBO"], rowsExtracted: 156, timestamp: Date.now() - 19 * 24 * 60 * 60 * 1000 }
-];
 
 function DashboardContent() {
     const { user, isLoaded: isUserLoaded } = useUser();
@@ -61,20 +54,21 @@ function DashboardContent() {
     const [period, setPeriod] = useState<'7D' | '30D' | '90D' | 'All'>('30D');
 
     useEffect(() => {
-        const stored = localStorage.getItem("processing_history");
+        if (!user) return;
+        const key = `processing_history_${user.id}`;
+        const stored = localStorage.getItem(key);
         if (stored) {
             setHistory(JSON.parse(stored));
         } else {
-            setHistory(MOCK_HISTORY);
-            localStorage.setItem("processing_history", JSON.stringify(MOCK_HISTORY));
+            setHistory([]);
         }
-    }, []);
+    }, [user]);
 
     useEffect(() => {
-        if (history.length > 0) {
-            localStorage.setItem("processing_history", JSON.stringify(history));
-        }
-    }, [history]);
+        if (!user || history.length === 0) return;
+        const key = `processing_history_${user.id}`;
+        localStorage.setItem(key, JSON.stringify(history));
+    }, [history, user]);
 
     useEffect(() => {
         if (isUserLoaded && !user) {
@@ -142,7 +136,7 @@ function DashboardContent() {
         documents_processed: 0,
         time_saved_hours: 0,
         success_rate: 99.9,
-        credits_total: 500,
+        credits_total: 5,
         credits_used: 0,
         csv_exports: 0,
         qbo_exports: 0,
@@ -206,6 +200,7 @@ function DashboardContent() {
                             <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 px-2 tracking-wider">{t('nav.account_title')}</p>
                             <nav className="space-y-1">
                                 <SidebarItem icon={<Settings className="h-4 w-4" />} label={t('nav.settings')} active={currentTab === "settings"} onClick={() => { router.push("/dashboard?tab=settings"); setIsMobileMenuOpen(false); }} />
+                                <SidebarItem icon={<Terminal className="h-4 w-4" />} label="Developer API" active={currentTab === "developer"} onClick={() => { router.push("/dashboard?tab=developer"); setIsMobileMenuOpen(false); }} />
                             </nav>
                         </div>
                     </div>
@@ -336,6 +331,7 @@ function DashboardContent() {
                     )}
 
                     {currentTab === "settings" && <SettingsView user={user} stats={currentStats} />}
+                    {currentTab === "developer" && <DeveloperSettingsView />}
                 </main>
             </div>
         </div>

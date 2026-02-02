@@ -13,7 +13,8 @@ export default function BillingHeader({ userMetrics }: BillingHeaderProps) {
     // Use centralized hook - single source of truth
     const offer = useWelcomeOffer(
         userMetrics?.account_created_at,
-        userMetrics?.welcome_offer_used
+        userMetrics?.welcome_offer_used,
+        userMetrics?.welcome_offer_expires_at
     );
 
     // Don't render if offer is not active

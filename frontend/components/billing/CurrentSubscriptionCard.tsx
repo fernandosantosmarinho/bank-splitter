@@ -21,8 +21,8 @@ export default function CurrentSubscriptionCard({ userMetrics, onManage, isLoadi
     const isFree = !userMetrics.subscription_tier || userMetrics.subscription_tier === 'free';
 
     // Usage Logic
-    const usage = isFree ? userMetrics.free_documents_processed || 0 : userMetrics.credits_used || 0;
-    const limit = isFree ? 5 : userMetrics.credits_total || 500;
+    const usage = userMetrics.credits_used || 0;
+    const limit = userMetrics.credits_total || (isFree ? 5 : 0);
     const percentage = Math.min((usage / limit) * 100, 100);
 
     const getProgressColorByUsage = (u: number, l: number) => {

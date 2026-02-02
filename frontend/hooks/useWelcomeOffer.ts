@@ -20,12 +20,20 @@ export interface WelcomeOfferState {
  */
 export function useWelcomeOffer(
     accountCreatedAtIso: string | null | undefined,
-    welcomeOfferUsed: boolean | null | undefined
+    welcomeOfferUsed: boolean | null | undefined,
+    explicitExpiresAtIso?: string | null | undefined
 ): WelcomeOfferState {
     const [remainingMs, setRemainingMs] = useState<number>(0);
 
-    // Calculate expiration time (48 hours from account creation)
+    // Calculate expiration time
     const expiresAtMs = (() => {
+        // Priority 1: Explicit DB Expiration
+        if (explicitExpiresAtIso) {
+            const expMs = Date.parse(explicitExpiresAtIso);
+            if (!Number.isNaN(expMs)) return expMs;
+        }
+
+        // Priority 2: Calculated from creation (Fallback)
         if (!accountCreatedAtIso) return 0;
 
         const createdAtMs = Date.parse(accountCreatedAtIso);

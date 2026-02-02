@@ -326,5 +326,50 @@
             "close": "Close",
             "current_plan_label": "Current plan: {plan}"
         }
+    },
+    "DeveloperDocs": {
+        "title": "API Documentation",
+        "subtitle": "Comprehensive guide to integrating BankSplitter into your workflow.",
+        "sections": {
+            "authentication": "Authentication",
+            "constraints": "Constraints & Policies",
+            "endpoints": "Endpoints",
+            "errors": "Error Codes"
+        },
+        "auth": {
+            "description": "All endpoints (except /health) require an API Key.",
+            "header": "Header"
+        },
+        "constraints": {
+            "retention": "1. Retention Policy",
+            "retention_input": "Input Files: Deleted immediately after processing.",
+            "retention_output": "Output Files: Available for download for 60 seconds after job completion.",
+            "idempotency": "2. Idempotency",
+            "idempotency_desc": "The /convert endpoint requires an Idempotency-Key header to prevent duplicates.",
+            "concurrency": "3. Concurrency",
+            "concurrency_desc": "Jobs are queued and processed asynchronously."
+        },
+        "endpoints": {
+            "health": "1. Health Check",
+            "usage": "2. Check Usage",
+            "convert": "3. Convert PDF",
+            "status": "4. Get Job Status",
+            "download": "5. Download Output"
+        },
+        "descriptions": {
+            "health_desc": "Returns 200 OK if service is healthy.",
+            "usage_desc": "Returns current monthly quota usage.",
+            "convert_desc": "Upload a PDF file to start processing.",
+            "status_desc": "Poll this endpoint to check progress.",
+            "download_desc": "Download the generated CSV or QBO file."
+        },
+        "labels": {
+            "request": "Request",
+            "response": "Response",
+            "headers": "Headers",
+            "body": "Body",
+            "form_data": "Form Data",
+            "query_params": "Query Parameters"
+        }
     }
 }

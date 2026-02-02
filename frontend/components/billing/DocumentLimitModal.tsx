@@ -12,6 +12,7 @@ interface DocumentLimitModalProps {
     onViewPlans: () => void;
     accountCreatedAt?: string;
     welcomeOfferUsed?: boolean;
+    welcomeOfferExpiresAt?: string;
     plan?: 'free' | 'starter' | 'pro' | 'business' | 'enterprise'; // Expanded plan types
     used?: number;
     limit?: number;
@@ -25,6 +26,7 @@ export default function DocumentLimitModal({
     onViewPlans,
     accountCreatedAt,
     welcomeOfferUsed,
+    welcomeOfferExpiresAt,
     plan = 'free',
     used = 0,
     limit = 5,
@@ -34,7 +36,7 @@ export default function DocumentLimitModal({
     const locale = useLocale();
 
     // Use centralized hook - single source of truth (Only relevant for Free plan)
-    const offer = useWelcomeOffer(accountCreatedAt, welcomeOfferUsed);
+    const offer = useWelcomeOffer(accountCreatedAt, welcomeOfferUsed, welcomeOfferExpiresAt);
 
     // Animation classes for smooth entry
     const animationClasses = "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-300";

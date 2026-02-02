@@ -326,5 +326,50 @@
             "close": "Fechar",
             "current_plan_label": "Plano atual: {plan}"
         }
+    },
+    "DeveloperDocs": {
+        "title": "Documentação da API",
+        "subtitle": "Guia completo para integrar o BankSplitter ao seu fluxo de trabalho.",
+        "sections": {
+            "authentication": "Autenticação",
+            "constraints": "Restrições e Políticas",
+            "endpoints": "Endpoints",
+            "errors": "Códigos de Erro"
+        },
+        "auth": {
+            "description": "Todos os endpoints (exceto /health) exigem uma Chave de API.",
+            "header": "Cabeçalho"
+        },
+        "constraints": {
+            "retention": "1. Política de Retenção",
+            "retention_input": "Arquivos de Entrada: Excluídos imediatamente após o processamento.",
+            "retention_output": "Arquivos de Saída: Disponíveis para download por 60 segundos após a conclusão.",
+            "idempotency": "2. Idempotência",
+            "idempotency_desc": "O endpoint /convert requer um cabeçalho Idempotency-Key para evitar duplicatas.",
+            "concurrency": "3. Concorrência",
+            "concurrency_desc": "Trabalhos são enfileirados e processados de forma assíncrona."
+        },
+        "endpoints": {
+            "health": "1. Verificação de Saúde",
+            "usage": "2. Verificar Uso",
+            "convert": "3. Converter PDF",
+            "status": "4. Verificar Status",
+            "download": "5. Baixar Resultado"
+        },
+        "descriptions": {
+            "health_desc": "Retorna 200 OK se o serviço estiver saudável.",
+            "usage_desc": "Retorna o uso atual da cota mensal.",
+            "convert_desc": "Faça upload de um arquivo PDF para iniciar o processamento.",
+            "status_desc": "Consulte este endpoint para verificar o progresso.",
+            "download_desc": "Baixe o arquivo CSV ou QBO gerado."
+        },
+        "labels": {
+            "request": "Requisição",
+            "response": "Resposta",
+            "headers": "Cabeçalhos",
+            "body": "Corpo",
+            "form_data": "Dados do Formulário",
+            "query_params": "Parâmetros de Consulta"
+        }
     }
 }

@@ -80,8 +80,8 @@ function UsageIndicator({ metrics }: { metrics: UserMetrics }) {
     const isFree = !metrics.subscription_tier || metrics.subscription_tier === 'free';
 
     // Define usage and total based on plan
-    const used = isFree ? (metrics.free_documents_processed || 0) : metrics.credits_used;
-    const total = isFree ? 5 : metrics.credits_total;
+    const used = metrics.credits_used || 0;
+    const total = metrics.credits_total || (isFree ? 5 : 0);
 
     const percent = total === 999999 ? 0 : Math.min((used / total) * 100, 100);
 

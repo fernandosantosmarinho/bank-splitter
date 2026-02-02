@@ -231,24 +231,14 @@ export default function ExtractionView({
         // Check for Free Tier Limits
         const isFree = !userMetrics || !userMetrics.subscription_tier || userMetrics.subscription_tier === 'free';
 
-        // Check for Free Tier Limits
-        if (isFree) {
-            if ((userMetrics?.free_documents_processed || 0) >= 5) {
-                setIsLimitModalOpen(true);
-                return;
-            }
-        } else {
-            // Check Paid Tier Limit (Starter/Pro)
-            const creditsUsed = userMetrics?.credits_used || 0;
-            const creditsTotal = userMetrics?.credits_total || 0;
+        // Check Limits (Universal)
+        const creditsUsed = userMetrics?.credits_used || 0;
+        const creditsTotal = userMetrics?.credits_total || 5; // Default to 5 if undefined
 
-            // If limited (not -1) and exhausted
-            if (creditsTotal !== -1 && creditsUsed >= creditsTotal) {
-                // Show limit modal (reuse similar modal or custom)
-                // For now reusing DocumentLimitModal which redirects to billing
-                setIsLimitModalOpen(true);
-                return;
-            }
+        // If limited (not -1) and exhausted
+        if (creditsTotal !== -1 && creditsUsed >= creditsTotal) {
+            setIsLimitModalOpen(true);
+            return;
         }
 
         setIsLoading(true);
@@ -802,19 +792,12 @@ export default function ExtractionView({
                     setIsLimitModalOpen(false);
                     router.push("/dashboard?tab=settings&view=billing");
                 }}
-                accountCreatedAt={user?.createdAt?.toString()}
+                accountCreatedAt={userMetrics?.account_created_at}
                 welcomeOfferUsed={userMetrics?.welcome_offer_used}
+                welcomeOfferExpiresAt={userMetrics?.welcome_offer_expires_at}
                 plan={(userMetrics?.subscription_tier as any) || 'free'}
-                used={
-                    (!userMetrics || !userMetrics.subscription_tier || userMetrics.subscription_tier === 'free')
-                        ? (userMetrics?.free_documents_processed || 0)
-                        : (userMetrics?.credits_used || 0)
-                }
-                limit={
-                    (!userMetrics || !userMetrics.subscription_tier || userMetrics.subscription_tier === 'free')
-                        ? 5
-                        : (userMetrics?.credits_total || 0)
-                }
+                used={(userMetrics?.credits_used || 0)}
+                limit={(userMetrics?.credits_total || 5)}
                 resetsAt={userMetrics?.subscription_current_period_end || undefined}
             />
         </div>

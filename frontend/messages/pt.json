@@ -1,48 +1,48 @@
 {
     "Dashboard": {
         "nav": {
-            "navigation_title": "Navigation",
-            "account_title": "Account",
-            "overview": "Overview",
-            "extract_statement": "Extract Statement",
-            "extract_check": "Extract Check",
-            "settings": "Settings"
+            "navigation_title": "Navegação",
+            "account_title": "Conta",
+            "overview": "Visão Geral",
+            "extract_statement": "Extrair Extrato",
+            "extract_check": "Extrair Cheque",
+            "settings": "Configurações"
         },
         "header": {
-            "greeting_morning": "Good Morning",
-            "greeting_afternoon": "Good Afternoon",
-            "greeting_evening": "Good Evening",
-            "plan": "Plan",
-            "usage": "Usage",
-            "top_up": "TOP UP",
+            "greeting_morning": "Bom Dia",
+            "greeting_afternoon": "Boa Tarde",
+            "greeting_evening": "Boa Noite",
+            "plan": "Plano",
+            "usage": "Uso",
+            "top_up": "RECARGA",
             "menu": {
-                "language": "Language",
-                "manage_account": "Manage Account",
-                "sign_out": "Sign out"
+                "language": "Idioma",
+                "manage_account": "Gerenciar Conta",
+                "sign_out": "Sair"
             }
         },
         "overview": {
-            "title": "Workspace Overview",
-            "subtitle": "Your extraction analytics at a glance",
-            "new_extraction": "New Extraction",
-            "documents": "Documents",
-            "time_saved": "Time Saved",
-            "exports": "Exports",
-            "how_we_estimate": "Based on 15 min avg manual entry per statement",
-            "not_stored": "Not stored",
-            "privacy_title": "Privacy-first processing",
-            "privacy_desc": "We don't store uploaded statement files. This history is an audit log of what you processed and what exports you downloaded at the time.",
-            "processing_history": "Processing History",
+            "title": "Visão Geral",
+            "subtitle": "Suas métricas de extração em resumo",
+            "new_extraction": "Nova Extração",
+            "documents": "Documentos",
+            "time_saved": "Tempo Salvo",
+            "exports": "Exportações",
+            "how_we_estimate": "Baseado na média de 15 min por extrato manual",
+            "not_stored": "Não armazenado",
+            "privacy_title": "Processamento com privacidade",
+            "privacy_desc": "Não armazenamos arquivos enviados. Este histórico é apenas um registro do que você processou e baixou.",
+            "processing_history": "Histórico de Processamento",
             "history_cols": {
-                "file_name": "File Name",
-                "rows_extracted": "Rows extracted",
-                "downloads": "Downloaded exports",
-                "processed_at": "Processed At",
-                "privacy": "Privacy"
+                "file_name": "Nome do Arquivo",
+                "rows_extracted": "Linhas extraídas",
+                "downloads": "Downloads",
+                "processed_at": "Processado em",
+                "privacy": "Privacidade"
             },
             "period": {
-                "all_time": "All time",
-                "last_days": "Last {days} days"
+                "all_time": "Todo o período",
+                "last_days": "Últimos {days} dias"
             }
         }
     },

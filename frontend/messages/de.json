@@ -216,7 +216,7 @@
         },
         "api": {
             "title": "API-Zugriff",
-            "description": "Verwenden Sie diesen Schlüssel zur Authentifizierung bei der BankSplitter-API.",
+            "description": "Verwenden Sie diesen Schlüssel zur Authentifizierung bei der BankToBook-API.",
             "secret_key": "Geheimer Schlüssel",
             "copy": "Kopieren",
             "warning": "Teilen Sie diesen Schlüssel mit niemandem.",

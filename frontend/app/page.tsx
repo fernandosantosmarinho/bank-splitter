@@ -27,7 +27,7 @@ export default async function Home() {
                         <div className="bg-blue-600 p-1.5 rounded-lg shadow-lg shadow-blue-600/20">
                             <Database className="h-5 w-5 text-white" />
                         </div>
-                        <span className="text-lg font-bold tracking-tight text-white">BankSplitter</span>
+                        <span className="text-lg font-bold tracking-tight text-white">BankToBook</span>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -66,7 +66,7 @@ export default async function Home() {
                     </h1>
 
                     <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
-                        Stop wasting hours on manual data entry. BankSplitter uses advanced AI to extract transactions from PDF statements and Check images with 99.9% accuracy.
+                        Stop wasting hours on manual data entry. BankToBook uses advanced AI to extract transactions from PDF statements and Check images with 99.9% accuracy.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -176,7 +176,7 @@ export default async function Home() {
                 <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-2">
                         <Database className="h-5 w-5 text-slate-600" />
-                        <span className="text-slate-500 font-semibold">BankSplitter © 2026</span>
+                        <span className="text-slate-500 font-semibold">BankToBook © 2026</span>
                     </div>
                     <div className="flex items-center gap-8 text-sm text-slate-500">
                         <a href="#" className="hover:text-white transition-colors">Privacy</a>

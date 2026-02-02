@@ -430,7 +430,7 @@ export default function DeveloperSettingsView() {
                         <CardHeader>
                             <CardTitle>Your API Keys</CardTitle>
                             <CardDescription>
-                                Use these keys to authenticate requests to the BankSplitter API.
+                                Use these keys to authenticate requests to the BankToBook API.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>

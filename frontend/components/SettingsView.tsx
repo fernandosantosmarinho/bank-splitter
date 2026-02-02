@@ -321,7 +321,7 @@ export default function SettingsView({ user, stats }: SettingsViewProps) {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-4 pt-0 font-mono text-xs text-muted-foreground">
-                                    <p>curl -X POST https://api.banksplitter.com/v1/extract \</p>
+                                    <p>curl -X POST https://api.banktobook.com/v1/extract \</p>
                                     <p className="pl-4">-H "Authorization: Bearer <span className="text-orange-500">{apiKey.substring(0, 10)}...</span>" \</p>
                                     <p className="pl-4">-F "file=@statement.pdf"</p>
                                 </CardContent>

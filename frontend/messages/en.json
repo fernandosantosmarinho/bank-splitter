@@ -219,7 +219,7 @@
         },
         "api": {
             "title": "API Access",
-            "description": "Use this key to authenticate with the BankSplitter API.",
+            "description": "Use this key to authenticate with the BankToBook API.",
             "secret_key": "Secret Key",
             "copy": "Copy",
             "warning": "Do not share this key with anyone.",
@@ -329,7 +329,7 @@
     },
     "DeveloperDocs": {
         "title": "API Documentation",
-        "subtitle": "Comprehensive guide to integrating BankSplitter into your workflow.",
+        "subtitle": "Comprehensive guide to integrating BankToBook into your workflow.",
         "sections": {
             "authentication": "Authentication",
             "constraints": "Constraints & Policies",

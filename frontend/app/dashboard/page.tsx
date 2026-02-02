@@ -166,7 +166,7 @@ function DashboardContent() {
                             <div className="bg-primary/10 p-1.5 rounded-lg shadow-sm border border-primary/10">
                                 <Wallet className="h-5 w-5 text-primary" />
                             </div>
-                            <span className="text-lg font-bold tracking-tight text-foreground hidden md:inline-block">BankSplitter</span>
+                            <span className="text-lg font-bold tracking-tight text-foreground hidden md:inline-block">BankToBook</span>
                         </div>
                     </div>
 

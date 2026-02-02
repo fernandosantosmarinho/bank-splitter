@@ -13,7 +13,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "BankSplitter AI",
+  title: "BankToBook AI",
   description: "Convert & Split Bank Statements Automatically",
 };
 

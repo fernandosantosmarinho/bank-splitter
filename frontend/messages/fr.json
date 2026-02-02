@@ -216,7 +216,7 @@
         },
         "api": {
             "title": "Accès API",
-            "description": "Utilisez cette clé pour vous authentifier avec l'API BankSplitter.",
+            "description": "Utilisez cette clé pour vous authentifier avec l'API BankToBook.",
             "secret_key": "Clé Secrète",
             "copy": "Copier",
             "warning": "Ne partagez cette clé avec personne.",

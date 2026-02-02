@@ -254,14 +254,11 @@ export default function ExtractionView({
         }, 800);
 
         try {
-            // Ensure API URL doesn't have a trailing slash
-            const apiUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
             const formData = new FormData();
             formData.append("file", file);
 
-            // The API_URL environment variable should include '/api/v1' (local) or '/v1' (prod)
-            // This prevents duplication issues like '.../v1/api/v1/...'
-            const response = await fetch(`${apiUrl}/extract`, {
+            // Use local proxy to avoid CORS and handle Auth automatically
+            const response = await fetch(`/api/extract`, {
                 method: 'POST',
                 body: formData
             });

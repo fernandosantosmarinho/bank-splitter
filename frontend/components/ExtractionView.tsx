@@ -254,11 +254,14 @@ export default function ExtractionView({
         }, 800);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            // Ensure API URL doesn't have a trailing slash
+            const apiUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
             const formData = new FormData();
             formData.append("file", file);
 
-            const response = await fetch(`${apiUrl}/api/v1/extract`, {
+            // The API_URL environment variable should include '/api/v1' (local) or '/v1' (prod)
+            // This prevents duplication issues like '.../v1/api/v1/...'
+            const response = await fetch(`${apiUrl}/extract`, {
                 method: 'POST',
                 body: formData
             });

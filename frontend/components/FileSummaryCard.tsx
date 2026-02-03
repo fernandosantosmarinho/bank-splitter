@@ -47,9 +47,11 @@ export function FileSummaryCard({
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         {/* Left: Icon + Name + Badge */}
                         <div className="flex items-start gap-4 min-w-0">
-                            <div className="flex h-10 w-10 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-lg border bg-muted/50">
-                                <FileText className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-                            </div>
+                            <img
+                                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUVuBR5MudnFGv9N-q2RHGeosFr-Ruc08Kqw&s"
+                                alt="PDF"
+                                className="h-10 w-10 sm:h-12 sm:w-12 object-contain shrink-0"
+                            />
                             <div className="min-w-0 space-y-1">
                                 <div className="flex items-center gap-2">
                                     <h3

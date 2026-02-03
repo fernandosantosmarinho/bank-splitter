@@ -274,7 +274,11 @@ function DashboardContent() {
                                         <div key={i} className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-border last:border-0 hover:bg-muted/40 transition-colors items-center">
                                             {/* Col 1: File Info */}
                                             <div className="col-span-4 flex items-center gap-3 overflow-hidden">
-                                                <div className="p-2 bg-background rounded border border-border shrink-0"><FileText className="h-4 w-4 text-muted-foreground" /></div>
+                                                <img
+                                                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUVuBR5MudnFGv9N-q2RHGeosFr-Ruc08Kqw&s"
+                                                    alt="PDF"
+                                                    className="h-8 w-8 object-contain shrink-0"
+                                                />
                                                 <div className="min-w-0">
                                                     <p className="text-sm font-medium truncate text-foreground">{item.name}</p>
                                                     <p className="text-[10px] text-muted-foreground">{item.size}</p>

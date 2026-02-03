@@ -275,7 +275,7 @@ function DashboardContent() {
                                             {/* Col 1: File Info */}
                                             <div className="col-span-4 flex items-center gap-3 overflow-hidden">
                                                 <img
-                                                    src="/pdf-icon.svg"
+                                                    src="/pdf_icon.png"
                                                     alt="PDF"
                                                     className="h-8 w-8 object-contain shrink-0"
                                                 />

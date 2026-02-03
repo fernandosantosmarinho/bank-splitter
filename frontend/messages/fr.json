@@ -36,7 +36,7 @@
             "history_cols": {
                 "file_name": "Nom du Fichier",
                 "rows_extracted": "Lignes extraites",
-                "downloads": "Exportations téléchargées",
+                "downloads": "Téléchargements Effectués",
                 "processed_at": "Traité le",
                 "privacy": "Confidentialité"
             },

@@ -36,7 +36,7 @@
             "history_cols": {
                 "file_name": "File Name",
                 "rows_extracted": "Rows extracted",
-                "downloads": "Downloaded exports",
+                "downloads": "Completed Downloads",
                 "processed_at": "Processed At",
                 "privacy": "Privacy"
             },

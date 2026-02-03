@@ -48,7 +48,7 @@ export function FileSummaryCard({
                         {/* Left: Icon + Name + Badge */}
                         <div className="flex items-start gap-4 min-w-0">
                             <img
-                                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUVuBR5MudnFGv9N-q2RHGeosFr-Ruc08Kqw&s"
+                                src="/pdf-icon.svg"
                                 alt="PDF"
                                 className="h-10 w-10 sm:h-12 sm:w-12 object-contain shrink-0"
                             />

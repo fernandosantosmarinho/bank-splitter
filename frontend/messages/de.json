@@ -370,6 +370,62 @@
             "body": "Körper",
             "form_data": "Formulardaten",
             "query_params": "Abfrageparameter"
+        },
+        "workflow": {
+            "step_1_title": "1. Konvertierung starten",
+            "step_1_desc": "Laden Sie einen PDF-Kontoauszug für die asynchrone Extraktion hoch. Gibt eine Job-ID zurück, um den Fortschritt zu verfolgen.",
+            "step_2_title": "2. Status prüfen",
+            "step_2_desc": "Fragen Sie diesen Endpunkt ab, um den Status zu prüfen. Laden Sie herunter, wenn der Status 'succeeded' ist.",
+            "step_3_title": "3. Ergebnis herunterladen",
+            "step_3_desc": "Laden Sie die verarbeitete Datei im gewünschten Format (csv oder qbo) herunter.",
+            "response_accepted": "Antwort (202 Akzeptiert)",
+            "response_succeeded": "Antwort (Erfolg)"
+        }
+    },
+    "DeveloperSettings": {
+        "title": "Entwickler-API",
+        "subtitle": "Verwalten Sie den API-Zugriff und sehen Sie die Integrationsdokumentation.",
+        "tab_docs": "API-Dokumentation",
+        "tab_keys": "API-Schlüssel",
+        "keys_section": {
+            "title": "Aktive API-Schlüssel",
+            "generate_button": "Neuen Schlüssel generieren",
+            "your_keys_title": "Ihre API-Schlüssel",
+            "your_keys_desc": "Verwenden Sie diese Schlüssel, um Anfragen an die BankToBook-API zu authentifizieren.",
+            "empty_state": "Noch keine API-Schlüssel erstellt.",
+            "create_first": "Erstellen Sie Ihren ersten Schlüssel",
+            "table": {
+                "name": "Name",
+                "prefix": "Präfix",
+                "created": "Erstellt am",
+                "last_used": "Zuletzt verwendet",
+                "status": "Status",
+                "actions": "Aktionen",
+                "never": "Nie"
+            }
+        },
+        "create_modal": {
+            "title": "API-Schlüssel erstellen",
+            "description": "Geben Sie einen Namen für diesen Schlüssel ein (z. B. 'Produktionsserver', 'Lokale Entwicklung').",
+            "placeholder": "Schlüsselname",
+            "cancel": "Abbrechen",
+            "create": "Schlüssel erstellen",
+            "success_title": "Schlüssel erfolgreich erstellt",
+            "success_desc": "Kopieren Sie diesen Schlüssel jetzt. Sie werden ihn **nie wieder** sehen.",
+            "warning": "Warnung: Behandeln Sie diesen Schlüssel wie ein Passwort.",
+            "confirm": "Ich habe ihn kopiert"
+        },
+        "rate_limits": {
+            "title": "Ratenbegrenzungen (Rate Limits)"
+        },
+        "toasts": {
+            "load_error": "Fehler beim Laden der API-Schlüssel",
+            "create_success": "API-Schlüssel erfolgreich erstellt",
+            "create_error": "Fehler beim Erstellen des Schlüssels",
+            "revoke_confirm": "Sind Sie sicher? Jede Anwendung, die diesen Schlüssel verwendet, wird sofort gestoppt.",
+            "revoke_success": "Schlüssel widerrufen",
+            "revoke_error": "Fehler beim Widerrufen des Schlüssels",
+            "copied": "In die Zwischenablage kopiert"
         }
     }
 }

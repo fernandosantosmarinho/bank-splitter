@@ -370,6 +370,62 @@
             "body": "Corps",
             "form_data": "Données de Formulaire",
             "query_params": "Paramètres de Requête"
+        },
+        "workflow": {
+            "step_1_title": "1. Démarrer la Conversion",
+            "step_1_desc": "Téléchargez un relevé bancaire PDF pour une extraction asynchrone. Renvoie un ID de tâche pour suivre la progression.",
+            "step_2_title": "2. Vérifier le Statut",
+            "step_2_desc": "Interrogez ce point de terminaison pour vérifier le statut. Procédez au téléchargement lorsque le statut est 'succeeded'.",
+            "step_3_title": "3. Télécharger le Résultat",
+            "step_3_desc": "Téléchargez le fichier traité dans le format souhaité (csv ou qbo).",
+            "response_accepted": "Réponse (202 Accepté)",
+            "response_succeeded": "Réponse (Succès)"
+        }
+    },
+    "DeveloperSettings": {
+        "title": "API Développeur",
+        "subtitle": "Gérez l'accès à l'API et consultez la documentation d'intégration.",
+        "tab_docs": "Documentation API",
+        "tab_keys": "Clés API",
+        "keys_section": {
+            "title": "Clés API Actives",
+            "generate_button": "Générer Nouvelle Clé",
+            "your_keys_title": "Vos Clés API",
+            "your_keys_desc": "Utilisez ces clés pour authentifier les requêtes vers l'API BankToBook.",
+            "empty_state": "Aucune clé API créée pour le moment.",
+            "create_first": "Créez votre première clé",
+            "table": {
+                "name": "Nom",
+                "prefix": "Préfixe",
+                "created": "Créée le",
+                "last_used": "Dernière Utilisation",
+                "status": "Statut",
+                "actions": "Actions",
+                "never": "Jamais"
+            }
+        },
+        "create_modal": {
+            "title": "Créer une Clé API",
+            "description": "Entrez un nom pour cette clé afin de l'identifier plus tard (ex: 'Serveur de Production', 'Dév Local').",
+            "placeholder": "Nom de la Clé",
+            "cancel": "Annuler",
+            "create": "Créer la Clé",
+            "success_title": "Clé Créée avec Succès",
+            "success_desc": "Copiez cette clé maintenant. Vous ne la verrez **plus jamais**.",
+            "warning": "Attention : Traitez cette clé comme un mot de passe. Ne la partagez pas et ne la committez pas dans le contrôle de version.",
+            "confirm": "Je l'ai copiée"
+        },
+        "rate_limits": {
+            "title": "Limites de Débit"
+        },
+        "toasts": {
+            "load_error": "Échec du chargement des clés API",
+            "create_success": "Clé API créée avec succès",
+            "create_error": "Échec de la création de la clé",
+            "revoke_confirm": "Êtes-vous sûr de vouloir révoquer cette clé ? Toute application l'utilisant cessera de fonctionner immédiatement.",
+            "revoke_success": "Clé révoquée",
+            "revoke_error": "Échec de la révocation de la clé",
+            "copied": "Copié dans le presse-papiers"
         }
     }
 }

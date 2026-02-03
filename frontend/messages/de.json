@@ -96,6 +96,9 @@
             "desc_statement": "Bank-PDFs sicher in CSV/QBO extrahieren.",
             "desc_check": "Scheckbilder für Handschrifterkennung hochladen."
         },
+        "overview": {
+            "processing_history": "Verarbeitungsverlauf"
+        },
         "dropzone": {
             "click_to_upload": "Klicken zum Hochladen",
             "subtitle": "PDF-Auszug oder Scheckbild",
@@ -152,6 +155,18 @@
             "view_pdf": "Original PDF ansehen",
             "reprocess": "Erneut verarbeiten",
             "delete": "Löschen"
+        },
+        "features": {
+            "security_title": "Bankensicherheit",
+            "compliance": "SOC2 & GDPR Konform",
+            "encryption": "Ende-zu-Ende Verschlüsselung",
+            "formats_title": "Unterstützte Formate",
+            "formats": "PDF (Text & Scan), PNG, JPEG",
+            "step_1": "1. Auszug Hochladen",
+            "step_2": "2. Smarte Extraktion",
+            "step_3": "3. Prüfen & Exportieren",
+            "privacy_badge": "Datenschutz First",
+            "no_storage": "Keine Cloud-Speicherung"
         }
     },
     "Settings": {

@@ -96,6 +96,9 @@
             "desc_statement": "Securely extract bank PDFs to CSV/QBO.",
             "desc_check": "Upload check images for handwriting recognition."
         },
+        "overview": {
+            "processing_history": "Processing History"
+        },
         "dropzone": {
             "click_to_upload": "Click to Upload",
             "subtitle": "PDF Statement or Check Image",
@@ -152,6 +155,18 @@
             "view_pdf": "View original PDF",
             "reprocess": "Reprocess",
             "delete": "Delete"
+        },
+        "features": {
+            "security_title": "Bank-Grade Security",
+            "compliance": "SOC2 & GDPR Compliant",
+            "encryption": "End-to-End Encryption",
+            "formats_title": "Supported Formats",
+            "formats": "PDF (Text & Scanned), PNG, JPEG",
+            "step_1": "1. Upload Statement",
+            "step_2": "2. Smart Extraction",
+            "step_3": "3. Review & Export",
+            "privacy_badge": "Privacy First Design",
+            "no_storage": "No cloud storage of your data"
         }
     },
     "Settings": {

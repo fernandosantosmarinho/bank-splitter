@@ -96,6 +96,9 @@
             "desc_statement": "Extraire en toute sécurité des PDF bancaires vers CSV/QBO.",
             "desc_check": "Télécharger des images de chèques pour la reconnaissance d'écriture."
         },
+        "overview": {
+            "processing_history": "Historique de Traitement"
+        },
         "dropzone": {
             "click_to_upload": "Cliquez pour télécharger",
             "subtitle": "Relevé PDF ou Image de Chèque",
@@ -152,6 +155,18 @@
             "view_pdf": "Voir PDF original",
             "reprocess": "Retraiter",
             "delete": "Supprimer"
+        },
+        "features": {
+            "security_title": "Sécurité Bancaire",
+            "compliance": "Conforme SOC2 & GDPR",
+            "encryption": "Chiffrement de Bout en Bout",
+            "formats_title": "Formats Supportés",
+            "formats": "PDF (Texte & Scanné), PNG, JPEG",
+            "step_1": "1. Télécharger Relevé",
+            "step_2": "2. Extraction Intelligente",
+            "step_3": "3. Réviser & Exporter",
+            "privacy_badge": "Confidentialité d'Abord",
+            "no_storage": "Pas de stockage cloud"
         }
     },
     "Settings": {

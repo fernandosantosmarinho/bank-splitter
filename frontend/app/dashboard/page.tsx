@@ -17,7 +17,8 @@ import {
     ShieldCheck,
     Menu,
     Download,
-    Terminal
+    Terminal,
+    Banknote
 } from "lucide-react";
 import { cn, getFileIcon } from "@/lib/utils";
 import ExtractionView from "@/components/ExtractionView";
@@ -182,25 +183,27 @@ function DashboardContent() {
                     <div className="fixed inset-0 bg-black/50 z-40 md:hidden animate-in fade-in duration-200" onClick={() => setIsMobileMenuOpen(false)} />
                 )}
 
-                <aside className={cn("absolute top-0 left-0 z-50 w-64 bg-transparent flex flex-col transition-transform duration-300 md:static pt-4 md:pt-8 pb-4 md:pb-6", isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0")}>
+                <aside className={cn("absolute top-0 left-0 z-50 w-72 bg-card/50 backdrop-blur-xl border-r border-border flex flex-col transition-transform duration-300 md:static pt-4 md:pt-8 pb-4 md:pb-6 h-full", isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0")}>
                     <div className="p-6 h-16 border-b border-border flex items-center justify-between md:hidden bg-card">
                         <span className="text-lg font-bold tracking-tight">Menu</span>
                         <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}><Menu className="h-5 w-5" /></Button>
                     </div>
-                    <div className="mx-4 md:mx-0 md:ml-4 bg-card border border-border rounded-xl p-6 overflow-y-auto space-y-6 h-auto">
-                        <div>
-                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 px-2 tracking-wider">{t('nav.navigation_title')}</p>
-                            <nav className="space-y-1">
-                                <SidebarItem icon={<Activity className="h-4 w-4" />} label={t('nav.overview')} active={currentTab === "overview"} onClick={() => { router.push("/dashboard?tab=overview"); setIsMobileMenuOpen(false); }} />
-                                <SidebarItem icon={<FileSpreadsheet className="h-4 w-4" />} label={t('nav.extract_statement')} active={currentTab === "statements"} onClick={() => { router.push("/dashboard?tab=statements"); setIsMobileMenuOpen(false); }} />
-                                <SidebarItem icon={<ShieldCheck className="h-4 w-4" />} label={t('nav.extract_check')} active={currentTab === "checks"} onClick={() => { router.push("/dashboard?tab=checks"); setIsMobileMenuOpen(false); }} />
+
+                    <div className="flex-1 px-4 md:px-6 py-6 space-y-8 overflow-y-auto">
+                        <div className="space-y-3">
+                            <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-widest px-3">{t('nav.navigation_title')}</p>
+                            <nav className="space-y-2">
+                                <SidebarItem icon={<Activity className="h-5 w-5" />} label={t('nav.overview')} active={currentTab === "overview"} onClick={() => { router.push("/dashboard?tab=overview"); setIsMobileMenuOpen(false); }} />
+                                <SidebarItem icon={<FileSpreadsheet className="h-5 w-5" />} label={t('nav.extract_statement')} active={currentTab === "statements"} onClick={() => { router.push("/dashboard?tab=statements"); setIsMobileMenuOpen(false); }} />
+                                <SidebarItem icon={<Banknote className="h-5 w-5" />} label={t('nav.extract_check')} active={currentTab === "checks"} onClick={() => { router.push("/dashboard?tab=checks"); setIsMobileMenuOpen(false); }} />
                             </nav>
                         </div>
-                        <div>
-                            <p className="text-[10px] uppercase font-bold text-muted-foreground mb-2 px-2 tracking-wider">{t('nav.account_title')}</p>
-                            <nav className="space-y-1">
-                                <SidebarItem icon={<Settings className="h-4 w-4" />} label={t('nav.settings')} active={currentTab === "settings"} onClick={() => { router.push("/dashboard?tab=settings"); setIsMobileMenuOpen(false); }} />
-                                <SidebarItem icon={<Terminal className="h-4 w-4" />} label="Developer API" active={currentTab === "developer"} onClick={() => { router.push("/dashboard?tab=developer"); setIsMobileMenuOpen(false); }} />
+
+                        <div className="space-y-3">
+                            <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-widest px-3">{t('nav.account_title')}</p>
+                            <nav className="space-y-2">
+                                <SidebarItem icon={<Terminal className="h-5 w-5" />} label="Developer API" active={currentTab === "developer"} onClick={() => { router.push("/dashboard?tab=developer"); setIsMobileMenuOpen(false); }} />
+                                <SidebarItem icon={<Settings className="h-5 w-5" />} label={t('nav.settings')} active={currentTab === "settings"} onClick={() => { router.push("/dashboard?tab=settings"); setIsMobileMenuOpen(false); }} />
                             </nav>
                         </div>
                     </div>
@@ -344,9 +347,20 @@ function DashboardContent() {
 
 function SidebarItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void }) {
     return (
-        <button onClick={onClick} className={cn("w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer group mb-1", active ? "bg-accent text-accent-foreground border border-border shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-accent/50")}>
-            <div className={cn("transition-colors", active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>{icon}</div>
-            <span>{label}</span>
+        <button
+            onClick={onClick}
+            className={cn(
+                "w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer group relative overflow-hidden",
+                active
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )}
+        >
+            <div className={cn("transition-colors relative z-10", active ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground")}>
+                {icon}
+            </div>
+            <span className="relative z-10">{label}</span>
+            {active && <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/90 opacity-100 z-0" />}
         </button>
     );
 }

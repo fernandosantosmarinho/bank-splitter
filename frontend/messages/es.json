@@ -96,6 +96,9 @@
             "desc_statement": "Extraiga de forma segura PDFs bancarios a CSV/QBO.",
             "desc_check": "Suba imágenes de cheques para reconocimiento de escritura."
         },
+        "overview": {
+            "processing_history": "Historial de Procesamiento"
+        },
         "dropzone": {
             "click_to_upload": "Clic para Subir",
             "subtitle": "Extracto PDF o Imagen de Cheque",
@@ -152,6 +155,18 @@
             "view_pdf": "Ver PDF original",
             "reprocess": "Reprocesar",
             "delete": "Eliminar"
+        },
+        "features": {
+            "security_title": "Seguridad Bancaria",
+            "compliance": "Cumple SOC2 y GDPR",
+            "encryption": "Encriptación de Extremo a Extremo",
+            "formats_title": "Formatos Soportados",
+            "formats": "PDF (Texto y Escaneado), PNG, JPEG",
+            "step_1": "1. Subir Extracto",
+            "step_2": "2. Extracción Inteligente",
+            "step_3": "3. Revisar y Exportar",
+            "privacy_badge": "Diseño Privado",
+            "no_storage": "Sin almacenamiento en la nube"
         }
     },
     "Settings": {

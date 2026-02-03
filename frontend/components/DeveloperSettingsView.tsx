@@ -178,8 +178,8 @@ export default function DeveloperSettingsView() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="bg-muted p-3 rounded-md font-mono text-sm border border-border flex items-center justify-between">
-                                        <span>https://api.ledgerentry.io/api/v1</span>
-                                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard('https://api.ledgerentry.io/api/v1')}>
+                                        <span>https://api.banktobook.com/api/v1</span>
+                                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => copyToClipboard('https://api.banktobook.com/api/v1')}>
                                             <Copy className="h-3 w-3" />
                                         </Button>
                                     </div>
@@ -214,42 +214,44 @@ export default function DeveloperSettingsView() {
                                                     <span className="text-emerald-500 font-bold uppercase text-sm bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">POST</span>
                                                     /convert
                                                 </CardTitle>
-                                                <CardDescription className="mt-2">{t('descriptions.convert_desc')}</CardDescription>
+                                                <CardDescription className="mt-2">
+                                                    Upload a PDF bank statement for asynchronous extraction. Returns a Job ID to track progress.
+                                                </CardDescription>
                                             </div>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="pt-6 space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                             <div>
-                                                <h4 className="font-semibold mb-2 text-foreground/80">{t('labels.headers')}</h4>
+                                                <h4 className="font-semibold mb-2 text-foreground/80">Headers</h4>
                                                 <ul className="space-y-1 text-muted-foreground font-mono text-xs">
                                                     <li><span className="text-foreground">x-api-key</span>: string</li>
                                                     <li><span className="text-foreground">Idempotency-Key</span>: string (UUID)</li>
                                                 </ul>
                                             </div>
                                             <div>
-                                                <h4 className="font-semibold mb-2 text-foreground/80">{t('labels.form_data')}</h4>
+                                                <h4 className="font-semibold mb-2 text-foreground/80">Form Data</h4>
                                                 <ul className="space-y-1 text-muted-foreground font-mono text-xs">
-                                                    <li><span className="text-foreground">file</span>: application/pdf (Max 10MB)</li>
+                                                    <li><span className="text-foreground">file</span>: application/pdf</li>
                                                     <li><span className="text-foreground">outputs</span>: "csv,qbo"</li>
                                                 </ul>
                                             </div>
                                         </div>
-                                        <CodeBlock title="Example Request (cURL)">
-                                            {`curl -X POST https://api.ledgerentry.io/api/v1/convert \\
-  -H "x-api-key: <your_key>" \\
-  -H "Idempotency-Key: $(uuidgen)" \\
-  -F "file=@statement.pdf" \\
-  -F "outputs=csv,qbo"`}
+                                        <CodeBlock title="1. Start Conversion Job">
+                                            {`curl --location 'https://api.banktobook.com/api/v1/convert' \\
+  --header 'x-api-key: your_api_key' \\
+  --header 'Idempotency-Key: unique_req_id_1' \\
+  --form 'file=@"/path/to/statement.pdf"' \\
+  --form 'outputs="csv,qbo"'`}
                                         </CodeBlock>
                                         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-4">
-                                            <h4 className="text-xs font-bold uppercase text-emerald-600 mb-2">{t('labels.response')} (202 Accepted)</h4>
+                                            <h4 className="text-xs font-bold uppercase text-emerald-600 mb-2">Response (202 Accepted)</h4>
                                             <pre className="text-xs font-mono text-muted-foreground">
                                                 {`{
-  "job_id": "550e8400-e29b-41d4-a716-446655440000",
+  "job_id": "30dbc1aa-5f88-48c9-bfc0-22c3521f8b5f",
   "status": "queued",
   "outputs": ["csv", "qbo"],
-  "created_at": "2023-10-27T10:00:00Z"
+  "created_at": "2026-02-03T00:50:00Z"
 }`}
                                             </pre>
                                         </div>
@@ -263,16 +265,18 @@ export default function DeveloperSettingsView() {
                                             <span className="text-blue-500 font-bold uppercase text-sm bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">GET</span>
                                             /jobs/{"{job_id}"}
                                         </CardTitle>
-                                        <CardDescription className="mt-2">{t('descriptions.status_desc')}</CardDescription>
+                                        <CardDescription className="mt-2">
+                                            Poll this endpoint to check job status. Proceed to download when status is "succeeded".
+                                        </CardDescription>
                                     </CardHeader>
                                     <CardContent className="pt-6">
-                                        <CodeBlock title="Example Request (cURL)">
-                                            {`curl -X GET https://api.ledgerentry.io/api/v1/jobs/550e8400-e29b-41d4-a716-446655440000 \\
-  -H "x-api-key: <your_key>"`}
+                                        <CodeBlock title="2. Check Job Status">
+                                            {`curl --location 'https://api.banktobook.com/api/v1/jobs/30dbc1aa-5f88-48c9-bfc0-22c3521f8b5f/' \\
+  --header 'x-api-key: your_api_key'`}
                                         </CodeBlock>
-                                        <CodeBlock title="Example Response">
+                                        <CodeBlock title="Response (Succeeded)">
                                             {`{
-  "job_id": "550e8400-...",
+  "job_id": "30dbc1aa-...",
   "status": "succeeded",
   "outputs": {
       "csv": { "ready": true },
@@ -285,23 +289,26 @@ export default function DeveloperSettingsView() {
                                 </Card>
 
                                 {/* GET /download */}
-                                <Card className="mb-6 overflow-hidden border-l-4 border-l-blue-500">
+                                <Card className="mb-6 overflow-hidden border-l-4 border-l-purple-500">
                                     <CardHeader className="bg-muted/20 pb-4">
                                         <CardTitle className="font-mono text-lg flex items-center gap-3">
-                                            <span className="text-blue-500 font-bold uppercase text-sm bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">GET</span>
+                                            <span className="text-purple-500 font-bold uppercase text-sm bg-purple-500/10 px-2 py-1 rounded border border-purple-500/20">GET</span>
                                             /jobs/{"{job_id}"}/download
                                         </CardTitle>
-                                        <CardDescription className="mt-2">{t('descriptions.download_desc')}</CardDescription>
+                                        <CardDescription className="mt-2">
+                                            Download the processed file in the desired format (csv or qbo).
+                                        </CardDescription>
                                     </CardHeader>
                                     <CardContent className="pt-6">
-                                        <CodeBlock title="Example Request (cURL)">
-                                            {`curl -X GET "https://api.ledgerentry.io/api/v1/jobs/550e8400-e29b-41d4-a716-446655440000/download?format=csv" \\
-  -H "x-api-key: <your_key>" \\
+                                        <CodeBlock title="3. Download Result">
+                                            {`curl --location 'https://api.banktobook.com/api/v1/jobs/30dbc1aa-5f88-48c9-bfc0-22c3521f8b5f/download?format=csv' \\
+  --header 'x-api-key: your_api_key' \\
   --output statement.csv`}
                                         </CodeBlock>
-                                        <div className="text-sm">
-                                            <span className="font-semibold text-foreground">{t('labels.query_params')}: </span>
-                                            <code className="bg-muted px-1 py-0.5 rounded ml-1 text-muted-foreground">format=csv</code> or <code className="bg-muted px-1 py-0.5 rounded text-muted-foreground">format=qbo</code>
+                                        <div className="text-sm mt-4">
+                                            <span className="font-semibold text-foreground">Query Parameters: </span>
+                                            <code className="bg-muted px-1 py-0.5 rounded ml-1 text-muted-foreground mr-2">format=csv</code>
+                                            <code className="bg-muted px-1 py-0.5 rounded text-muted-foreground">format=qbo</code>
                                         </div>
                                     </CardContent>
                                 </Card>

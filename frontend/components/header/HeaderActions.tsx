@@ -79,7 +79,7 @@ export function HeaderActions({ userMetrics, className }: HeaderActionsProps) {
 function UsageIndicator({ metrics }: { metrics: UserMetrics }) {
     const isFree = !metrics.subscription_tier || metrics.subscription_tier === 'free';
 
-    // Define usage and total based on plan
+    // Define usage and total based on plan .
     const used = metrics.credits_used || 0;
     const total = metrics.credits_total || (isFree ? 5 : 0);
 

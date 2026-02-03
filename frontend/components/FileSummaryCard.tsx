@@ -9,7 +9,7 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, getFileIcon } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 
 interface FileSummaryCardProps {
@@ -48,8 +48,8 @@ export function FileSummaryCard({
                         {/* Left: Icon + Name + Badge */}
                         <div className="flex items-start gap-4 min-w-0">
                             <img
-                                src="/pdf_icon.png"
-                                alt="PDF"
+                                src={getFileIcon(fileName)}
+                                alt="File Icon"
                                 className="h-10 w-10 sm:h-12 sm:w-12 object-contain shrink-0"
                             />
                             <div className="min-w-0 space-y-1">

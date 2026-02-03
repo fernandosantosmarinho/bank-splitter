@@ -89,7 +89,7 @@ function UsageIndicator({ metrics }: { metrics: UserMetrics }) {
         ? `${used} / ${total} docs`
         : `${used.toLocaleString()} / ${total === 999999 ? '∞' : total.toLocaleString()}`;
 
-    // Dynamic Color Logic
+// Dynamic Color Logic
     let colorClass = "bg-emerald-500";
 
     if (percent < 60) colorClass = "bg-emerald-500";

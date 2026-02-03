@@ -19,7 +19,7 @@ import {
     Download,
     Terminal
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getFileIcon } from "@/lib/utils";
 import ExtractionView from "@/components/ExtractionView";
 import SettingsView from "@/components/SettingsView";
 import DeveloperSettingsView from "@/components/DeveloperSettingsView";
@@ -275,8 +275,8 @@ function DashboardContent() {
                                             {/* Col 1: File Info */}
                                             <div className="col-span-4 flex items-center gap-3 overflow-hidden">
                                                 <img
-                                                    src="/pdf_icon.png"
-                                                    alt="PDF"
+                                                    src={getFileIcon(item.name)}
+                                                    alt="File Icon"
                                                     className="h-8 w-8 object-contain shrink-0"
                                                 />
                                                 <div className="min-w-0">

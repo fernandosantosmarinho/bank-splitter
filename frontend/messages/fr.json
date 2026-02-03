@@ -337,7 +337,7 @@
             "errors": "Codes d'erreur"
         },
         "auth": {
-            "description": "Tous les points de terminaison (sauf /health) nécessitent une clé API.",
+            "description": "L'authentification est requise pour tous les points de terminaison. Générez vos clés API dans l'onglet 'Clés API' ci-dessus.",
             "header": "En-tête"
         },
         "constraints": {

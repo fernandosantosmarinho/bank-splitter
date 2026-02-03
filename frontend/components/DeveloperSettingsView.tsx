@@ -26,7 +26,7 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Plus, Trash2, Copy, Key, ShieldCheck, Book, Terminal, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
+import { Loader2, Plus, Trash2, Copy, Key, ShieldCheck, Book, Terminal, AlertTriangle, CheckCircle2, Clock, FileUp, FileDown, Zap, Server, Info } from 'lucide-react';
 import { getApiKeys, createApiKey, revokeApiKey, type ApiKey } from '@/actions/api-keys';
 
 const CodeBlock = ({ children, title }: { children: React.ReactNode, title?: string }) => {
@@ -320,23 +320,54 @@ export default function DeveloperSettingsView() {
 
                         {/* Sidebar: Index & Important Info */}
                         <div className="space-y-6 sticky top-6">
-                            <Card className="bg-card/50 backdrop-blur-sm">
-                                <CardHeader>
-                                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">{t('sections.constraints')}</CardTitle>
+                            <Card className="bg-card/50 backdrop-blur-sm shadow-sm">
+                                <CardHeader className="pb-3">
+                                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                        <Info className="h-4 w-4" /> {t('sections.constraints')}
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4 text-sm">
-                                    <div>
-                                        <div className="font-medium flex items-center gap-2 mb-1.5"><Clock className="h-4 w-4 text-amber-500" /> {t('constraints.retention')}</div>
-                                        <p className="text-muted-foreground text-xs leading-relaxed">
-                                            {t('constraints.retention_input')}<br />
-                                            <span className="font-medium text-foreground">{t('constraints.retention_output')}</span>
+                                <CardContent className="space-y-5 text-sm">
+                                    {/* Retention */}
+                                    <div className="space-y-3">
+                                        <div className="font-semibold flex items-center gap-2 text-foreground">
+                                            <Clock className="h-4 w-4 text-amber-500" />
+                                            <span className="text-sm">{t('constraints.retention').replace(/^\d+\.\s/, '')}</span>
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <div className="bg-muted/40 p-2.5 rounded-md border border-border/50 flex gap-3 items-start transition-colors hover:bg-muted/60">
+                                                <FileUp className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
+                                                <span className="text-xs text-muted-foreground leading-snug">{t('constraints.retention_input')}</span>
+                                            </div>
+                                            <div className="bg-emerald-500/5 p-2.5 rounded-md border border-emerald-500/10 flex gap-3 items-start transition-colors hover:bg-emerald-500/10">
+                                                <FileDown className="h-4 w-4 mt-0.5 text-emerald-600 shrink-0" />
+                                                <span className="text-xs text-foreground/80 font-medium leading-snug">{t('constraints.retention_output')}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="h-px bg-border/40" />
+
+                                    {/* Idempotency */}
+                                    <div className="space-y-2">
+                                        <div className="font-semibold flex items-center gap-2 text-foreground">
+                                            <Zap className="h-4 w-4 text-blue-500" />
+                                            <span className="text-sm">{t('constraints.idempotency').replace(/^\d+\.\s/, '')}</span>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground pl-6 leading-relaxed">
+                                            {t('constraints.idempotency_desc')}
                                         </p>
                                     </div>
-                                    <div className="h-px bg-border/50" />
-                                    <div>
-                                        <div className="font-medium flex items-center gap-2 mb-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> {t('constraints.idempotency')}</div>
-                                        <p className="text-muted-foreground text-xs leading-relaxed">
-                                            {t('constraints.idempotency_desc')}
+
+                                    <div className="h-px bg-border/40" />
+
+                                    {/* Concurrency */}
+                                    <div className="space-y-2">
+                                        <div className="font-semibold flex items-center gap-2 text-foreground">
+                                            <Server className="h-4 w-4 text-purple-500" />
+                                            <span className="text-sm">{t('constraints.concurrency').replace(/^\d+\.\s/, '')}</span>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground pl-6 leading-relaxed">
+                                            {t('constraints.concurrency_desc')}
                                         </p>
                                     </div>
                                 </CardContent>
@@ -355,9 +386,9 @@ export default function DeveloperSettingsView() {
                                             { code: 410, label: "EXPIRED (Download)" },
                                             { code: 429, label: "RATE_LIMIT_EXCEEDED" },
                                         ].map((err, i) => (
-                                            <div key={i} className="flex items-center justify-between text-xs">
-                                                <span className="font-mono text-muted-foreground">{err.code}</span>
-                                                <span className="font-medium">{err.label}</span>
+                                            <div key={i} className="flex items-center justify-between text-xs group hover:bg-muted/50 p-1 rounded -mx-1 transition-colors">
+                                                <span className="font-mono font-bold text-red-500 group-hover:text-red-600">{err.code}</span>
+                                                <span className="font-medium text-muted-foreground group-hover:text-foreground transition-colors">{err.label}</span>
                                             </div>
                                         ))}
                                     </div>

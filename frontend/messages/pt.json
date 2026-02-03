@@ -337,7 +337,7 @@
             "errors": "Códigos de Erro"
         },
         "auth": {
-            "description": "Todos os endpoints (exceto /health) exigem uma Chave de API.",
+            "description": "Autenticação é necessária para todos os endpoints. Gere suas chaves de API na aba 'Chaves de API' acima.",
             "header": "Cabeçalho"
         },
         "constraints": {

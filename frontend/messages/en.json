@@ -337,7 +337,7 @@
             "errors": "Error Codes"
         },
         "auth": {
-            "description": "All endpoints (except /health) require an API Key.",
+            "description": "Authentication is required for all endpoints. Generate your API keys in the 'API Keys' tab above.",
             "header": "Header"
         },
         "constraints": {

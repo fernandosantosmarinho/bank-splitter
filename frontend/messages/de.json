@@ -337,7 +337,7 @@
             "errors": "Fehlercodes"
         },
         "auth": {
-            "description": "Alle Endpunkte (außer /health) erfordern einen API-Schlüssel.",
+            "description": "Authentifizierung ist für alle Endpunkte erforderlich. Generieren Sie Ihre API-Schlüssel im Reiter 'API-Schlüssel' oben.",
             "header": "Kopfzeile"
         },
         "constraints": {

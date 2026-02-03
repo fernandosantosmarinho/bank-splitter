@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
@@ -37,6 +38,7 @@ export default async function RootLayout({
           </Providers>
         </NextIntlClientProvider>
       </body>
+      <GoogleAnalytics gaId="G-GC3QGCL5YW" />
     </html>
   );
 }

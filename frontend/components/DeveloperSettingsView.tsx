@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { sendGAEvent } from "@next/third-parties/google";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -116,6 +117,10 @@ export default function DeveloperSettingsView() {
         if (result.success && result.key) {
             setCreatedKey(result.key);
             toast.success(tSettings('toasts.create_success'));
+
+            // ANALYTICS: Track API key creation
+            sendGAEvent('event', 'api_key_created', {});
+
             fetchKeys();
         } else {
             toast.error(result.error || tSettings('toasts.create_error'));

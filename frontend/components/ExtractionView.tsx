@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
+import { sendGAEvent } from "@next/third-parties/google";
 import { incrementMetric } from "@/app/actions/metrics";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { useDropzone } from "react-dropzone";
@@ -202,6 +203,14 @@ export default function ExtractionView({
             setAccounts([]);
             if (f.type.startsWith("image/")) setPreviewUrl(URL.createObjectURL(f));
             else generatePDFPreview(f);
+
+            // ANALYTICS: Track file upload
+            sendGAEvent('event', 'file_upload', {
+                file_type: mode === 'pdf' ? 'pdf' : 'image',
+                file_extension: f.name.split('.').pop(),
+                file_size: f.size
+            });
+
             toast.info(t('dropzone.document_loaded'));
         }
     }, [mode]);
@@ -244,6 +253,12 @@ export default function ExtractionView({
         setStatus(t('processing.init'));
         setAccounts([]);
         setProgress(0);
+
+        // ANALYTICS: Track extraction start
+        sendGAEvent('event', 'extraction_started', {
+            mode: mode,
+            file_type: file.type
+        });
 
         const interval = setInterval(() => {
             setProgress((prev) => {
@@ -304,6 +319,13 @@ export default function ExtractionView({
 
                                 if (onSuccess && file) {
                                     const transactionCount = payload.accounts.reduce((sum: number, acc: AccountData) => sum + acc.preview_rows.length, 0);
+
+                                    // ANALYTICS: Track success
+                                    sendGAEvent('event', 'extraction_success', {
+                                        mode: mode,
+                                        transaction_count: transactionCount
+                                    });
+
                                     onSuccess(file, transactionCount);
                                 }
                             }
@@ -345,6 +367,12 @@ export default function ExtractionView({
 
     const downloadCSV = async (acc: AccountData) => {
         if (acc.csv_content) {
+            // ANALYTICS: Track download
+            sendGAEvent('event', 'file_download', {
+                type: 'CSV',
+                account: acc.account_name
+            });
+
             const fileName = `${acc.account_name}.csv`;
             downloadFile(acc.csv_content, fileName, "text/csv;charset=utf-8;");
             await incrementMetric(user?.id, 'csv_exports', 1);
@@ -354,6 +382,12 @@ export default function ExtractionView({
 
     const downloadQBO = async (acc: AccountData) => {
         if (acc.qbo_content) {
+            // ANALYTICS: Track download
+            sendGAEvent('event', 'file_download', {
+                type: 'QBO',
+                account: acc.account_name
+            });
+
             const fileName = `${acc.account_name}.qbo`;
             downloadFile(acc.qbo_content, fileName, "application/octet-stream");
             await incrementMetric(user?.id, 'qbo_exports', 1);

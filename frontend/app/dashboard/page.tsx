@@ -2,7 +2,8 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, Suspense, useState, useCallback } from "react";
+import { sendGAEvent } from "@next/third-parties/google";
+import { useEffect, Suspense, useState, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { type UserMetrics } from "@/lib/supabase";
 import { getMetrics } from "@/app/actions/metrics";
@@ -77,9 +78,17 @@ function DashboardContent() {
         }
     }, [isUserLoaded, user, router]);
 
+    const loginTracked = useRef(false);
+
     useEffect(() => {
         if (user) {
             getMetrics(user.id).then(data => data && setStats(data));
+
+            // ANALYTICS: Track Login
+            if (!loginTracked.current) {
+                sendGAEvent('event', 'login', { method: 'clerk' });
+                loginTracked.current = true;
+            }
         }
     }, [user]);
 

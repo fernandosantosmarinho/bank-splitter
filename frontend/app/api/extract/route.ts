@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
     try {
-        // Obter URL do backend do ambiente (pode ser a mesma pública ou uma interna)
-        // Por padrão usa a NEXT_PUBLIC_API_URL definida no .env.local
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7860/api/v1";
+        // URL do Backend para processamento interno (Frontend -> Backend)
+        // Prioriza variável específica do motor de extração (ex: Hugging Face), 
+        // fallback para a API pública ou localhost.
+        const backendUrl = process.env.INTERNAL_ENGINE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:7860/api/v1";
         const normalizedUrl = backendUrl.replace(/\/$/, "");
 
         // Constrói a URL alvo. 

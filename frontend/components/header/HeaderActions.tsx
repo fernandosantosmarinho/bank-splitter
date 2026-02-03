@@ -138,9 +138,11 @@ function HeaderUserMenu({ user }: { user: any }) {
     const { signOut, openUserProfile } = useClerk();
     const router = useRouter();
     const t = useTranslations('Dashboard.header.menu');
+    const tCommon = useTranslations('Common');
     const { theme, setTheme } = useTheme();
     const [isPending, startTransition] = useTransition();
     const [isLoading, setIsLoading] = useState(false);
+    const [loadingLabel, setLoadingLabel] = useState("");
     const currentLocale = useLocale() as Locale;
 
     const localeLabels: Record<Locale, string> = {
@@ -160,6 +162,7 @@ function HeaderUserMenu({ user }: { user: any }) {
     };
 
     const handleLocaleChange = (newLocale: Locale) => {
+        setLoadingLabel(t('language'));
         setIsLoading(true);
         startTransition(async () => {
             await setUserLocale(newLocale);
@@ -167,15 +170,31 @@ function HeaderUserMenu({ user }: { user: any }) {
         });
     };
 
+    const handleSignOut = async () => {
+        setLoadingLabel(t('sign_out'));
+        setIsLoading(true);
+        try {
+            await signOut({ redirectUrl: process.env.NEXT_PUBLIC_APP_URL || '/' });
+        } catch (error) {
+            setIsLoading(false);
+            console.error("Sign out error:", error);
+        }
+    };
+
     return (
         <>
             {isLoading && (
-                <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+                <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center">
                     <div className="flex flex-col items-center gap-4">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <p className="text-sm font-medium text-muted-foreground animate-pulse">
-                            {t('language')}...
-                        </p>
+                        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                        <div className="flex flex-col items-center gap-1">
+                            <p className="text-base font-bold text-foreground">
+                                {loadingLabel}...
+                            </p>
+                            <p className="text-xs text-muted-foreground animate-pulse leading-none">
+                                {tCommon('loading')}
+                            </p>
+                        </div>
                     </div>
                 </div>
             )}
@@ -253,7 +272,7 @@ function HeaderUserMenu({ user }: { user: any }) {
 
                     <div className="h-[1px] bg-border/50 my-2 mx-2" />
 
-                    <DropdownMenuItem onClick={() => signOut({ redirectUrl: process.env.NEXT_PUBLIC_APP_URL || '/' })} className="p-3 cursor-pointer rounded-xl hover:bg-red-500/10 focus:bg-red-500/10 text-red-500 focus:text-red-500 group mt-1">
+                    <DropdownMenuItem onClick={handleSignOut} className="p-3 cursor-pointer rounded-xl hover:bg-red-500/10 focus:bg-red-500/10 text-red-500 focus:text-red-500 group mt-1">
                         <LogOut className="mr-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                         <span className="font-medium">{t('sign_out')}</span>
                     </DropdownMenuItem>

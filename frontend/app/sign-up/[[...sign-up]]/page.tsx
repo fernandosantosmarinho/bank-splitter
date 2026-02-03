@@ -4,6 +4,8 @@ export default function SignUpPage() {
     return (
         <div className="flex min-h-screen items-center justify-center bg-background">
             <SignUp
+                routing="path"
+                path="/sign-up"
                 appearance={{
                     elements: {
                         rootBox: "mx-auto",

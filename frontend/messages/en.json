@@ -370,6 +370,62 @@
             "body": "Body",
             "form_data": "Form Data",
             "query_params": "Query Parameters"
+        },
+        "workflow": {
+            "step_1_title": "1. Start Conversion Job",
+            "step_1_desc": "Upload a PDF bank statement for asynchronous extraction. Returns a Job ID to track progress.",
+            "step_2_title": "2. Check Job Status",
+            "step_2_desc": "Poll this endpoint to check job status. Proceed to download when status is 'succeeded'.",
+            "step_3_title": "3. Download Result",
+            "step_3_desc": "Download the processed file in the desired format (csv or qbo).",
+            "response_accepted": "Response (202 Accepted)",
+            "response_succeeded": "Response (Succeeded)"
+        }
+    },
+    "DeveloperSettings": {
+        "title": "Developer API",
+        "subtitle": "Manage API access and view integration documentation.",
+        "tab_docs": "API Documentation",
+        "tab_keys": "API Keys",
+        "keys_section": {
+            "title": "Active API Keys",
+            "generate_button": "Generate New Key",
+            "your_keys_title": "Your API Keys",
+            "your_keys_desc": "Use these keys to authenticate requests to the BankToBook API.",
+            "empty_state": "No API keys created yet.",
+            "create_first": "Create your first key",
+            "table": {
+                "name": "Name",
+                "prefix": "Prefix",
+                "created": "Created",
+                "last_used": "Last Used",
+                "status": "Status",
+                "actions": "Actions",
+                "never": "Never"
+            }
+        },
+        "create_modal": {
+            "title": "Create API Key",
+            "description": "Enter a name for this key to identify it later (e.g., 'Production Server', 'Local Dev').",
+            "placeholder": "Key Name",
+            "cancel": "Cancel",
+            "create": "Create Key",
+            "success_title": "Key Created Successfully",
+            "success_desc": "Copy this key now. You will never see it again.",
+            "warning": "Warning: Treat this key like a password. Do not share it or commit it to version control.",
+            "confirm": "I have copied it"
+        },
+        "rate_limits": {
+            "title": "Rate Limits"
+        },
+        "toasts": {
+            "load_error": "Failed to load API keys",
+            "create_success": "API Key created successfully",
+            "create_error": "Failed to create key",
+            "revoke_confirm": "Are you sure you want to revoke this key? Any applications using it will stop working immediately.",
+            "revoke_success": "Key revoked",
+            "revoke_error": "Failed to revoke key",
+            "copied": "Copied to clipboard"
         }
     }
 }

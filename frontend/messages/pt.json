@@ -370,6 +370,62 @@
             "body": "Corpo",
             "form_data": "Dados do Formulário",
             "query_params": "Parâmetros de Consulta"
+        },
+        "workflow": {
+            "step_1_title": "1. Iniciar Conversão",
+            "step_1_desc": "Envie um extrato bancário em PDF para extração assíncrona. Retorna um ID de Job para acompanhar o progresso.",
+            "step_2_title": "2. Verificar Status",
+            "step_2_desc": "Consulte este endpoint para verificar o status. Prossiga para download quando o status for 'succeeded'.",
+            "step_3_title": "3. Baixar Resultado",
+            "step_3_desc": "Baixe o arquivo processado no formato desejado (csv ou qbo).",
+            "response_accepted": "Resposta (202 Aceito)",
+            "response_succeeded": "Resposta (Sucesso)"
+        }
+    },
+    "DeveloperSettings": {
+        "title": "API do Desenvolvedor",
+        "subtitle": "Gerencie o acesso à API e veja a documentação de integração.",
+        "tab_docs": "Documentação da API",
+        "tab_keys": "Chaves de API",
+        "keys_section": {
+            "title": "Chaves de API Ativas",
+            "generate_button": "Gerar Nova Chave",
+            "your_keys_title": "Suas Chaves de API",
+            "your_keys_desc": "Use estas chaves para autenticar requisições na API do BankToBook.",
+            "empty_state": "Nenhuma chave de API criada ainda.",
+            "create_first": "Crie sua primeira chave",
+            "table": {
+                "name": "Nome",
+                "prefix": "Prefixo",
+                "created": "Criada em",
+                "last_used": "Último Uso",
+                "status": "Status",
+                "actions": "Ações",
+                "never": "Nunca"
+            }
+        },
+        "create_modal": {
+            "title": "Criar Chave de API",
+            "description": "Dê um nome a esta chave para identificá-la depois (ex: 'Servidor de Produção', 'Desenvolvimento Local').",
+            "placeholder": "Nome da Chave",
+            "cancel": "Cancelar",
+            "create": "Criar Chave",
+            "success_title": "Chave Criada com Sucesso",
+            "success_desc": "Copie esta chave agora. Você **nunca** a verá novamente.",
+            "warning": "Aviso: Trate esta chave como uma senha. Não compartilhe nem comite em controle de versão.",
+            "confirm": "Eu copiei a chave"
+        },
+        "rate_limits": {
+            "title": "Limites de Taxa (Rate Limits)"
+        },
+        "toasts": {
+            "load_error": "Falha ao carregar chaves de API",
+            "create_success": "Chave de API criada com sucesso",
+            "create_error": "Falha ao criar chave",
+            "revoke_confirm": "Tem certeza que deseja revogar esta chave? Qualquer aplicação usando-a irá parar de funcionar imediatamente.",
+            "revoke_success": "Chave revogada",
+            "revoke_error": "Falha ao revogar chave",
+            "copied": "Copiado para a área de transferência"
         }
     }
 }

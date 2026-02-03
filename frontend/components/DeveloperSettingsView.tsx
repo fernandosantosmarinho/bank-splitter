@@ -79,6 +79,8 @@ const Endpoint = ({ method, path, description }: { method: string, path: string,
 
 export default function DeveloperSettingsView() {
     const t = useTranslations('DeveloperDocs');
+    const tSettings = useTranslations('DeveloperSettings');
+    const tCommon = useTranslations('Common');
     // We intentionally don't translate some technical terms/UI labels in the existing credential view 
     // to match the previous implementation, unless requested.
     // However, I will use English literals for the existing UI effectively.
@@ -96,7 +98,7 @@ export default function DeveloperSettingsView() {
         if (result.success && result.data) {
             setKeys(result.data);
         } else {
-            toast.error('Failed to load API keys');
+            toast.error(tSettings('toasts.load_error'));
         }
         setLoading(false);
     };
@@ -113,29 +115,29 @@ export default function DeveloperSettingsView() {
 
         if (result.success && result.key) {
             setCreatedKey(result.key);
-            toast.success('API Key created successfully');
+            toast.success(tSettings('toasts.create_success'));
             fetchKeys();
         } else {
-            toast.error(result.error || 'Failed to create key');
+            toast.error(result.error || tSettings('toasts.create_error'));
             setCreating(false);
         }
     };
 
     const handleRevoke = async (id: string) => {
-        if (!confirm('Are you sure you want to revoke this key? Any applications using it will stop working immediately.')) return;
+        if (!confirm(tSettings('toasts.revoke_confirm'))) return;
 
         const result = await revokeApiKey(id);
         if (result.success) {
-            toast.success('Key revoked');
+            toast.success(tSettings('toasts.revoke_success'));
             fetchKeys();
         } else {
-            toast.error(result.error || 'Failed to revoke key');
+            toast.error(result.error || tSettings('toasts.revoke_error'));
         }
     };
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
-        toast.success('Copied to clipboard');
+        toast.success(tSettings('toasts.copied'));
     };
 
     const closeCreateDialog = () => {
@@ -148,14 +150,14 @@ export default function DeveloperSettingsView() {
     return (
         <div className="space-y-6 max-w-5xl mx-auto animate-in fade-in duration-500 pb-10">
             <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold tracking-tight">Developer API</h1>
-                <p className="text-muted-foreground">Manage API access and view integration documentation.</p>
+                <h1 className="text-3xl font-bold tracking-tight">{tSettings('title')}</h1>
+                <p className="text-muted-foreground">{tSettings('subtitle')}</p>
             </div>
 
             <Tabs defaultValue="docs" className="space-y-6">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="docs" className="gap-2 cursor-pointer"><Book className="h-4 w-4" /> {t('title')}</TabsTrigger>
-                    <TabsTrigger value="keys" className="gap-2 cursor-pointer"><Key className="h-4 w-4" /> API Keys</TabsTrigger>
+                    <TabsTrigger value="docs" className="gap-2 cursor-pointer"><Book className="h-4 w-4" /> {tSettings('tab_docs')}</TabsTrigger>
+                    <TabsTrigger value="keys" className="gap-2 cursor-pointer"><Key className="h-4 w-4" /> {tSettings('tab_keys')}</TabsTrigger>
                 </TabsList>
 
                 {/* --- DOCUMENTATION TAB --- */}
@@ -215,7 +217,7 @@ export default function DeveloperSettingsView() {
                                                     /convert
                                                 </CardTitle>
                                                 <CardDescription className="mt-2">
-                                                    Upload a PDF bank statement for asynchronous extraction. Returns a Job ID to track progress.
+                                                    {t('workflow.step_1_desc')}
                                                 </CardDescription>
                                             </div>
                                         </div>
@@ -223,21 +225,21 @@ export default function DeveloperSettingsView() {
                                     <CardContent className="pt-6 space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                             <div>
-                                                <h4 className="font-semibold mb-2 text-foreground/80">Headers</h4>
+                                                <h4 className="font-semibold mb-2 text-foreground/80">{t('labels.headers')}</h4>
                                                 <ul className="space-y-1 text-muted-foreground font-mono text-xs">
                                                     <li><span className="text-foreground">x-api-key</span>: string</li>
                                                     <li><span className="text-foreground">Idempotency-Key</span>: string (UUID)</li>
                                                 </ul>
                                             </div>
                                             <div>
-                                                <h4 className="font-semibold mb-2 text-foreground/80">Form Data</h4>
+                                                <h4 className="font-semibold mb-2 text-foreground/80">{t('labels.form_data')}</h4>
                                                 <ul className="space-y-1 text-muted-foreground font-mono text-xs">
                                                     <li><span className="text-foreground">file</span>: application/pdf</li>
                                                     <li><span className="text-foreground">outputs</span>: "csv,qbo"</li>
                                                 </ul>
                                             </div>
                                         </div>
-                                        <CodeBlock title="1. Start Conversion Job">
+                                        <CodeBlock title={t('workflow.step_1_title')}>
                                             {`curl --location 'https://api.banktobook.com/api/v1/convert' \\
   --header 'x-api-key: your_api_key' \\
   --header 'Idempotency-Key: unique_req_id_1' \\
@@ -245,7 +247,7 @@ export default function DeveloperSettingsView() {
   --form 'outputs="csv,qbo"'`}
                                         </CodeBlock>
                                         <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-lg p-4">
-                                            <h4 className="text-xs font-bold uppercase text-emerald-600 mb-2">Response (202 Accepted)</h4>
+                                            <h4 className="text-xs font-bold uppercase text-emerald-600 mb-2">{t('workflow.response_accepted')}</h4>
                                             <pre className="text-xs font-mono text-muted-foreground">
                                                 {`{
   "job_id": "30dbc1aa-5f88-48c9-bfc0-22c3521f8b5f",
@@ -266,15 +268,15 @@ export default function DeveloperSettingsView() {
                                             /jobs/{"{job_id}"}
                                         </CardTitle>
                                         <CardDescription className="mt-2">
-                                            Poll this endpoint to check job status. Proceed to download when status is "succeeded".
+                                            {t('workflow.step_2_desc')}
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent className="pt-6">
-                                        <CodeBlock title="2. Check Job Status">
+                                        <CodeBlock title={t('workflow.step_2_title')}>
                                             {`curl --location 'https://api.banktobook.com/api/v1/jobs/30dbc1aa-5f88-48c9-bfc0-22c3521f8b5f/' \\
   --header 'x-api-key: your_api_key'`}
                                         </CodeBlock>
-                                        <CodeBlock title="Response (Succeeded)">
+                                        <CodeBlock title={t('workflow.response_succeeded')}>
                                             {`{
   "job_id": "30dbc1aa-...",
   "status": "succeeded",
@@ -296,17 +298,17 @@ export default function DeveloperSettingsView() {
                                             /jobs/{"{job_id}"}/download
                                         </CardTitle>
                                         <CardDescription className="mt-2">
-                                            Download the processed file in the desired format (csv or qbo).
+                                            {t('workflow.step_3_desc')}
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent className="pt-6">
-                                        <CodeBlock title="3. Download Result">
+                                        <CodeBlock title={t('workflow.step_3_title')}>
                                             {`curl --location 'https://api.banktobook.com/api/v1/jobs/30dbc1aa-5f88-48c9-bfc0-22c3521f8b5f/download?format=csv' \\
   --header 'x-api-key: your_api_key' \\
   --output statement.csv`}
                                         </CodeBlock>
                                         <div className="text-sm mt-4">
-                                            <span className="font-semibold text-foreground">Query Parameters: </span>
+                                            <span className="font-semibold text-foreground">{t('labels.query_params')}: </span>
                                             <code className="bg-muted px-1 py-0.5 rounded ml-1 text-muted-foreground mr-2">format=csv</code>
                                             <code className="bg-muted px-1 py-0.5 rounded text-muted-foreground">format=qbo</code>
                                         </div>
@@ -369,37 +371,37 @@ export default function DeveloperSettingsView() {
                 <TabsContent value="keys" className="space-y-8 animate-in slide-in-from-bottom-2 duration-300">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                         <div>
-                            <h2 className="text-xl font-bold tracking-tight">Active API Keys</h2>
+                            <h2 className="text-xl font-bold tracking-tight">{tSettings('keys_section.title')}</h2>
                         </div>
 
                         <Dialog open={createOpen} onOpenChange={(open) => !open && closeCreateDialog()}>
                             <DialogTrigger asChild>
                                 <Button onClick={() => setCreateOpen(true)} className="gap-2">
-                                    <Plus className="h-4 w-4" /> Generate New Key
+                                    <Plus className="h-4 w-4" /> {tSettings('keys_section.generate_button')}
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-md">
                                 {!createdKey ? (
                                     <>
                                         <DialogHeader>
-                                            <DialogTitle>Create API Key</DialogTitle>
+                                            <DialogTitle>{tSettings('create_modal.title')}</DialogTitle>
                                             <DialogDescription>
-                                                Enter a name for this key to identify it later (e.g., "Production Server", "Local Dev").
+                                                {tSettings('create_modal.description')}
                                             </DialogDescription>
                                         </DialogHeader>
                                         <div className="py-4">
                                             <Input
-                                                placeholder="Key Name"
+                                                placeholder={tSettings('create_modal.placeholder')}
                                                 value={newKeyName}
                                                 onChange={(e) => setNewKeyName(e.target.value)}
                                                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                                             />
                                         </div>
                                         <DialogFooter>
-                                            <Button variant="outline" onClick={closeCreateDialog}>Cancel</Button>
+                                            <Button variant="outline" onClick={closeCreateDialog}>{tSettings('create_modal.cancel')}</Button>
                                             <Button onClick={handleCreate} disabled={creating || !newKeyName.trim()}>
                                                 {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                Create Key
+                                                {tSettings('create_modal.create')}
                                             </Button>
                                         </DialogFooter>
                                     </>
@@ -407,25 +409,23 @@ export default function DeveloperSettingsView() {
                                     <>
                                         <DialogHeader>
                                             <DialogTitle className="text-emerald-500 flex items-center gap-2">
-                                                <ShieldCheck className="h-5 w-5" /> Key Created Successfully
+                                                <ShieldCheck className="h-5 w-5" /> {tSettings('create_modal.success_title')}
                                             </DialogTitle>
-                                            <DialogDescription>
-                                                Copy this key now. You will <strong>never</strong> see it again.
-                                            </DialogDescription>
+                                            <DialogDescription dangerouslySetInnerHTML={{ __html: tSettings.raw('create_modal.success_desc') }} />
                                         </DialogHeader>
                                         <div className="py-6 space-y-4">
                                             <div className="p-4 bg-muted/50 rounded-lg border flex items-center justify-between gap-2">
                                                 <code className="font-mono text-sm break-all text-primary">{createdKey}</code>
-                                                <Button variant="ghost" size="icon" onClick={() => copyToClipboard(createdKey)}>
+                                                <Button variant="ghost" size="icon" onClick={() => copyToClipboard(createdKey!)}>
                                                     <Copy className="h-4 w-4" />
                                                 </Button>
                                             </div>
                                             <div className="text-xs text-muted-foreground bg-yellow-500/10 text-yellow-500 p-3 rounded border border-yellow-500/20">
-                                                Warning: Treat this key like a password. Do not share it or commit it to version control.
+                                                {tSettings('create_modal.warning')}
                                             </div>
                                         </div>
                                         <DialogFooter>
-                                            <Button onClick={closeCreateDialog}>I have copied it</Button>
+                                            <Button onClick={closeCreateDialog}>{tSettings('create_modal.confirm')}</Button>
                                         </DialogFooter>
                                     </>
                                 )}
@@ -435,9 +435,9 @@ export default function DeveloperSettingsView() {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Your API Keys</CardTitle>
+                            <CardTitle>{tSettings('keys_section.your_keys_title')}</CardTitle>
                             <CardDescription>
-                                Use these keys to authenticate requests to the BankToBook API.
+                                {tSettings('keys_section.your_keys_desc')}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -448,19 +448,19 @@ export default function DeveloperSettingsView() {
                             ) : keys.length === 0 ? (
                                 <div className="text-center py-12 text-muted-foreground">
                                     <Key className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                                    <p>No API keys created yet.</p>
-                                    <Button variant="link" onClick={() => setCreateOpen(true)}>Create your first key</Button>
+                                    <p>{tSettings('keys_section.empty_state')}</p>
+                                    <Button variant="link" onClick={() => setCreateOpen(true)}>{tSettings('keys_section.create_first')}</Button>
                                 </div>
                             ) : (
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead>Name</TableHead>
-                                            <TableHead>Prefix</TableHead>
-                                            <TableHead>Created</TableHead>
-                                            <TableHead>Last Used</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
+                                            <TableHead>{tSettings('keys_section.table.name')}</TableHead>
+                                            <TableHead>{tSettings('keys_section.table.prefix')}</TableHead>
+                                            <TableHead>{tSettings('keys_section.table.created')}</TableHead>
+                                            <TableHead>{tSettings('keys_section.table.last_used')}</TableHead>
+                                            <TableHead>{tSettings('keys_section.table.status')}</TableHead>
+                                            <TableHead className="text-right">{tSettings('keys_section.table.actions')}</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -470,7 +470,7 @@ export default function DeveloperSettingsView() {
                                                 <TableCell className="font-mono text-xs text-muted-foreground">{key.prefix}...</TableCell>
                                                 <TableCell>{new Date(key.created_at).toLocaleDateString()}</TableCell>
                                                 <TableCell>
-                                                    {key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : 'Never'}
+                                                    {key.last_used_at ? new Date(key.last_used_at).toLocaleDateString() : tSettings('keys_section.table.never')}
                                                 </TableCell>
                                                 <TableCell>
                                                     <Badge variant={key.status === 'active' ? 'default' : 'destructive'}
@@ -500,19 +500,19 @@ export default function DeveloperSettingsView() {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-lg">Rate Limits</CardTitle>
+                            <CardTitle className="text-lg">{tSettings('rate_limits.title')}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2 text-sm text-muted-foreground">
                             <div className="flex justify-between py-1 border-b">
-                                <span>Free Plan</span>
+                                <span>{tCommon('plan_free')}</span>
                                 <span className="font-medium">10 req/min</span>
                             </div>
                             <div className="flex justify-between py-1 border-b">
-                                <span>Starter</span>
+                                <span>{tCommon('plan_starter')}</span>
                                 <span className="font-medium">60 req/min</span>
                             </div>
                             <div className="flex justify-between py-1">
-                                <span>Pro</span>
+                                <span>{tCommon('plan_pro')}</span>
                                 <span className="font-medium">300 req/min</span>
                             </div>
                         </CardContent>

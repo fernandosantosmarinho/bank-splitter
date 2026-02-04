@@ -373,7 +373,10 @@ export default function ExtractionView({
                 account: acc.account_name
             });
 
-            const fileName = `${acc.account_name}.csv`;
+            // Use original filename base if available, otherwise fallback to account name
+            const baseName = file ? file.name.substring(0, file.name.lastIndexOf('.')) || file.name : acc.account_name;
+            const fileName = `${baseName}.csv`;
+
             downloadFile(acc.csv_content, fileName, "text/csv;charset=utf-8;");
             await incrementMetric(user?.id, 'csv_exports', 1);
             if (onDownload) onDownload("CSV", fileName);
@@ -388,7 +391,10 @@ export default function ExtractionView({
                 account: acc.account_name
             });
 
-            const fileName = `${acc.account_name}.qbo`;
+            // Use original filename base if available, otherwise fallback to account name
+            const baseName = file ? file.name.substring(0, file.name.lastIndexOf('.')) || file.name : acc.account_name;
+            const fileName = `${baseName}.qbo`;
+
             downloadFile(acc.qbo_content, fileName, "application/octet-stream");
             await incrementMetric(user?.id, 'qbo_exports', 1);
             if (onDownload) onDownload("QBO", fileName);

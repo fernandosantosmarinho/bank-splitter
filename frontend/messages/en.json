@@ -442,5 +442,122 @@
             "revoke_error": "Failed to revoke key",
             "copied": "Copied to clipboard"
         }
+    },
+    "Landing": {
+        "Hero": {
+            "headline": "From PDF Statement to QuickBooks in 15 Seconds.",
+            "subheadline": "Stop wasting hours on manual data entry. AI-powered extraction for accountants and founders with 99.9% accuracy.",
+            "cta_primary": "Start for Free",
+            "cta_secondary": "Watch Demo",
+            "new_engine_badge": "",
+            "headline_part1": "From PDF Statement to",
+            "headline_part2": "in Seconds.",
+            "mockup_accuracy": "100% ACCURACY MATCH"
+        },
+        "SocialProof": {
+            "trusted_by": "Trusted by forward-thinking accountants worldwide",
+            "stat_transactions": "1M+ Transactions Processed"
+        },
+        "Features": {
+            "title": "One Platform, Endless Possibilities",
+            "subtitle": "Everything you need to automate your financial workflow.",
+            "card_speed_title": "Speed Demon",
+            "card_speed_desc": "Process 3-4 page PDFs in ~15 seconds.",
+            "card_global_title": "Global Banks",
+            "card_global_desc": "Support for international formats & currencies.",
+            "card_format_title": "Format Freedom",
+            "card_format_desc": "Export to CSV, Excel, QBO, OFX seamlessly.",
+            "card_ai_title": "Accounting Precision",
+            "card_ai_desc": "Our proprietary technology ensures 99.9% accuracy without human intervention.",
+            "card_ai_security": "AES-256 ENCRYPTED"
+        },
+        "DeveloperAPI": {
+            "badge": "API First",
+            "title": "Built for Developers. Ready for Scale.",
+            "description": "Integrate bank statement extraction directly into your ERP or app. Full REST API access with webhooks, idempotency, and enterprise-grade security.",
+            "feature_1": "Simple Auth (x-api-key)",
+            "feature_2": "Async Processing for large files",
+            "feature_3": "Zero-Retention Policy (Inputs deleted instantly)",
+            "code_ready": "Ready"
+        },
+        "HowItWorks": {
+            "title": "Automate in 3 Steps",
+            "step1_title": "Upload PDF",
+            "step1_desc": "Drag & drop your bank statement.",
+            "step2_title": "Secure Processing",
+            "step2_desc": "Your data is processed in an encrypted and isolated environment.",
+            "step3_title": "Download",
+            "step3_desc": "Get your QBO/CSV instantly."
+        },
+        "CTA": {
+            "title": "Ready to automate your bookkeeping?",
+            "button": "Start for Free Now"
+        },
+        "Pricing": {
+            "title": "Simple, Transparent Pricing.",
+            "subtitle": "Start for free, upgrade when you scale.",
+            "welcome_offer": "🎉 Welcome Offer: Get 40% OFF permanently! Offer ends in",
+            "monthly": "Monthly",
+            "yearly": "Yearly",
+            "current_plan": "Current Plan",
+            "subscribe": "Subscribe",
+            "most_popular": "Most Popular",
+            "per_month": "mo",
+            "cards": {
+                "free_title": "Free",
+                "free_price": "€0",
+                "free_desc": "For testing",
+                "free_feat_1": "5 docs/mo",
+                "free_feat_2": "Basic Extraction",
+                "free_feat_3": "CSV Export",
+                "starter_title": "Starter",
+                "starter_price_original": "€15",
+                "starter_price_discount": "€9",
+                "starter_desc": "For freelancers",
+                "starter_feat_1": "50 docs/mo",
+                "starter_feat_2": "Advanced Extraction",
+                "starter_feat_3": "CSV + Excel",
+                "pro_title": "Pro",
+                "pro_price_original": "€49",
+                "pro_price_discount": "€29.40",
+                "pro_desc": "For accountants",
+                "pro_feat_1": "500 docs/mo",
+                "pro_feat_2": "Priority Processing",
+                "pro_feat_3": "QuickBooks Integration",
+                "pro_feat_4": "Priority Support",
+                "free_cta": "Sign Up Free",
+                "paid_cta": "Subscribe Now",
+                "starter_price_yearly": "€12.00",
+                "pro_price_yearly": "€39.00",
+                "billed_starter_yearly": "Billed annually (€144.00 total)",
+                "billed_pro_yearly": "Billed annually (€468.00 total)",
+                "cta_starter_yearly": "Subscribe Starter",
+                "cta_pro_yearly": "Subscribe Pro"
+            }
+        },
+        "FAQ": {
+            "title": "Frequently Asked Questions",
+            "q1": "Is my financial data safe?",
+            "a1": "Yes. We use AES-256 encryption for all data. Your files are processed in a secure enclave and are never used to train external automated algorithms or AI models.",
+            "q2": "Does it work with scanned PDFs?",
+            "a2": "Absolutely. Our proprietary engine uses advanced OCR to interpret scanned documents and images with 99.9% accuracy.",
+            "q3": "Can I export to Excel instead of QuickBooks?",
+            "a3": "Yes. We support exports in standard CSV, Excel (XLSX), QuickBooks (QBO), and OFX formats.",
+            "q4": "What happens after the free trial?",
+            "a4": "You can choose to upgrade to a paid plan or continue using our Free tier which includes 5 documents per month forever.",
+            "badge": "Support Center"
+        },
+        "Navbar": {
+            "signin": "Sign In",
+            "get_started": "Get Started",
+            "dashboard": "Go to Dashboard",
+            "features": "Features",
+            "how_it_works": "How it Works",
+            "pricing": "Pricing"
+        },
+        "Footer": {
+            "privacy": "Privacy",
+            "terms": "Terms"
+        }
     }
 }

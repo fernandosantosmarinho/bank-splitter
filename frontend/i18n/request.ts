@@ -1,8 +1,11 @@
 import { getRequestConfig } from 'next-intl/server';
-import { getLocale } from './get-locale.server';
+import { locales, defaultLocale } from './locales';
 
-export default getRequestConfig(async () => {
-    const locale = await getLocale();
+export default getRequestConfig(async ({ requestLocale }) => {
+    const requestedLocale = await requestLocale;
+    const locale = requestedLocale && locales.includes(requestedLocale as any)
+        ? requestedLocale
+        : defaultLocale;
 
     const userMessages = (await import(`../messages/${locale}.json`)).default;
     const defaultMessages = (await import(`../messages/en.json`)).default;
@@ -20,6 +23,7 @@ export default getRequestConfig(async () => {
         ...userMessages,
         Dashboard: { ...defaultMessages.Dashboard, ...(userMessages.Dashboard || {}) },
         Common: { ...defaultMessages.Common, ...(userMessages.Common || {}) },
+        Landing: { ...defaultMessages.Landing, ...(userMessages.Landing || {}) },
     };
 
     return {

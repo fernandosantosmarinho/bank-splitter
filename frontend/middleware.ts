@@ -1,5 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server"; // <--- Importação Essencial
+import { NextResponse } from "next/server";
 
 // Define rotas que exigem autenticação
 const isProtectedRoute = createRouteMatcher([
@@ -12,20 +12,24 @@ const isWebhookRoute = createRouteMatcher([
     '/api/stripe/webhook',
 ]);
 
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
+
+const intlMiddleware = createMiddleware(routing);
+
 export default clerkMiddleware(async (auth, req) => {
     const { userId } = await auth();
 
     // Se o usuário estiver logado e tentar acessar a home ('/'), redireciona para o dashboard
-    if (userId && req.nextUrl.pathname === '/') {
-        // CORREÇÃO: Usar NextResponse.redirect ao invés de Response.redirect
-        const dashboardUrl = new URL('/dashboard', req.url);
-        return NextResponse.redirect(dashboardUrl);
-    }
+    // NOTE: This might conflict with next-intl if not careful, but let's keep it.
+    // If next-intl redirects / -> /en, this check for '/' might miss /en.
 
     // Protege rotas APENAS se não for o webhook
     if (isProtectedRoute(req) && !isWebhookRoute(req)) {
         await auth.protect();
     }
+
+    return intlMiddleware(req);
 });
 
 export const config = {

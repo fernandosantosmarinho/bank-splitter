@@ -442,5 +442,122 @@
             "revoke_error": "Falha ao revogar chave",
             "copied": "Copiado para a área de transferência"
         }
+    },
+    "Landing": {
+        "Hero": {
+            "headline": "De Extrato PDF para QuickBooks em 15 Segundos.",
+            "subheadline": "Pare de gastar horas com entrada manual de dados. Extração por IA para contadores e fundadores com 99,9% de precisão.",
+            "cta_primary": "Começar Grátis",
+            "cta_secondary": "Ver Demo",
+            "new_engine_badge": "",
+            "headline_part1": "De Extrato PDF para",
+            "headline_part2": "em Segundos.",
+            "mockup_accuracy": "100% PRECISÃO DE DADOS"
+        },
+        "SocialProof": {
+            "trusted_by": "Confiado por contadores inovadores em todo o mundo",
+            "stat_transactions": "1M+ Transações Processadas"
+        },
+        "Features": {
+            "title": "Uma Plataforma, Possibilidades Infinitas",
+            "subtitle": "Tudo o que você precisa para automatizar seu fluxo de trabalho financeiro.",
+            "card_speed_title": "Demônio da Velocidade",
+            "card_speed_desc": "Processe PDFs de 3-4 páginas em ~15 segundos.",
+            "card_global_title": "Bancos Globais",
+            "card_global_desc": "Suporte para formatos e moedas internacionais.",
+            "card_format_title": "Liberdade de Formato",
+            "card_format_desc": "Exporte para CSV, Excel, QBO, OFX sem problemas.",
+            "card_ai_title": "Precisão Contábil",
+            "card_ai_desc": "Nossa tecnologia proprietária garante 99.9% de precisão sem intervenção humana.",
+            "card_ai_security": "CRIPTOGRAFIA AES-256"
+        },
+        "DeveloperAPI": {
+            "badge": "API First",
+            "title": "Feito para Desenvolvedores. Pronto para Escalar.",
+            "description": "Integre a extração de extratos bancários diretamente no seu ERP ou aplicativo. Acesso completo à API REST com webhooks, idempotência e segurança de nível empresarial.",
+            "feature_1": "Autenticação Simples (x-api-key)",
+            "feature_2": "Processamento Assíncrono para arquivos grandes",
+            "feature_3": "Política de Retenção Zero (Entradas deletadas instantaneamente)",
+            "code_ready": "Pronto"
+        },
+        "HowItWorks": {
+            "title": "Automatize em 3 Passos",
+            "step1_title": "Enviar PDF",
+            "step1_desc": "Arraste e solte seu extrato bancário.",
+            "step2_title": "Processamento Seguro",
+            "step2_desc": "Seus dados são processados em ambiente criptografado e isolado.",
+            "step3_title": "Baixar",
+            "step3_desc": "Obtenha seu QBO/CSV instantaneamente."
+        },
+        "CTA": {
+            "title": "Pronto para automatizar sua contabilidade?",
+            "button": "Começar Grátis Agora"
+        },
+        "Pricing": {
+            "title": "Preços Simples e Transparentes.",
+            "subtitle": "Comece grátis, faça upgrade quando crescer.",
+            "welcome_offer": "🎉 Oferta de Boas-vindas: 40% OFF permanente! Termina em",
+            "monthly": "Mensal",
+            "yearly": "Anual",
+            "current_plan": "Plano Atual",
+            "subscribe": "Assinar",
+            "most_popular": "Mais Popular",
+            "per_month": "mês",
+            "cards": {
+                "free_title": "Free",
+                "free_price": "€0",
+                "free_desc": "Para testes",
+                "free_feat_1": "5 docs/mês",
+                "free_feat_2": "Extração Básica",
+                "free_feat_3": "Exportação CSV",
+                "starter_title": "Starter",
+                "starter_price_original": "€15",
+                "starter_price_discount": "€9",
+                "starter_desc": "Para freelancers",
+                "starter_feat_1": "50 docs/mês",
+                "starter_feat_2": "Extração Avançada",
+                "starter_feat_3": "CSV + Excel",
+                "pro_title": "Pro",
+                "pro_price_original": "€49",
+                "pro_price_discount": "€29.40",
+                "pro_desc": "Para contadores",
+                "pro_feat_1": "500 docs/mês",
+                "pro_feat_2": "Processamento Prioritário",
+                "pro_feat_3": "Integração QuickBooks",
+                "pro_feat_4": "Suporte Prioritário",
+                "free_cta": "Criar Conta Grátis",
+                "paid_cta": "Assinar Agora",
+                "starter_price_yearly": "€12.00",
+                "pro_price_yearly": "€39.00",
+                "billed_starter_yearly": "Cobrado anualmente (€144.00 total)",
+                "billed_pro_yearly": "Cobrado anualmente (€468.00 total)",
+                "cta_starter_yearly": "Assinar Starter",
+                "cta_pro_yearly": "Assinar Pro"
+            }
+        },
+        "FAQ": {
+            "title": "Perguntas Frequentes",
+            "q1": "Meus dados financeiros estão seguros?",
+            "a1": "Sim. Usamos criptografia AES-256. Seus arquivos são processados em ambiente seguro e nunca são usados para treinar algoritmos automatizados externos ou modelos de IA.",
+            "q2": "Funciona com PDFs escaneados?",
+            "a2": "Com certeza. Nosso motor proprietário usa OCR avançado para interpretar documentos escaneados e imagens com 99,9% de precisão.",
+            "q3": "Posso exportar para Excel em vez de QuickBooks?",
+            "a3": "Sim. Suportamos exportações em formatos padrão CSV, Excel (XLSX), QuickBooks (QBO) e OFX.",
+            "q4": "O que acontece após o teste grátis?",
+            "a4": "Você pode optar por atualizar para um plano pago ou continuar usando nosso nível Gratuito, que inclui 5 documentos por mês para sempre.",
+            "badge": "Central de Suporte"
+        },
+        "Navbar": {
+            "signin": "Entrar",
+            "get_started": "Começar",
+            "dashboard": "Ir para Dashboard",
+            "features": "Funcionalidades",
+            "how_it_works": "Como Funciona",
+            "pricing": "Preços"
+        },
+        "Footer": {
+            "privacy": "Privacidade",
+            "terms": "Termos"
+        }
     }
 }

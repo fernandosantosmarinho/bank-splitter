@@ -75,9 +75,11 @@
         "title": "Upgrade Subscription",
         "description": "Enter your payment details to upgrade to the {tier} plan.",
         "plan_label": "{tier} Plan",
+        "plan_label_short": "Plan",
         "billed_monthly": "Billed monthly. Cancel anytime.",
         "billed_yearly": "Billed annually at €{price}",
         "pay_button": "Pay €{price}",
+        "pay_button_secure": "Pay €{price} Securely",
         "cancel_button": "Cancel",
         "processing": "Processing...",
         "initializing": "Initializing secure checkout...",
@@ -87,7 +89,18 @@
             "title": "Payment Successful!",
             "message": "Your subscription is now active."
         },
-        "secured_by": "Payments secured by Stripe"
+        "secured_by": "Payments secured by Stripe",
+        "secure_billing": "Secure SSL Billing",
+        "payment_info": "Payment Information",
+        "stripe_encrypted": "Payment processed via Stripe. Your data is encrypted.",
+        "included": "Included:",
+        "features": {
+            "docs_per_month": "{count} documents/mo",
+            "advanced_extraction": "Advanced Extraction",
+            "export_csv_excel": "CSV & Excel Export",
+            "quickbooks": "QuickBooks Integration"
+        },
+        "terms_notice": "By continuing, you agree to our Terms and Privacy Policy."
     },
     "Extraction": {
         "titles": {

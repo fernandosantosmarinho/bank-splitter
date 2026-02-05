@@ -75,9 +75,11 @@
         "title": "Mejorar Suscripción",
         "description": "Ingrese sus detalles de pago para cambiar al plan {tier}.",
         "plan_label": "Plan {tier}",
+        "plan_label_short": "Plan",
         "billed_monthly": "Facturado mensualmente. Cancela en cualquier momento.",
         "billed_yearly": "Facturado anualmente a €{price}",
         "pay_button": "Pagar €{price}",
+        "pay_button_secure": "Pagar €{price} con Seguridad",
         "cancel_button": "Cancelar",
         "processing": "Procesando...",
         "initializing": "Inicializando pago seguro...",
@@ -87,7 +89,18 @@
             "title": "¡Pago Exitoso!",
             "message": "Su suscripción ahora está activa."
         },
-        "secured_by": "Pagos asegurados por Stripe"
+        "secured_by": "Pagos asegurados por Stripe",
+        "secure_billing": "Facturación Segura SSL",
+        "payment_info": "Información de Pago",
+        "stripe_encrypted": "Pago procesado vía Stripe. Sus datos están encriptados.",
+        "included": "Incluido:",
+        "features": {
+            "docs_per_month": "{count} documentos/mes",
+            "advanced_extraction": "Extracción Avanzada",
+            "export_csv_excel": "Exportación CSV y Excel",
+            "quickbooks": "Integración QuickBooks"
+        },
+        "terms_notice": "Al continuar, aceptas nuestros Términos y Política de Privacidad."
     },
     "Extraction": {
         "titles": {

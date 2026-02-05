@@ -75,9 +75,11 @@
         "title": "Mettre à niveau",
         "description": "Saisissez vos informations de paiement pour passer au forfait {tier}.",
         "plan_label": "Forfait {tier}",
+        "plan_label_short": "Forfait",
         "billed_monthly": "Facturé mensuellement. Annulez à tout moment.",
         "billed_yearly": "Facturé annuellement à €{price}",
         "pay_button": "Payer €{price}",
+        "pay_button_secure": "Payer €{price} en Toute Sécurité",
         "cancel_button": "Annuler",
         "processing": "Traitement...",
         "initializing": "Initialisation du paiement sécurisé...",
@@ -87,7 +89,18 @@
             "title": "Paiement Réussi !",
             "message": "Votre abonnement est maintenant actif."
         },
-        "secured_by": "Paiements sécurisés par Stripe"
+        "secured_by": "Paiements sécurisés par Stripe",
+        "secure_billing": "Facturation Sécurisée SSL",
+        "payment_info": "Informations de Paiement",
+        "stripe_encrypted": "Paiement traité via Stripe. Vos données sont cryptées.",
+        "included": "Inclus :",
+        "features": {
+            "docs_per_month": "{count} documents/mois",
+            "advanced_extraction": "Extraction Avancée",
+            "export_csv_excel": "Export CSV & Excel",
+            "quickbooks": "Intégration QuickBooks"
+        },
+        "terms_notice": "En continuant, vous acceptez nos Conditions et Politique de Confidentialité."
     },
     "Extraction": {
         "titles": {

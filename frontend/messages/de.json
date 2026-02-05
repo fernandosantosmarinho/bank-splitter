@@ -75,9 +75,11 @@
         "title": "Abonnement upgraden",
         "description": "Geben Sie Ihre Zahlungsdaten ein, um auf den {tier} Plan umzusteigen.",
         "plan_label": "{tier} Plan",
+        "plan_label_short": "Plan",
         "billed_monthly": "Monatlich abgerechnet. Jederzeit kündbar.",
         "billed_yearly": "Jährlich abgerechnet für €{price}",
         "pay_button": "Zahle €{price}",
+        "pay_button_secure": "Zahle €{price} Sicher",
         "cancel_button": "Abbrechen",
         "processing": "Verarbeite...",
         "initializing": "Initialisiere sichere Kasse...",
@@ -87,7 +89,18 @@
             "title": "Zahlung Erfolgreich!",
             "message": "Ihr Abonnement ist jetzt aktiv."
         },
-        "secured_by": "Zahlungen gesichert durch Stripe"
+        "secured_by": "Zahlungen gesichert durch Stripe",
+        "secure_billing": "Sichere SSL-Abrechnung",
+        "payment_info": "Zahlungsinformationen",
+        "stripe_encrypted": "Zahlung über Stripe verarbeitet. Ihre Daten sind verschlüsselt.",
+        "included": "Enthalten:",
+        "features": {
+            "docs_per_month": "{count} Dokumente/Monat",
+            "advanced_extraction": "Erweiterte Extraktion",
+            "export_csv_excel": "CSV & Excel Export",
+            "quickbooks": "QuickBooks Integration"
+        },
+        "terms_notice": "Mit dem Fortfahren stimmen Sie unseren AGB und Datenschutzrichtlinien zu."
     },
     "Extraction": {
         "titles": {

@@ -29,6 +29,11 @@ export default clerkMiddleware(async (auth, req) => {
         await auth.protect();
     }
 
+    // Skip internationalization for API routes
+    if (req.nextUrl.pathname.startsWith('/api/')) {
+        return NextResponse.next();
+    }
+
     return intlMiddleware(req);
 });
 

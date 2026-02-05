@@ -75,9 +75,11 @@
         "title": "Atualizar Assinatura",
         "description": "Insira seus dados de pagamento para atualizar para o plano {tier}.",
         "plan_label": "Plano {tier}",
+        "plan_label_short": "Plano",
         "billed_monthly": "Cobrado mensalmente. Cancele a qualquer momento.",
         "billed_yearly": "Cobrado anualmente por €{price}",
         "pay_button": "Pagar €{price}",
+        "pay_button_secure": "Pagar €{price} com Segurança",
         "cancel_button": "Cancelar",
         "processing": "Processando...",
         "initializing": "Inicializando checkout seguro...",
@@ -87,7 +89,18 @@
             "title": "Pagamento Bem-sucedido!",
             "message": "Sua assinatura agora está ativa."
         },
-        "secured_by": "Pagamentos seguros via Stripe"
+        "secured_by": "Pagamentos seguros via Stripe",
+        "secure_billing": "Cobrança Segura SSL",
+        "payment_info": "Informações de Pagamento",
+        "stripe_encrypted": "Pagamento processado via Stripe. Seus dados estão criptografados.",
+        "included": "Incluído:",
+        "features": {
+            "docs_per_month": "{count} documentos/mês",
+            "advanced_extraction": "Extração Avançada",
+            "export_csv_excel": "Exportação CSV & Excel",
+            "quickbooks": "Integração QuickBooks"
+        },
+        "terms_notice": "Ao continuar, você concorda com nossos Termos e Política de Privacidade."
     },
     "Extraction": {
         "titles": {

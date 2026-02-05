@@ -190,7 +190,7 @@ function Hero({ sectionT }: { sectionT: Translator }) {
                     <span className="[word-spacing:12px]">{t("headline_part1")}</span> <br className="hidden md:block" />
                     <span className="inline-flex flex-wrap items-baseline justify-center gap-x-1 gap-y-1">
                         {/* Fixed Width Container for Typewriter */}
-                        <span className="inline-flex items-baseline justify-start w-[150px] md:w-[220px] whitespace-nowrap">
+                        <span className="inline-flex items-baseline justify-start w-[100px] md:w-[180px] whitespace-nowrap">
                             <span className={cn("font-bold", words[textIndex].color)}>
                                 {words[textIndex].text.substring(0, subIndex) || "\u00A0"}
                             </span>
@@ -208,7 +208,7 @@ function Hero({ sectionT }: { sectionT: Translator }) {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed"
+                    className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed"
                 >
                     {t("subheadline")}
                 </motion.p>
@@ -354,7 +354,7 @@ function SocialProof({ sectionT }: { sectionT: Translator }) {
 function Features({ sectionT }: { sectionT: Translator }) {
     const t = (key: string) => sectionT(`Features.${key}`);
 
-    const cardClass = "group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 hover:border-white/20 transition-all duration-500";
+    const cardClass = "group relative overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-b from-white/[0.05] to-transparent p-8 hover:border-white/30 transition-all duration-500";
 
     return (
         <section id="features" className="py-32 px-6 relative bg-[#050505]">
@@ -373,7 +373,7 @@ function Features({ sectionT }: { sectionT: Translator }) {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0.1 }}
-                        className="text-gray-400 text-lg max-w-2xl mx-auto"
+                        className="text-gray-300 text-lg max-w-2xl mx-auto"
                     >
                         {t("subtitle")}
                     </motion.p>
@@ -390,10 +390,10 @@ function Features({ sectionT }: { sectionT: Translator }) {
                                 <Zap className="h-6 w-6" />
                             </div>
                             <h3 className="text-3xl font-bold tracking-normal text-white mb-4">{t("card_speed_title")}</h3>
-                            <p className="text-gray-400 text-lg max-w-md">{t("card_speed_desc")}</p>
+                            <p className="text-gray-300 text-lg max-w-md">{t("card_speed_desc")}</p>
 
                             <div className="mt-auto">
-                                <div className="flex items-center justify-between text-xs font-mono text-gray-500 mb-2">
+                                <div className="flex items-center justify-between text-xs font-mono text-gray-400 mb-2">
                                     <span>PROCESSING TIME</span>
                                     <span className="text-blue-400">0.15s</span>
                                 </div>
@@ -415,7 +415,7 @@ function Features({ sectionT }: { sectionT: Translator }) {
                             <Globe className="h-6 w-6" />
                         </div>
                         <h3 className="text-xl font-bold tracking-normal text-white mb-3">{t("card_global_title")}</h3>
-                        <p className="text-gray-400 text-sm leading-relaxed">{t("card_global_desc")}</p>
+                        <p className="text-gray-300 text-sm leading-relaxed">{t("card_global_desc")}</p>
                     </div>
 
                     {/* Card 3: Formats */}
@@ -424,10 +424,10 @@ function Features({ sectionT }: { sectionT: Translator }) {
                             <FileSpreadsheet className="h-6 w-6" />
                         </div>
                         <h3 className="text-xl font-bold tracking-normal text-white mb-3">{t("card_format_title")}</h3>
-                        <p className="text-gray-400 text-sm leading-relaxed mb-6">{t("card_format_desc")}</p>
+                        <p className="text-gray-300 text-sm leading-relaxed mb-6">{t("card_format_desc")}</p>
                         <div className="flex flex-wrap gap-2">
                             {['CSV', 'QBO', 'OFX', 'XLSX'].map(f => (
-                                <Badge key={f} variant="outline" className="border-white/10 text-gray-500 text-[10px]">
+                                <Badge key={f} variant="outline" className="border-white/10 text-gray-400 text-[10px]">
                                     {f}
                                 </Badge>
                             ))}
@@ -441,7 +441,7 @@ function Features({ sectionT }: { sectionT: Translator }) {
                                 <Shield className="h-3 w-3" /> {t("card_ai_security")}
                             </div>
                             <h3 className="text-3xl font-bold text-white mb-4">{t("card_ai_title")}</h3>
-                            <p className="text-gray-400 text-lg max-w-xl">{t("card_ai_desc")}</p>
+                            <p className="text-gray-300 text-lg max-w-xl">{t("card_ai_desc")}</p>
                         </div>
                         <div className="flex-1 w-full relative h-48 md:h-full bg-black/50 rounded-2xl border border-white/5 flex items-center justify-center overflow-hidden">
                             <div className="absolute inset-0 bg-grid-white/[0.05] [mask-image:linear-gradient(0deg,transparent,black)]" />
@@ -471,8 +471,8 @@ function HowItWorks({ sectionT }: { sectionT: Translator }) {
                 </div>
 
                 <div className="relative">
-                    {/* Connector Line (Desktop) */}
-                    <div className="hidden md:block absolute top-12 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent top-[3.5rem]" />
+                    {/* Central Vertical Dashed Line */}
+                    <div className="hidden md:block absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px border-l-2 border-dashed border-white/20" />
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8 max-w-5xl mx-auto">
                         {steps.map((step, i) => (
@@ -484,11 +484,6 @@ function HowItWorks({ sectionT }: { sectionT: Translator }) {
                                 transition={{ duration: 0.8, delay: i * 0.4, ease: "easeOut" }}
                                 className="flex flex-col items-center text-center relative z-10"
                             >
-                                {/* Step Number Watermark */}
-                                <div className="absolute -top-12 -z-10 text-[120px] font-bold text-white/[0.02] leading-none select-none">
-                                    {step.id}
-                                </div>
-
                                 <div className="relative mb-8 group">
                                     <div className="w-28 h-28 rounded-3xl bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-lg group-hover:border-blue-500/30 group-hover:bg-blue-500/5 transition-all duration-500">
                                         <step.icon className="h-10 w-10 text-gray-400 group-hover:text-blue-400 transition-colors" />
@@ -499,7 +494,7 @@ function HowItWorks({ sectionT }: { sectionT: Translator }) {
                                 </div>
 
                                 <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                                <p className="text-gray-400 text-sm leading-relaxed max-w-[250px]">{step.desc}</p>
+                                <p className="text-gray-300 text-sm leading-relaxed max-w-[250px]">{step.desc}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -527,12 +522,12 @@ function Pricing({ sectionT }: { sectionT: Translator }) {
                     </motion.div>
 
                     <h2 className="text-3xl md:text-5xl font-bold tracking-normal text-white mb-6">{t("title")}</h2>
-                    <p className="text-gray-400 text-lg">{t("subtitle")}</p>
+                    <p className="text-gray-300 text-lg">{t("subtitle")}</p>
 
                     <div className="flex items-center justify-center gap-4 mt-8">
-                        <span className={cn("text-sm transition-colors", !isYearly ? "text-white font-medium" : "text-gray-500")}>{t("monthly")}</span>
+                        <span className={cn("text-sm transition-colors", !isYearly ? "text-white font-medium" : "text-gray-400")}>{t("monthly")}</span>
                         <Switch checked={isYearly} onCheckedChange={setIsYearly} className="data-[state=checked]:bg-blue-600" />
-                        <span className={cn("text-sm flex items-center gap-2 transition-colors", isYearly ? "text-white font-medium" : "text-gray-500")}>
+                        <span className={cn("text-sm flex items-center gap-2 transition-colors", isYearly ? "text-white font-medium" : "text-gray-400")}>
                             {t("yearly")}
                             <Badge variant="secondary" className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30 text-[10px] px-1.5 py-0.5 h-5">-40%</Badge>
                         </span>
@@ -615,16 +610,16 @@ function PricingCard({
                 <h3 className={cn("text-lg font-medium mb-2", isPro ? "text-blue-400" : "text-white")}>{title}</h3>
                 <div className="flex items-baseline gap-2 mb-2">
                     {originalPrice && (
-                        <span className="text-lg text-gray-600 line-through">{originalPrice}</span>
+                        <span className="text-lg text-gray-500 line-through">{originalPrice}</span>
                     )}
                     <span className={cn("text-4xl font-bold tracking-tight text-white")}>{price}</span>
                     {billingCycle === "yearly" && yearlySubtext ? (
-                        <span className="text-gray-500 text-xs block mt-1">{yearlySubtext}</span>
+                        <span className="text-gray-400 text-xs block mt-1">{yearlySubtext}</span>
                     ) : (
-                        <span className="text-gray-500 text-sm">/{t("per_month")}</span>
+                        <span className="text-gray-400 text-sm">/{t("per_month")}</span>
                     )}
                 </div>
-                <p className="text-gray-400 text-sm">{description}</p>
+                <p className="text-gray-300 text-sm">{description}</p>
             </div>
 
             <div className="space-y-4 mb-8 flex-1">
@@ -633,7 +628,7 @@ function PricingCard({
                         <div className={cn("h-5 w-5 rounded-full flex items-center justify-center shrink-0", isPro ? "bg-blue-500/20 text-blue-400" : "bg-white/10 text-gray-400")}>
                             <Check className="h-3 w-3" />
                         </div>
-                        <span className="text-gray-300 text-sm">{feature}</span>
+                        <span className="text-gray-200 text-sm">{feature}</span>
                     </div>
                 ))}
             </div>
@@ -646,7 +641,7 @@ function PricingCard({
                 </SignUpButton>
             ) : buttonVariant === "primary" ? (
                 <SignUpButton mode="modal">
-                    <Button className="w-full bg-white text-black hover:bg-zinc-200 h-12 rounded-xl font-semibold text-base transition-all hover:scale-[1.02]">
+                    <Button className="w-full bg-transparent border border-white/20 hover:bg-white/10 text-white h-12 rounded-xl font-semibold text-base transition-all hover:scale-[1.02]">
                         {buttonText}
                     </Button>
                 </SignUpButton>
@@ -680,7 +675,7 @@ function DeveloperAPI({ sectionT }: { sectionT: Translator }) {
                             {t("title")}
                         </h2>
 
-                        <p className="text-gray-400 text-lg mb-8 leading-relaxed">
+                        <p className="text-gray-300 text-lg mb-8 leading-relaxed">
                             {t("description")}
                         </p>
 

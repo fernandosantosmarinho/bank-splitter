@@ -20,6 +20,13 @@ function safeEmail(user: any) {
     );
 }
 
+export async function GET(req: NextRequest) {
+    return NextResponse.json(
+        { error: 'Method not allowed. Use POST to create a subscription.' },
+        { status: 405 }
+    );
+}
+
 export async function POST(req: NextRequest) {
     try {
         // 1) Auth
@@ -149,8 +156,9 @@ export async function POST(req: NextRequest) {
             payment_behavior: 'default_incomplete',
             payment_settings: {
                 save_default_payment_method: 'on_subscription',
+                payment_method_types: ['card'],
             },
-            expand: ['latest_invoice'],
+            expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
             metadata: {
                 userId,
                 plan,
@@ -199,6 +207,24 @@ export async function POST(req: NextRequest) {
                 clientSecret = cs;
                 intentType = 'payment';
             }
+        }
+
+        // If STILL no client secret, create a setup intent manually
+        if (!clientSecret) {
+            console.log('[Create Sub] No payment_intent or setup_intent found, creating setup intent manually');
+            const setupIntent = await stripe.setupIntents.create({
+                customer: customerId,
+                payment_method_types: ['card'],
+                usage: 'off_session',
+                metadata: {
+                    subscriptionId: subscription.id,
+                    userId,
+                    plan,
+                },
+            });
+            clientSecret = setupIntent.client_secret;
+            intentType = 'setup';
+            console.log('[Create Sub] Created setup intent:', setupIntent.id);
         }
 
         console.log('[Create Sub] Final response', {

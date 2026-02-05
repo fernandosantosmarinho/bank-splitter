@@ -54,6 +54,8 @@ function DashboardContent() {
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [period, setPeriod] = useState<'7D' | '30D' | '90D' | 'All'>('30D');
+    const [isNavigating, setIsNavigating] = useState(false);
+    const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
 
     useEffect(() => {
         if (!user) return;
@@ -119,6 +121,19 @@ function DashboardContent() {
         });
     }, [user]);
 
+    const handleNavigation = useCallback((tab: string) => {
+        setIsNavigating(true);
+        setNavigatingTo(tab);
+        router.push(`/dashboard?tab=${tab}`);
+        setIsMobileMenuOpen(false);
+    }, [router]);
+
+    // Reset loading state when navigation completes
+    useEffect(() => {
+        setIsNavigating(false);
+        setNavigatingTo(null);
+    }, [searchParams]);
+
     const getPeriodMs = (periodKey: '7D' | '30D' | '90D' | 'All') => {
         const day = 24 * 60 * 60 * 1000;
         switch (periodKey) {
@@ -159,6 +174,8 @@ function DashboardContent() {
 
     return (
         <div className="flex flex-col h-screen bg-background font-sans text-foreground overflow-hidden">
+            {/* Top Progress Bar */}
+            {isNavigating && <TopProgressBar />}
 
             {/* --- GLOBAL HEADER (Single Row) --- */}
             <header className="flex flex-col bg-background z-50 shrink-0 border-b border-border/40 relative">
@@ -202,17 +219,17 @@ function DashboardContent() {
                         <div className="space-y-3">
                             <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-widest px-3">{t('nav.navigation_title')}</p>
                             <nav className="space-y-2">
-                                <SidebarItem icon={<Activity className="h-5 w-5" />} label={t('nav.overview')} active={currentTab === "overview"} onClick={() => { router.push("/dashboard?tab=overview"); setIsMobileMenuOpen(false); }} />
-                                <SidebarItem icon={<FileSpreadsheet className="h-5 w-5" />} label={t('nav.extract_statement')} active={currentTab === "statements"} onClick={() => { router.push("/dashboard?tab=statements"); setIsMobileMenuOpen(false); }} />
-                                <SidebarItem icon={<Banknote className="h-5 w-5" />} label={t('nav.extract_check')} active={currentTab === "checks"} onClick={() => { router.push("/dashboard?tab=checks"); setIsMobileMenuOpen(false); }} />
+                                <SidebarItem icon={<Activity className="h-5 w-5" />} label={t('nav.overview')} active={currentTab === "overview"} isLoading={navigatingTo === "overview"} onClick={() => handleNavigation("overview")} />
+                                <SidebarItem icon={<FileSpreadsheet className="h-5 w-5" />} label={t('nav.extract_statement')} active={currentTab === "statements"} isLoading={navigatingTo === "statements"} onClick={() => handleNavigation("statements")} />
+                                <SidebarItem icon={<Banknote className="h-5 w-5" />} label={t('nav.extract_check')} active={currentTab === "checks"} isLoading={navigatingTo === "checks"} onClick={() => handleNavigation("checks")} />
                             </nav>
                         </div>
 
                         <div className="space-y-3">
                             <p className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-widest px-3">{t('nav.account_title')}</p>
                             <nav className="space-y-2">
-                                <SidebarItem icon={<Terminal className="h-5 w-5" />} label="Developer API" active={currentTab === "developer"} onClick={() => { router.push("/dashboard?tab=developer"); setIsMobileMenuOpen(false); }} />
-                                <SidebarItem icon={<Settings className="h-5 w-5" />} label={t('nav.settings')} active={currentTab === "settings"} onClick={() => { router.push("/dashboard?tab=settings"); setIsMobileMenuOpen(false); }} />
+                                <SidebarItem icon={<Terminal className="h-5 w-5" />} label="Developer API" active={currentTab === "developer"} isLoading={navigatingTo === "developer"} onClick={() => handleNavigation("developer")} />
+                                <SidebarItem icon={<Settings className="h-5 w-5" />} label={t('nav.settings')} active={currentTab === "settings"} isLoading={navigatingTo === "settings"} onClick={() => handleNavigation("settings")} />
                             </nav>
                         </div>
                     </div>
@@ -354,19 +371,29 @@ function DashboardContent() {
     );
 }
 
-function SidebarItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void }) {
+function TopProgressBar() {
+    return (
+        <div className="fixed top-0 left-0 right-0 h-1 bg-primary/20 z-[100] overflow-hidden">
+            <div className="h-full bg-primary animate-progress-bar" />
+        </div>
+    );
+}
+
+function SidebarItem({ icon, label, active, isLoading, onClick }: { icon: React.ReactNode, label: string, active: boolean, isLoading?: boolean, onClick: () => void }) {
     return (
         <button
             onClick={onClick}
+            disabled={isLoading}
             className={cn(
                 "w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer group relative overflow-hidden",
                 active
                     ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                isLoading && "opacity-70 cursor-wait"
             )}
         >
             <div className={cn("transition-colors relative z-10", active ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground")}>
-                {icon}
+                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : icon}
             </div>
             <span className="relative z-10">{label}</span>
             {active && <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/90 opacity-100 z-0" />}

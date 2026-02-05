@@ -80,7 +80,13 @@ export default function PricingCard({
             pro: { monthly: 29.40, yearly: 280.80 }
         };
 
-        const prices = offer.isActive ? promoPrices : basePrices;
+        // Logic:
+        // 1. If offer is active globally (new user, unused) -> Show promo prices for all paid plans
+        // 2. If offer WAS used (welcome_offer_used=true) AND this card is the current plan -> Show promo price (persist discount)
+        // 3. Otherwise -> Show standard price
+        const usePromoPrice = offer.isActive || (isCurrent && userMetrics?.welcome_offer_used);
+
+        const prices = usePromoPrice ? promoPrices : basePrices;
         // @ts-ignore
         const price = prices[plan][billingPeriod];
 
@@ -179,7 +185,7 @@ export default function PricingCard({
 
                 <Button
                     onClick={() => onUpgrade(plan)}
-                    disabled={isCurrent || isLoading}
+                    disabled={isCurrent || isLoading || (plan === 'free' && currentPlan !== 'free')}
                     variant={isCurrent ? 'outline' : showPromo ? 'default' : 'secondary'}
                     className={`w-full font-bold ${showPromo && !isCurrent ? 'bg-indigo-600 hover:bg-indigo-500 text-white' : ''}`}
                 >

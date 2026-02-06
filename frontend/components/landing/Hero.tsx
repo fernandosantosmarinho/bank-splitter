@@ -86,7 +86,12 @@ export default function Hero() {
                 )}
 
                 {/* Headline - LCP Element */}
-                <h1 className="text-5xl md:text-7xl font-bold tracking-normal text-white mb-8 leading-tight">
+                <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="text-5xl md:text-7xl font-bold tracking-normal text-white mb-8 leading-tight"
+                >
                     <span className="[word-spacing:12px]">{t("headline_part1")}</span> <br className="hidden md:block" />
                     <span className="inline-flex flex-wrap items-baseline justify-center gap-x-1 gap-y-1">
                         <span className="inline-flex items-baseline justify-start w-[100px] md:w-[180px] whitespace-nowrap">
@@ -97,7 +102,7 @@ export default function Hero() {
                         </span>
                         <span>{t("headline_part2")}</span>
                     </span>
-                </h1>
+                </motion.h1>
 
                 <motion.p
                     initial={{ opacity: 0, y: 20 }}
@@ -112,7 +117,7 @@ export default function Hero() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
                     <SignUpButton mode="modal">
@@ -143,7 +148,7 @@ function TiltContainer({ mouseX, mouseY, onMouseMove, t }: { mouseX: any, mouseY
             onMouseMove={onMouseMove}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
         >
             <div className="relative rounded-2xl bg-[#0A0A0A] border border-white/10 shadow-2xl overflow-hidden max-w-5xl mx-auto aspect-[16/9] md:aspect-[2/1] transition-transform duration-200 ease-out">
                 {/* Glow Effect */}

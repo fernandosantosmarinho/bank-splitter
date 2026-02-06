@@ -121,7 +121,7 @@ function PricingCard({
                 <h3 className={cn("text-lg font-medium mb-2", isPro ? "text-blue-400" : "text-white")}>{title}</h3>
                 <div className="flex items-baseline gap-2 mb-2">
                     {originalPrice && (
-                        <span className="text-lg text-gray-500 line-through">{originalPrice}</span>
+                        <span className="text-lg text-gray-400 line-through">{originalPrice}</span>
                     )}
                     <span className={cn("text-4xl font-bold tracking-tight text-white")}>{price}</span>
                     {billingCycle === "yearly" && yearlySubtext ? (

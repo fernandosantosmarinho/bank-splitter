@@ -12,7 +12,7 @@ export default function SocialProof() {
     return (
         <section className="py-12 border-y border-white/5 bg-black/40 overflow-hidden">
             <div className="max-w-7xl mx-auto px-6 text-center mb-8">
-                <p className="text-xs text-gray-500 font-medium tracking-widest uppercase">{t("trusted_by")}</p>
+                <p className="text-xs text-gray-400 font-medium tracking-widest uppercase">{t("trusted_by")}</p>
             </div>
 
             <div className="relative flex overflow-hidden group">

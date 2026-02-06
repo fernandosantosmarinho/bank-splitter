@@ -49,7 +49,7 @@ export default function DeveloperAPI() {
                                     <div className="h-3 w-3 rounded-full bg-yellow-500/50" />
                                     <div className="h-3 w-3 rounded-full bg-green-500/50" />
                                 </div>
-                                <span className="text-xs text-gray-500 font-mono">api_demo.py</span>
+                                <span className="text-xs text-gray-400 font-mono">api_demo.py</span>
                                 <div className="w-12" />
                             </div>
 
@@ -58,15 +58,15 @@ export default function DeveloperAPI() {
                                     <code>
                                         <span className="text-purple-400">import</span> <span className="text-blue-400">requests</span>
                                         {"\n\n"}
-                                        <span className="text-gray-500">url</span> = <span className="text-green-400">"https://api.banktobook.com/v1/convert"</span>
+                                        <span className="text-gray-400">url</span> = <span className="text-green-400">"https://api.banktobook.com/v1/convert"</span>
                                         {"\n"}
-                                        <span className="text-gray-500">headers</span> = {'{'}<span className="text-green-400">"x-api-key"</span>: <span className="text-green-400">"sk_live_..."</span>{'}'}
+                                        <span className="text-gray-400">headers</span> = {'{'}<span className="text-green-400">"x-api-key"</span>: <span className="text-green-400">"sk_live_..."</span>{'}'}
                                         {"\n"}
-                                        <span className="text-gray-500">files</span> = {'{'}<span className="text-green-400">"file"</span>: <span className="text-blue-400">open</span>(<span className="text-green-400">"stmt.pdf"</span>, <span className="text-green-400">"rb"</span>){'}'}
+                                        <span className="text-gray-400">files</span> = {'{'}<span className="text-green-400">"file"</span>: <span className="text-blue-400">open</span>(<span className="text-green-400">"stmt.pdf"</span>, <span className="text-green-400">"rb"</span>){'}'}
                                         {"\n\n"}
-                                        <span className="text-gray-500">res</span> = <span className="text-blue-400">requests</span>.<span className="text-indigo-400">post</span>(<span className="text-gray-500">url</span>, <span className="text-gray-500">headers</span>, <span className="text-gray-500">files</span>)
+                                        <span className="text-gray-400">res</span> = <span className="text-blue-400">requests</span>.<span className="text-indigo-400">post</span>(<span className="text-gray-400">url</span>, <span className="text-gray-400">headers</span>, <span className="text-gray-400">files</span>)
                                         {"\n"}
-                                        <span className="text-purple-400">print</span>(<span className="text-gray-500">res</span>.<span className="text-indigo-400">json</span>())
+                                        <span className="text-purple-400">print</span>(<span className="text-gray-400">res</span>.<span className="text-indigo-400">json</span>())
                                     </code>
                                 </pre>
                             </div>

@@ -37,7 +37,7 @@ export default function HowItWorks() {
                                     <div className="w-28 h-28 rounded-3xl bg-white/[0.03] border border-white/10 flex items-center justify-center shadow-lg group-hover:border-blue-500/30 group-hover:bg-blue-500/5 transition-all duration-500">
                                         <step.icon className="h-10 w-10 text-gray-400 group-hover:text-blue-400 transition-colors" />
                                     </div>
-                                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#050505] border border-white/10 rounded-full px-3 py-1 text-xs font-mono text-gray-500">
+                                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#050505] border border-white/10 rounded-full px-3 py-1 text-xs font-mono text-gray-400">
                                         STEP 0{step.id}
                                     </div>
                                 </div>

@@ -163,7 +163,7 @@ function TiltContainer({ mouseX, mouseY, onMouseMove, t }: { mouseX: any, mouseY
                     {/* Source PDF */}
                     <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col gap-3 relative overflow-hidden group/scan">
                         <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <div className="flex items-center gap-2 text-xs text-gray-400">
                                 <FileSpreadsheet className="w-4 h-4" /> STATEMENT_2024.pdf
                             </div>
                         </div>

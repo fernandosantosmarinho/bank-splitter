@@ -6,7 +6,7 @@ import { Zap } from "lucide-react";
 export default function Footer() {
     const t = useTranslations("Landing.Footer");
     return (
-        <footer className="py-12 px-6 border-t border-white/10 bg-[#050505] text-sm text-gray-500">
+        <footer className="py-12 px-6 border-t border-white/10 bg-[#050505] text-sm text-gray-400">
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                 <div className="flex items-center gap-2">
                     <Zap className="h-4 w-4 text-blue-500" />

@@ -570,7 +570,8 @@
         },
         "Footer": {
             "privacy": "Privacy",
-            "terms": "Terms"
+            "terms": "Terms",
+            "contact": "Contact"
         }
     }
 }

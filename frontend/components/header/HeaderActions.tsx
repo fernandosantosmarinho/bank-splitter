@@ -89,7 +89,7 @@ function UsageIndicator({ metrics }: { metrics: UserMetrics }) {
         ? `${used} / ${total} docs`
         : `${used.toLocaleString()} / ${total === 999999 ? '∞' : total.toLocaleString()}`;
 
-// Dynamic Color Logic
+    // Dynamic Color Logic
     let colorClass = "bg-emerald-500";
 
     if (percent < 60) colorClass = "bg-emerald-500";
@@ -184,7 +184,7 @@ function HeaderUserMenu({ user }: { user: any }) {
     return (
         <>
             {isLoading && (
-                <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm flex items-center justify-center">
+                <div className="fixed inset-0 z-[200] bg-background/80 backdrop-blur-sm flex items-center justify-center">
                     <div className="flex flex-col items-center gap-4">
                         <Loader2 className="h-10 w-10 animate-spin text-primary" />
                         <div className="flex flex-col items-center gap-1">

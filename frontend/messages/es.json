@@ -458,14 +458,14 @@
     },
     "Landing": {
         "Hero": {
-            "headline": "De Extracto PDF a QuickBooks en 15 Segundos.",
-            "subheadline": "Deja de perder horas en entrada manual. Extracción automatizada para contadores y fundadores con 99,9% de precisión.",
+            "headline": "De Extracto PDF a QuickBooks en Segundos.",
+            "subheadline": "Deja de perder horas en entrada manual. Extracción robusta inteligente para contadores y fundadores.",
             "cta_primary": "Comenzar Gratis",
             "cta_secondary": "Ver Demo",
             "new_engine_badge": "",
             "headline_part1": "De Extracto PDF a",
             "headline_part2": "en Segundos.",
-            "mockup_accuracy": "100% PRECISIÓN DE DATOS"
+            "mockup_accuracy": "EXTRACCIÓN INTELIGENTE"
         },
         "SocialProof": {
             "trusted_by": "Confiado por contadores innovadores en todo el mundo",
@@ -474,15 +474,28 @@
         "Features": {
             "title": "Una Plataforma, Posibilidades Infinitas",
             "subtitle": "Todo lo que necesitas para automatizar tu flujo de trabajo financiero.",
-            "card_speed_title": "Demonio de la Velocidad",
-            "card_speed_desc": "Procesa extractos de 3-4 páginas en ~15 segundos.",
+            "card_speed_title": "Procesamiento Ágil",
+            "card_speed_desc": "Procesa PDFs de múltiples páginas en segundos.",
             "card_global_title": "Bancos Globales",
             "card_global_desc": "Soporte para formatos y monedas internacionales.",
             "card_format_title": "Libertad de Formato",
-            "card_format_desc": "Exporta a CSV, Excel, QBO, OFX sin problemas.",
+            "card_format_desc": "Exporta a CSV y Excel sin problemas.",
             "card_ai_title": "Precisión Contable",
-            "card_ai_desc": "Nuestra tecnología propietaria garantiza 99.9% de precisión sin intervención humana.",
+            "card_ai_desc": "Nuestra tecnología propietaria maximiza la precisión, reduciendo drásticamente la revisión manual.",
             "card_ai_security": "CIFRADO AES-256"
+        },
+        "InteractiveDemo": {
+            "title": "Funcionalidades",
+            "subtitle": "Recorrido interactivo de nuestra extracción inteligente",
+            "step1_title": "Subir Extracto",
+            "step1_desc": "Arrastre y suelte su extracto bancario en PDF",
+            "step2_title": "Extraer Cheque",
+            "step2_desc": "Procesar imágenes de cheques con OCR inteligente",
+            "step3_title": "Exportar Datos",
+            "step3_desc": "Descargue CSV/Excel limpio y listo para contabilidad",
+            "window_title": "Extracción BankToBook",
+            "processing_text": "Extrayendo transacciones...",
+            "download_btn": "Descargar CSV"
         },
         "DeveloperAPI": {
             "badge": "API First",
@@ -555,7 +568,7 @@
             "q2": "¿Funciona con PDFs escaneados?",
             "a2": "Absolutamente. Nuestro motor propietario usa OCR avanzado para interpretar documentos escaneados e imágenes con 99,9% de precisión.",
             "q3": "¿Puedo exportar a Excel en lugar de QuickBooks?",
-            "a3": "Sí. Soportamos exportaciones en formatos estándar CSV, Excel (XLSX), QuickBooks (QBO) y OFX.",
+            "a3": "Sí. Soportamos exportaciones en formatos estándar CSV y Excel (XLSX).",
             "q4": "¿Qué sucede después de la prueba gratuita?",
             "a4": "Puedes continuar usando el plan gratuito (5 documentos/mes) o actualizar a un plan pago en cualquier momento.",
             "badge": "Centro de Soporte"

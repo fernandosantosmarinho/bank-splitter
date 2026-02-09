@@ -458,14 +458,14 @@
     },
     "Landing": {
         "Hero": {
-            "headline": "From PDF Statement to QuickBooks in 15 Seconds.",
-            "subheadline": "Stop wasting hours on manual data entry. AI-powered extraction for accountants and founders with 99.9% accuracy.",
+            "headline": "From PDF Statement to QuickBooks in Seconds.",
+            "subheadline": "Stop wasting hours on manual data entry. Robust smart extraction for accountants and founders.",
             "cta_primary": "Start for Free",
             "cta_secondary": "Watch Demo",
             "new_engine_badge": "",
             "headline_part1": "From PDF Statement to",
             "headline_part2": "in Seconds.",
-            "mockup_accuracy": "100% ACCURACY MATCH"
+            "mockup_accuracy": "SMART EXTRACTION"
         },
         "SocialProof": {
             "trusted_by": "Trusted by forward-thinking accountants worldwide",
@@ -474,15 +474,28 @@
         "Features": {
             "title": "One Platform, Endless Possibilities",
             "subtitle": "Everything you need to automate your financial workflow.",
-            "card_speed_title": "Speed Demon",
-            "card_speed_desc": "Process 3-4 page PDFs in ~15 seconds.",
+            "card_speed_title": "Agile Processing",
+            "card_speed_desc": "Process multi-page PDFs in seconds.",
             "card_global_title": "Global Banks",
             "card_global_desc": "Support for international formats & currencies.",
             "card_format_title": "Format Freedom",
-            "card_format_desc": "Export to CSV, Excel, QBO, OFX seamlessly.",
+            "card_format_desc": "Export to CSV and Excel seamlessly.",
             "card_ai_title": "Accounting Precision",
-            "card_ai_desc": "Our proprietary technology ensures 99.9% accuracy without human intervention.",
+            "card_ai_desc": "Our proprietary technology maximizes accuracy, drastically reducing manual review.",
             "card_ai_security": "AES-256 ENCRYPTED"
+        },
+        "InteractiveDemo": {
+            "title": "Features",
+            "subtitle": "Interactive walkthrough of our smart extraction",
+            "step1_title": "Upload Statement",
+            "step1_desc": "Drag and drop your PDF bank statement",
+            "step2_title": "Extract Check",
+            "step2_desc": "Process check images with smart OCR",
+            "step3_title": "Export Data",
+            "step3_desc": "Download clean CSV/Excel ready for accounting",
+            "window_title": "BankToBook Extraction",
+            "processing_text": "Extracting transactions...",
+            "download_btn": "Download CSV"
         },
         "DeveloperAPI": {
             "badge": "API First",
@@ -551,11 +564,11 @@
         "FAQ": {
             "title": "Frequently Asked Questions",
             "q1": "Is my financial data safe?",
-            "a1": "Yes. We use AES-256 encryption for all data. Your files are processed in a secure enclave and are never used to train external automated algorithms or AI models.",
+            "a1": "Yes. We use AES-256 encryption for all data. Your files are processed in a secure enclave and are never used to train external automated algorithms or models.",
             "q2": "Does it work with scanned PDFs?",
-            "a2": "Absolutely. Our proprietary engine uses advanced OCR to interpret scanned documents and images with 99.9% accuracy.",
+            "a2": "Absolutely. Our proprietary engine uses advanced OCR to interpret scanned documents and images with high fidelity.",
             "q3": "Can I export to Excel instead of QuickBooks?",
-            "a3": "Yes. We support exports in standard CSV, Excel (XLSX), QuickBooks (QBO), and OFX formats.",
+            "a3": "Yes. We support exports in standard CSV and Excel (XLSX) formats.",
             "q4": "What happens after the free trial?",
             "a4": "You can choose to upgrade to a paid plan or continue using our Free tier which includes 5 documents per month forever.",
             "badge": "Support Center"

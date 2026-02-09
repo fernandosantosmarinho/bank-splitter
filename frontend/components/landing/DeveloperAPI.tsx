@@ -9,7 +9,7 @@ export default function DeveloperAPI() {
     const t = useTranslations("Landing.DeveloperAPI");
 
     return (
-        <section className="py-32 px-6 relative bg-[#050505] border-y border-white/5">
+        <section className="py-32 px-6 relative bg-slate-50 dark:bg-[#050505] border-y border-slate-200 dark:border-white/5 transition-colors duration-500">
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                     <div>
@@ -17,11 +17,11 @@ export default function DeveloperAPI() {
                             <Terminal className="h-3 w-3" /> {t("badge")}
                         </div>
 
-                        <h2 className="text-3xl md:text-5xl font-bold tracking-normal text-white mb-6 leading-tight">
+                        <h2 className="text-3xl md:text-5xl font-bold tracking-normal text-slate-900 dark:text-white mb-6 leading-tight">
                             {t("title")}
                         </h2>
 
-                        <p className="text-gray-300 text-lg mb-8 leading-relaxed">
+                        <p className="text-slate-600 dark:text-gray-300 text-lg mb-8 leading-relaxed">
                             {t("description")}
                         </p>
 
@@ -33,16 +33,16 @@ export default function DeveloperAPI() {
                             ].map((feature, i) => (
                                 <div key={i} className="flex items-center gap-3">
                                     <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0 border border-green-500/20">
-                                        <feature.icon className="h-5 w-5 text-green-400" />
+                                        <feature.icon className="h-5 w-5 text-green-600 dark:text-green-400" />
                                     </div>
-                                    <span className="text-zinc-300 font-medium">{feature.text}</span>
+                                    <span className="text-slate-700 dark:text-zinc-300 font-medium">{feature.text}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     <div className="relative">
-                        <div className="relative bg-[#0A0A0A] rounded-xl border border-white/10 overflow-hidden shadow-2xl">
+                        <div className="relative bg-[#0A0A0A] rounded-xl border border-white/10 overflow-hidden shadow-2xl group">
                             <div className="flex items-center justify-between px-4 py-3 bg-white/[0.02] border-b border-white/5">
                                 <div className="flex items-center gap-1.5">
                                     <div className="h-3 w-3 rounded-full bg-red-500/50" />

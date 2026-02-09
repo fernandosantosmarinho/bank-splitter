@@ -25,8 +25,18 @@ export default function Hero() {
 
     // Typewriter State
     const words = [
-        { text: ".CSV", color: "text-emerald-500" },
-        { text: ".QBO", color: "text-blue-500" }
+        {
+            text: ".CSV",
+            color: "text-emerald-600 dark:text-emerald-500",
+            cursorColor: "bg-emerald-600 dark:bg-emerald-500",
+            shadowColor: "shadow-[0_0_10px_2px_rgba(16,185,129,0.5)]"
+        },
+        {
+            text: ".QBO",
+            color: "text-blue-600 dark:text-blue-500",
+            cursorColor: "bg-blue-600 dark:bg-blue-500",
+            shadowColor: "shadow-[0_0_10px_2px_rgba(59,130,246,0.5)]"
+        }
     ];
     const [textIndex, setTextIndex] = useState(0);
     const [subIndex, setSubIndex] = useState(0);
@@ -68,10 +78,10 @@ export default function Hero() {
     };
 
     return (
-        <section className="relative pt-32 pb-20 px-6 min-h-screen flex flex-col items-center justify-center overflow-hidden">
+        <section className="relative pt-32 pb-20 px-6 min-h-screen flex flex-col items-center justify-center overflow-hidden bg-slate-50 dark:bg-[#050505] transition-colors duration-500">
             {/* Background elements - static to avoid layout shift */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-[#050505] to-[#050505]" />
-            <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100/50 via-slate-50 to-slate-50 dark:from-blue-900/20 dark:via-[#050505] dark:to-[#050505]" />
+            <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-40 dark:opacity-100" />
 
             <div className="max-w-5xl mx-auto text-center relative z-10 px-4">
                 {/* Badge */}
@@ -90,7 +100,7 @@ export default function Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
-                    className="text-5xl md:text-7xl font-bold tracking-normal text-white mb-8 leading-tight"
+                    className="text-5xl md:text-7xl font-bold tracking-normal text-slate-900 dark:text-white mb-8 leading-tight"
                 >
                     <span className="[word-spacing:12px]">{t("headline_part1")}</span> <br className="hidden md:block" />
                     <span className="inline-flex flex-wrap items-baseline justify-center gap-x-1 gap-y-1">
@@ -98,7 +108,11 @@ export default function Hero() {
                             <span className={cn("font-bold", words[textIndex].color)}>
                                 {words[textIndex].text.substring(0, subIndex) || "\u00A0"}
                             </span>
-                            <span className="w-1 h-10 md:h-14 bg-white ml-1 inline-block shadow-[0_0_10px_2px_rgba(255,255,255,0.8)] animate-pulse" />
+                            <span className={cn(
+                                "w-1 h-10 md:h-14 ml-1 inline-block animate-pulse",
+                                words[textIndex].cursorColor,
+                                words[textIndex].shadowColor
+                            )} />
                         </span>
                         <span>{t("headline_part2")}</span>
                     </span>
@@ -108,7 +122,7 @@ export default function Hero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.2 }}
-                    className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed"
+                    className="text-lg md:text-xl text-slate-600 dark:text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed"
                 >
                     {t("subheadline")}
                 </motion.p>
@@ -121,11 +135,11 @@ export default function Hero() {
                     className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
                     <SignUpButton mode="modal">
-                        <Button size="lg" className="h-14 px-8 text-base bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_30px_rgba(37,99,235,0.4)] border border-blue-400/20 rounded-full transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(37,99,235,0.6)]">
+                        <Button size="lg" className="h-14 px-8 text-base bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_30px_rgba(37,99,235,0.2)] dark:shadow-[0_0_30px_rgba(37,99,235,0.4)] border border-blue-400/20 rounded-full transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(37,99,235,0.4)] dark:hover:shadow-[0_0_40px_rgba(37,99,235,0.6)]">
                             {t("cta_primary")} <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                     </SignUpButton>
-                    <Button variant="outline" size="lg" className="h-14 px-8 text-base border-white/10 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white backdrop-blur-sm rounded-full transition-all hover:scale-105">
+                    <Button variant="outline" size="lg" className="h-14 px-8 text-base border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-700 dark:text-gray-300 hover:text-slate-900 dark:hover:text-white backdrop-blur-sm rounded-full transition-all hover:scale-105 shadow-sm dark:shadow-none">
                         <Play className="mr-2 h-4 w-4 fill-current" /> {t("cta_secondary")}
                     </Button>
                 </motion.div>
@@ -150,23 +164,23 @@ function TiltContainer({ mouseX, mouseY, onMouseMove, t }: { mouseX: any, mouseY
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.3 }}
         >
-            <div className="relative rounded-2xl bg-[#0A0A0A] border border-white/10 shadow-2xl overflow-hidden max-w-5xl mx-auto aspect-[16/9] md:aspect-[2/1] transition-transform duration-200 ease-out">
+            <div className="relative rounded-2xl bg-white dark:bg-[#0A0A0A] border border-slate-200 dark:border-white/10 shadow-xl dark:shadow-2xl overflow-hidden max-w-5xl mx-auto aspect-[16/9] md:aspect-[2/1] transition-transform duration-200 ease-out">
                 {/* Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 via-transparent to-purple-500/10 opacity-40 text-left group-hover:opacity-70 transition-opacity duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/5 via-transparent to-purple-500/5 dark:from-blue-500/10 dark:to-purple-500/10 opacity-40 text-left group-hover:opacity-70 transition-opacity duration-700" />
 
                 {/* UI: Browser Header */}
-                <div className="h-10 bg-white/5 border-b border-white/5 flex items-center px-4 gap-2">
+                <div className="h-10 bg-slate-50 dark:bg-white/5 border-b border-slate-100 dark:border-white/5 flex items-center px-4 gap-2">
                     <div className="flex gap-1.5">
-                        <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" />
-                        <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
-                        <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-red-400/40 dark:bg-red-500/20 border border-red-500/30 dark:border-red-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-yellow-400/40 dark:bg-yellow-500/20 border border-yellow-500/30 dark:border-yellow-500/50" />
+                        <div className="w-3 h-3 rounded-full bg-green-400/40 dark:bg-green-500/20 border border-green-500/30 dark:border-green-500/50" />
                     </div>
                 </div>
 
                 {/* UI: Content */}
                 <div className="p-6 grid grid-cols-2 gap-6 h-full relative z-10">
                     {/* Source PDF */}
-                    <div className="bg-white/[0.02] border border-white/5 rounded-xl p-4 flex flex-col gap-3 relative overflow-hidden group/scan">
+                    <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/5 rounded-xl p-4 flex flex-col gap-3 relative overflow-hidden group/scan">
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2 text-xs text-gray-400">
                                 <FileSpreadsheet className="w-4 h-4" /> STATEMENT_2024.pdf
@@ -174,7 +188,7 @@ function TiltContainer({ mouseX, mouseY, onMouseMove, t }: { mouseX: any, mouseY
                         </div>
                         <div className="space-y-3 opacity-50">
                             {[...Array(6)].map((_, i) => (
-                                <div key={i} className="h-2 w-full bg-zinc-800 rounded-sm" />
+                                <div key={i} className="h-2 w-full bg-slate-200 dark:bg-zinc-800 rounded-sm" />
                             ))}
                         </div>
                         {/* Scanning Beam */}
@@ -186,7 +200,7 @@ function TiltContainer({ mouseX, mouseY, onMouseMove, t }: { mouseX: any, mouseY
                     </div>
 
                     {/* Extracted Data */}
-                    <div className="bg-blue-900/[0.05] border border-blue-500/20 rounded-xl p-4 relative overflow-hidden">
+                    <div className="bg-blue-50 dark:bg-blue-900/[0.05] border border-blue-100 dark:border-blue-500/20 rounded-xl p-4 relative overflow-hidden">
                         <div className="flex items-center justify-between mb-4">
                             <Badge variant="outline" className="border-blue-500/30 text-blue-400 bg-blue-500/10 text-[10px]">
                                 QUICKBOOKS READY
@@ -203,8 +217,8 @@ function TiltContainer({ mouseX, mouseY, onMouseMove, t }: { mouseX: any, mouseY
                             ))}
                         </div>
 
-                        <div className="absolute bottom-4 left-4 right-4 bg-emerald-500/10 border border-emerald-500/20 p-2 rounded-lg text-center">
-                            <p className="text-emerald-400 text-xs font-mono font-bold tracking-wide">
+                        <div className="absolute bottom-4 left-4 right-4 bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 dark:border-emerald-500/20 p-2 rounded-lg text-center">
+                            <p className="text-emerald-600 dark:text-emerald-400 text-xs font-mono font-bold tracking-wide">
                                 {t("mockup_accuracy")}
                             </p>
                         </div>

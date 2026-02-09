@@ -8,7 +8,7 @@ import Hero from "@/components/landing/Hero";
 
 // Dynamic Imports (Below the fold)
 const SocialProof = dynamic(() => import('@/components/landing/SocialProof'), { ssr: true });
-const Features = dynamic(() => import('@/components/landing/Features'), { ssr: true });
+const InteractiveDemo = dynamic(() => import('@/components/landing/InteractiveDemo'), { ssr: true });
 const DeveloperAPI = dynamic(() => import('@/components/landing/DeveloperAPI'), { ssr: true });
 const HowItWorks = dynamic(() => import('@/components/landing/HowItWorks'), { ssr: true });
 const Pricing = dynamic(() => import('@/components/landing/Pricing'), { ssr: true });
@@ -24,11 +24,11 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
     const { userId } = await auth();
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white selection:bg-blue-500/30 overflow-x-hidden font-sans">
+        <div className="min-h-screen bg-[#F5F7FA] dark:bg-[#050505] text-slate-900 dark:text-white selection:bg-blue-500/30 overflow-x-hidden font-sans transition-colors duration-500">
             <Navbar userId={userId} />
             <Hero />
             <SocialProof />
-            <Features />
+            <InteractiveDemo />
             <DeveloperAPI />
             <HowItWorks />
             <Pricing />

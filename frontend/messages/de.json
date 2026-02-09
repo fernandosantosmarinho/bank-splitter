@@ -458,14 +458,14 @@
     },
     "Landing": {
         "Hero": {
-            "headline": "Von PDF-Kontoauszug zu",
-            "subheadline": "Verschwenden Sie keine Stunden mehr mit manueller Dateneingabe. Automatisierte Extraktion für Buchhalter und Gründer mit 99,9% Genauigkeit.",
+            "headline": "Von PDF-Kontoauszug zu QuickBooks in Sekunden.",
+            "subheadline": "Verschwenden Sie keine Stunden mehr mit manueller Dateneingabe. Robuste intelligente Extraktion für Buchhalter und Gründer.",
             "cta_primary": "Kostenlos Starten",
             "cta_secondary": "Demo Ansehen",
             "new_engine_badge": "",
-            "headline_part1": "Vom PDF-Beleg zu",
+            "headline_part1": "Vom PDF-Beleg zu QuickBooks",
             "headline_part2": "in Sekunden.",
-            "mockup_accuracy": "100% DATENPRÄZISION"
+            "mockup_accuracy": "SMARTE EXTRAKTION"
         },
         "SocialProof": {
             "trusted_by": "Vertraut von innovativen Buchhaltern weltweit",
@@ -474,15 +474,28 @@
         "Features": {
             "title": "Eine Plattform, Unendliche Möglichkeiten",
             "subtitle": "Alles, was Sie zur Automatisierung Ihres Finanz-Workflows benötigen.",
-            "card_speed_title": "Geschwindigkeits-Dämon",
-            "card_speed_desc": "Verarbeitet 3-4 seitige Auszüge in ~15 Sekunden.",
+            "card_speed_title": "Agile Verarbeitung",
+            "card_speed_desc": "Verarbeitet mehrseitige PDFs in Sekunden.",
             "card_global_title": "Globale Banken",
             "card_global_desc": "Unterstützung für internationale Formate und Währungen.",
             "card_format_title": "Format-Freiheit",
-            "card_format_desc": "Exportieren Sie nahtlos in CSV, Excel, QBO, OFX.",
+            "card_format_desc": "Exportieren Sie nahtlos in CSV und Excel.",
             "card_ai_title": "Buchhalterische Präzision",
-            "card_ai_desc": "Unsere proprietäre Technologie garantiert 99,9% Genauigkeit ohne menschliches Eingreifen.",
+            "card_ai_desc": "Unsere proprietäre Technologie maximiert die Genauigkeit und reduziert die manuelle Überprüfung drastisch.",
             "card_ai_security": "AES-256 VERSCHLÜSSELT"
+        },
+        "InteractiveDemo": {
+            "title": "Funktionen",
+            "subtitle": "Interaktive Anleitung unserer intelligenten Extraktion",
+            "step1_title": "Kontoauszug hochladen",
+            "step1_desc": "Ziehen Sie Ihren PDF-Kontoauszug per Drag & Drop",
+            "step2_title": "Scheck Extrahieren",
+            "step2_desc": "Scheckbilder mit intelligenter OCR verarbeiten",
+            "step3_title": "Daten exportieren",
+            "step3_desc": "Laden Sie sauberes CSV/Excel für die Buchhaltung herunter",
+            "window_title": "BankToBook Extraktion",
+            "processing_text": "Transaktionen werden extrahiert...",
+            "download_btn": "CSV herunterladen"
         },
         "DeveloperAPI": {
             "badge": "API First",
@@ -586,9 +599,9 @@
             "q1": "Sind meine Finanzdaten sicher?",
             "a1": "Ja. Wir verwenden AES-256-Verschlüsselung für alle Daten. Ihre Dateien werden in einer sicheren Enklave verarbeitet und niemals zum Trainieren externer Algorithmen verwendet.",
             "q2": "Funktioniert es mit gescannten PDFs?",
-            "a2": "Absolut. Unsere proprietäre Engine verwendet fortgeschrittene OCR, um gescannte Dokumente und Bilder mit 99,9% Genauigkeit zu interpretieren.",
+            "a2": "Absolut. Unsere proprietäre Engine verwendet fortgeschrittene OCR, um gescannte Dokumente und Bilder mit hoher Wiedergabetreue zu interpretieren.",
             "q3": "Kann ich nach Excel statt QuickBooks exportieren?",
-            "a3": "Ja. Wir unterstützen Exporte in den Standardformaten CSV, Excel (XLSX), QuickBooks (QBO) und OFX.",
+            "a3": "Ja. Wir unterstützen Exporte in den Standardformaten CSV und Excel (XLSX).",
             "q4": "Was passiert nach der kostenlosen Testversion?",
             "a4": "Sie können den kostenlosen Plan (5 Dokumente/Monat) weiterhin nutzen oder jederzeit auf einen kostenpflichtigen Plan upgraden.",
             "badge": "Support-Center"
@@ -607,7 +620,7 @@
             "terms": "Bedingungen",
             "contact": "Kontakt",
             "security": "Sicherheit",
-            "tagline": "KI-gestützte Buchhaltungsautomatisierung"
+            "tagline": "Intelligente Buchhaltungsautomatisierung"
         },
         "Navbar": {
             "signin": "Anmelden",

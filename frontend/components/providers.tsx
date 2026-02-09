@@ -86,8 +86,8 @@ export function Providers({ children, locale }: { children: React.ReactNode, loc
     return (
         <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
-            enableSystem={false}
+            defaultTheme="system"
+            enableSystem={true}
             disableTransitionOnChange
         >
             <ClerkWithTheme locale={locale || 'en'}>

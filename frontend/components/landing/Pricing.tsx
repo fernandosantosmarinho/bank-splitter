@@ -20,9 +20,9 @@ export default function Pricing() {
     const tWrapper = (key: string) => t(key);
 
     return (
-        <section id="pricing" className="py-32 px-6 relative bg-[#050505] overflow-hidden">
+        <section id="pricing" className="py-32 px-6 relative bg-slate-50 dark:bg-[#050505] overflow-hidden transition-colors duration-500">
             {/* Background glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-blue-900/10 rounded-full blur-[140px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] bg-blue-100/30 dark:bg-blue-900/10 rounded-full blur-[140px] pointer-events-none" />
 
             <div className="max-w-7xl mx-auto relative z-10">
                 <div className="text-center mb-16">
@@ -32,13 +32,13 @@ export default function Pricing() {
                         {t("welcome_offer")}
                     </motion.div>
 
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-normal text-white mb-6">{t("title")}</h2>
-                    <p className="text-gray-300 text-lg">{t("subtitle")}</p>
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-normal text-slate-900 dark:text-white mb-6">{t("title")}</h2>
+                    <p className="text-slate-600 dark:text-gray-300 text-lg">{t("subtitle")}</p>
 
                     <div className="flex items-center justify-center gap-4 mt-8">
-                        <span className={cn("text-sm transition-colors", !isYearly ? "text-white font-medium" : "text-gray-400")}>{t("monthly")}</span>
+                        <span className={cn("text-sm transition-colors", !isYearly ? "text-slate-900 dark:text-white font-medium" : "text-slate-500 dark:text-gray-400")}>{t("monthly")}</span>
                         <Switch checked={isYearly} onCheckedChange={setIsYearly} className="data-[state=checked]:bg-blue-600" />
-                        <span className={cn("text-sm flex items-center gap-2 transition-colors", isYearly ? "text-white font-medium" : "text-gray-400")}>
+                        <span className={cn("text-sm flex items-center gap-2 transition-colors", isYearly ? "text-slate-900 dark:text-white font-medium" : "text-slate-500 dark:text-gray-400")}>
                             {t("yearly")}
                             <Badge variant="secondary" className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30 text-[10px] px-1.5 py-0.5 h-5">-40%</Badge>
                         </span>
@@ -107,8 +107,8 @@ function PricingCard({
             className={cn(
                 "relative p-8 rounded-3xl border flex flex-col h-full transition-all duration-300",
                 isPro
-                    ? "bg-black border-blue-500/50 shadow-[0_0_50px_rgba(37,99,235,0.15)] ring-1 ring-blue-500/50"
-                    : "bg-white/[0.02] border-white/10 hover:border-white/20"
+                    ? "bg-white dark:bg-slate-900 border-blue-500/50 shadow-[0_0_40px_rgba(37,99,235,0.15)] ring-1 ring-blue-500/50"
+                    : "bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/10 hover:border-blue-500/30 dark:hover:border-white/20 shadow-sm dark:shadow-none"
             )}
         >
             {isPopular && (
@@ -118,47 +118,47 @@ function PricingCard({
             )}
 
             <div className="mb-8">
-                <h3 className={cn("text-lg font-medium mb-2", isPro ? "text-blue-400" : "text-white")}>{title}</h3>
+                <h3 className={cn("text-lg font-medium mb-2", isPro ? "text-blue-600 dark:text-blue-400" : "text-slate-900 dark:text-white")}>{title}</h3>
                 <div className="flex items-baseline gap-2 mb-2">
                     {originalPrice && (
-                        <span className="text-lg text-gray-400 line-through">{originalPrice}</span>
+                        <span className="text-lg text-slate-400 dark:text-gray-400 line-through">{originalPrice}</span>
                     )}
-                    <span className={cn("text-4xl font-bold tracking-tight text-white")}>{price}</span>
+                    <span className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white">{price}</span>
                     {billingCycle === "yearly" && yearlySubtext ? (
-                        <span className="text-gray-400 text-xs block mt-1">{yearlySubtext}</span>
+                        <span className="text-xs block mt-1 text-slate-500 dark:text-gray-400">{yearlySubtext}</span>
                     ) : (
-                        <span className="text-gray-400 text-sm">/{t("per_month")}</span>
+                        <span className="text-sm text-slate-500 dark:text-gray-400">/{t("per_month")}</span>
                     )}
                 </div>
-                <p className="text-gray-300 text-sm">{description}</p>
+                <p className="text-sm text-slate-600 dark:text-gray-300">{description}</p>
             </div>
 
             <div className="space-y-4 mb-8 flex-1">
                 {features.map((feature, i) => (
                     <div key={i} className="flex items-center gap-3">
-                        <div className={cn("h-5 w-5 rounded-full flex items-center justify-center shrink-0", isPro ? "bg-blue-500/20 text-blue-400" : "bg-white/10 text-gray-400")}>
+                        <div className={cn("h-5 w-5 rounded-full flex items-center justify-center shrink-0", isPro ? "bg-blue-100/80 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400" : "bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-gray-400")}>
                             <Check className="h-3 w-3" />
                         </div>
-                        <span className="text-gray-200 text-sm">{feature}</span>
+                        <span className="text-sm text-slate-700 dark:text-gray-200">{feature}</span>
                     </div>
                 ))}
             </div>
 
             {buttonVariant === "glow" ? (
                 <SignUpButton mode="modal">
-                    <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white h-12 rounded-xl shadow-lg shadow-blue-900/40 border border-blue-500/50 font-semibold text-base transition-all hover:scale-[1.02]">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white h-12 rounded-xl shadow-lg shadow-blue-500/30 border border-blue-500/50 font-semibold text-base transition-all hover:scale-[1.02]">
                         {buttonText}
                     </Button>
                 </SignUpButton>
             ) : buttonVariant === "primary" ? (
                 <SignUpButton mode="modal">
-                    <Button className="w-full bg-transparent border border-white/20 hover:bg-white/10 text-white h-12 rounded-xl font-semibold text-base transition-all hover:scale-[1.02]">
+                    <Button className="w-full bg-transparent border-2 border-slate-300 dark:border-white/20 text-slate-700 dark:text-white hover:border-slate-900 hover:text-slate-900 hover:bg-transparent dark:hover:bg-white/10 h-12 rounded-xl font-semibold text-base transition-all hover:scale-[1.02]">
                         {buttonText}
                     </Button>
                 </SignUpButton>
             ) : (
                 <SignUpButton mode="modal">
-                    <Button variant="outline" className="w-full border-white/10 text-white hover:bg-white/5 h-12 rounded-xl font-medium text-base transition-all hover:scale-[1.02]">
+                    <Button variant="outline" className="w-full border-slate-200 dark:border-white/10 text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-white/5 h-12 rounded-xl font-medium text-base transition-all hover:scale-[1.02]">
                         {buttonText}
                     </Button>
                 </SignUpButton>

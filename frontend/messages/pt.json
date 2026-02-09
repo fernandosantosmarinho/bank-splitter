@@ -458,14 +458,14 @@
     },
     "Landing": {
         "Hero": {
-            "headline": "De Extrato PDF para QuickBooks em 15 Segundos.",
-            "subheadline": "Pare de gastar horas com entrada manual de dados. Extração por IA para contadores e fundadores com 99,9% de precisão.",
+            "headline": "De Extrato PDF para QuickBooks em Segundos.",
+            "subheadline": "Pare de gastar horas com entrada manual de dados. Extração inteligente robusta para contadores e fundadores.",
             "cta_primary": "Começar Grátis",
             "cta_secondary": "Ver Demo",
             "new_engine_badge": "",
             "headline_part1": "De Extrato PDF para",
             "headline_part2": "em Segundos.",
-            "mockup_accuracy": "100% PRECISÃO DE DADOS"
+            "mockup_accuracy": "EXTRAÇÃO INTELIGENTE"
         },
         "SocialProof": {
             "trusted_by": "Confiado por contadores inovadores em todo o mundo",
@@ -474,15 +474,28 @@
         "Features": {
             "title": "Uma Plataforma, Possibilidades Infinitas",
             "subtitle": "Tudo o que você precisa para automatizar seu fluxo de trabalho financeiro.",
-            "card_speed_title": "Demônio da Velocidade",
-            "card_speed_desc": "Processe PDFs de 3-4 páginas em ~15 segundos.",
+            "card_speed_title": "Processamento Ágil",
+            "card_speed_desc": "Processe PDFs de múltiplas páginas em segundos.",
             "card_global_title": "Bancos Globais",
             "card_global_desc": "Suporte para formatos e moedas internacionais.",
             "card_format_title": "Liberdade de Formato",
-            "card_format_desc": "Exporte para CSV, Excel, QBO, OFX sem problemas.",
+            "card_format_desc": "Exporte para CSV e Excel sem problemas.",
             "card_ai_title": "Precisão Contábil",
-            "card_ai_desc": "Nossa tecnologia proprietária garante 99.9% de precisão sem intervenção humana.",
+            "card_ai_desc": "Nossa tecnologia proprietária maximiza a precisão, reduzindo drasticamente a revisão manual.",
             "card_ai_security": "CRIPTOGRAFIA AES-256"
+        },
+        "InteractiveDemo": {
+            "title": "Funcionalidades",
+            "subtitle": "Passo a passo interativo da nossa extração inteligente",
+            "step1_title": "Enviar Extrato",
+            "step1_desc": "Arraste e solte seu extrato bancário em PDF",
+            "step2_title": "Extrair Cheque",
+            "step2_desc": "Processar imagens de cheques com OCR inteligente",
+            "step3_title": "Exportar Dados",
+            "step3_desc": "Baixe CSV/Excel limpo e pronto para contabilidade",
+            "window_title": "Extração BankToBook",
+            "processing_text": "Extraindo transações...",
+            "download_btn": "Baixar CSV"
         },
         "DeveloperAPI": {
             "badge": "API First",
@@ -551,11 +564,11 @@
         "FAQ": {
             "title": "Perguntas Frequentes",
             "q1": "Meus dados financeiros estão seguros?",
-            "a1": "Sim. Usamos criptografia AES-256. Seus arquivos são processados em ambiente seguro e nunca são usados para treinar algoritmos automatizados externos ou modelos de IA.",
+            "a1": "Sim. Usamos criptografia AES-256. Seus arquivos são processados em ambiente seguro e nunca são usados para treinar algoritmos automatizados externos ou modelos.",
             "q2": "Funciona com PDFs escaneados?",
-            "a2": "Com certeza. Nosso motor proprietário usa OCR avançado para interpretar documentos escaneados e imagens com 99,9% de precisão.",
+            "a2": "Com certeza. Nosso motor proprietário usa OCR avançado para interpretar documentos escaneados e imagens com alta fidelidade.",
             "q3": "Posso exportar para Excel em vez de QuickBooks?",
-            "a3": "Sim. Suportamos exportações em formatos padrão CSV, Excel (XLSX), QuickBooks (QBO) e OFX.",
+            "a3": "Sim. Suportamos exportações em formatos padrão CSV e Excel (XLSX).",
             "q4": "O que acontece após o teste grátis?",
             "a4": "Você pode optar por atualizar para um plano pago ou continuar usando nosso nível Gratuito, que inclui 5 documentos por mês para sempre.",
             "badge": "Central de Suporte"

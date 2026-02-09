@@ -8,6 +8,7 @@ import { Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function Navbar({ userId }: { userId: string | null }) {
     const t = useTranslations("Landing.Navbar");
@@ -26,7 +27,7 @@ export default function Navbar({ userId }: { userId: string | null }) {
             transition={{ duration: 0.5 }}
             className={cn(
                 "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b",
-                scrolled ? "bg-black/50 backdrop-blur-xl border-white/5" : "bg-transparent border-transparent"
+                scrolled ? "bg-white/80 dark:bg-black/50 backdrop-blur-xl border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none" : "bg-transparent border-transparent"
             )}
         >
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -36,25 +37,26 @@ export default function Navbar({ userId }: { userId: string | null }) {
                         <div className="absolute inset-0 bg-white/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
                         <Zap className="h-5 w-5 text-white fill-white" />
                     </div>
-                    <span className="text-lg font-bold tracking-tight text-white group-hover:text-blue-100 transition-colors">BankToBook</span>
+                    <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-100 transition-colors">BankToBook</span>
                 </div>
 
-                <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-                    <Link href="#features" className="hover:text-white transition-colors">{t("features")}</Link>
-                    <Link href="#how-it-works" className="hover:text-white transition-colors">{t("how_it_works")}</Link>
-                    <Link href="#pricing" className="hover:text-white transition-colors">{t("pricing")}</Link>
+                <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-zinc-400">
+                    <Link href="#features" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t("features")}</Link>
+                    <Link href="#how-it-works" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t("how_it_works")}</Link>
+                    <Link href="#pricing" className="hover:text-blue-600 dark:hover:text-white transition-colors">{t("pricing")}</Link>
                 </div>
 
                 <div className="flex items-center gap-4">
+                    <ThemeToggle />
                     {!userId ? (
                         <>
                             <SignInButton mode="modal">
-                                <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-zinc-300 hover:text-white hover:bg-white/5">
+                                <Button variant="ghost" size="sm" className="hidden sm:inline-flex text-slate-600 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5">
                                     {t("signin")}
                                 </Button>
                             </SignInButton>
                             <SignUpButton mode="modal">
-                                <Button size="sm" className="bg-white text-black hover:bg-zinc-200 shadow-[0_0_20px_rgba(255,255,255,0.1)] font-semibold transition-transform hover:scale-105">
+                                <Button size="sm" className="bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-slate-800 dark:hover:bg-zinc-200 shadow-[0_0_20px_rgba(0,0,0,0.1)] dark:shadow-[0_0_20px_rgba(255,255,255,0.1)] font-semibold transition-transform hover:scale-105">
                                     {t("get_started")}
                                 </Button>
                             </SignUpButton>

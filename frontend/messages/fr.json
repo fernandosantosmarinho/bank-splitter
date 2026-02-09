@@ -458,14 +458,14 @@
     },
     "Landing": {
         "Hero": {
-            "headline": "De Relevé PDF à QuickBooks en 15 Secondes.",
-            "subheadline": "Arrêtez de perdre des heures en saisie manuelle. Extraction automatisée pour comptables et fondateurs avec 99,9% de précision.",
+            "headline": "De Relevé PDF à QuickBooks en Secondes.",
+            "subheadline": "Arrêtez de perdre des heures en saisie manuelle. Extraction intelligente robuste pour comptables et fondateurs.",
             "cta_primary": "Commencer Gratuitement",
             "cta_secondary": "Voir la Démo",
             "new_engine_badge": "",
             "headline_part1": "De Relevé PDF à",
             "headline_part2": "en Secondes.",
-            "mockup_accuracy": "MATCH 100% PRÉCISION"
+            "mockup_accuracy": "EXTRACTION INTELLIGENTE"
         },
         "SocialProof": {
             "trusted_by": "Approuvé par des comptables innovants dans le monde entier",
@@ -474,15 +474,28 @@
         "Features": {
             "title": "Une Plateforme, Possibilités Infinites",
             "subtitle": "Tout ce dont vous avez besoin pour automatiser votre flux de travail financier.",
-            "card_speed_title": "Démon de la Vitesse",
-            "card_speed_desc": "Traitez des PDF de 3-4 pages en ~15 secondes.",
+            "card_speed_title": "Traitement Agile",
+            "card_speed_desc": "Traitez des PDF de plusieurs pages en quelques secondes.",
             "card_global_title": "Banques Globales",
             "card_global_desc": "Support pour formats et devises internationaux.",
             "card_format_title": "Liberté de Format",
-            "card_format_desc": "Exportez vers CSV, Excel, QBO, OFX sans problème.",
+            "card_format_desc": "Exportez vers CSV et Excel sans problème.",
             "card_ai_title": "Précision Comptable",
-            "card_ai_desc": "Notre technologie propriétaire garantit 99.9% de précision sans intervention humaine.",
+            "card_ai_desc": "Notre technologie propriétaire maximise la précision, réduisant considérablement la révision manuelle.",
             "card_ai_security": "CHIFFREMENT AES-256"
+        },
+        "InteractiveDemo": {
+            "title": "Fonctionnalités",
+            "subtitle": "Parcours interactif de notre extraction intelligente",
+            "step1_title": "Télécharger Relevé",
+            "step1_desc": "Glissez-déposez votre relevé bancaire PDF",
+            "step2_title": "Extraire Chèque",
+            "step2_desc": "Traiter les images de chèques avec OCR intelligent",
+            "step3_title": "Exporter Données",
+            "step3_desc": "Téléchargez CSV/Excel propre et prêt pour la comptabilité",
+            "window_title": "Extraction BankToBook",
+            "processing_text": "Extraction des transactions...",
+            "download_btn": "Télécharger CSV"
         },
         "DeveloperAPI": {
             "badge": "API First",
@@ -553,9 +566,9 @@
             "q1": "Mes données financières sont-elles sécurisées ?",
             "a1": "Oui. Nous utilisons le chiffrement AES-256 pour toutes les données. Vos fichiers sont traités dans une enclave sécurisée et ne sont jamais utilisés pour entraîner des algorithmes externes.",
             "q2": "Cela fonctionne-t-il avec les PDF scannés ?",
-            "a2": "Absolument. Notre moteur propriétaire utilise l'OCR avancé pour interpréter documents scannés et images avec 99,9% de précision.",
+            "a2": "Absolument. Notre moteur propriétaire utilise l'OCR avancé pour interpréter documents scannés et images avec haute fidélité.",
             "q3": "Puis-je exporter vers Excel au lieu de QuickBooks ?",
-            "a3": "Oui. Nous supportons les exports aux formats standards CSV, Excel (XLSX), QuickBooks (QBO) et OFX.",
+            "a3": "Oui. Nous supportons les exports aux formats standards CSV et Excel (XLSX).",
             "q4": "Que se passe-t-il après l'essai gratuit ?",
             "a4": "Vous pouvez choisir de passer à un plan payant ou continuer avec notre niveau Gratuit qui inclut 5 documents par mois pour toujours.",
             "badge": "Centre de Support"
